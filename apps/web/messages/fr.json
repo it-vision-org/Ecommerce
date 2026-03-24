@@ -1,0 +1,506 @@
+{
+  "HomePage": {
+    "Title": "Bienvenue sur notre site web!",
+    "Description": "Ceci est une page de démarrage simple."
+  },
+
+  "LoginPage": {
+    "LeftPanel": {
+      "Title": "Bon Retour",
+      "Subtitle": "Accédez à votre tableau de bord administrateur et gérez la communauté Wake Up & Spark.",
+      "Features": {
+        "Feature1": "Gérer les publications et le contenu",
+        "Feature2": "Examiner les soumissions en attente",
+        "Feature3": "Surveiller l'activité de la communauté",
+        "Feature4": "Organiser des événements et des réunions"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Connexion Administrateur",
+    "Subheading": "Connectez-vous à votre compte administrateur",
+    "Form": {
+      "EmailLabel": "Adresse e-mail",
+      "EmailPlaceholder": "admin@exemple.com",
+      "PasswordLabel": "Mot de passe",
+      "PasswordPlaceholder": "Entrez votre mot de passe",
+      "ForgotPassword": "Mot de passe oublié ?",
+      "SubmitButton": "Se connecter",
+      "SubmittingButton": "Connexion en cours..."
+    },
+    "Divider": "ou",
+    "Footer": {
+      "Text": "Vous n'avez pas de compte ?",
+      "SignUpLink": "S'inscrire"
+    },
+    "Toast": {
+      "Success": "Connexion réussie !",
+      "Error": "Une erreur s'est produite lors de la connexion"
+    }
+  },
+
+  "SignupPage": {
+    "LeftPanel": {
+      "Title": "Wake Up\nAnd Spark",
+      "Subtitle": "Une communauté où les étudiants, les enseignants et les parents grandissent ensemble.",
+      "Features": {
+        "Feature1": "Partager pensées et leçons morales",
+        "Feature2": "Découvrir livres & articles inspirants",
+        "Feature3": "Rejoindre événements & réunions",
+        "Feature4": "Publier anonymement"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Rejoignez Notre Communauté",
+    "Subheading": "Commencez votre voyage de croissance et d'inspiration",
+    "Form": {
+      "NameLabel": "Nom complet",
+      "NamePlaceholder": "Entrez votre nom complet",
+      "EmailLabel": "Adresse e-mail",
+      "EmailPlaceholder": "votre.email@exemple.com",
+      "PasswordLabel": "Mot de passe",
+      "PasswordPlaceholder": "Créez un mot de passe fort",
+      "PasswordHint": "Doit contenir au moins 8 caractères",
+      "PhoneLabel": "Numéro de téléphone",
+      "PhonePlaceholder": "Entrez le numéro de téléphone",
+      "PhoneOptional": "(Optionnel)",
+      "UserTypeLabel": "Je suis un(e)",
+      "UserTypes": {
+        "Student": {
+          "Label": "Étudiant(e)",
+          "Icon": "🎓",
+          "Description": "Je suis là pour apprendre et partager"
+        },
+        "Teacher": {
+          "Label": "Enseignant(e)",
+          "Icon": "📚",
+          "Description": "Je guide et inspire"
+        },
+        "Parent": {
+          "Label": "Parent",
+          "Icon": "🏠",
+          "Description": "Je soutiens et m'engage"
+        }
+      },
+      "SubmitButton": "Créer un compte",
+      "SubmittingButton": "Création de votre compte..."
+    },
+    "Divider": "ou",
+    "Footer": {
+      "Text": "Vous avez déjà un compte ?",
+      "SignInLink": "Se connecter"
+    },
+    "Toast": {
+      "Success": "Compte créé avec succès ! Redirection vers la connexion...",
+      "Error": "Une erreur s'est produite lors de l'inscription"
+    }
+  },
+
+  "ForgotPasswordPage": {
+    "LeftPanel": {
+      "Title": "Réinitialisez\nVotre Mot de Passe",
+      "Subtitle": "Pas de soucis ! Entrez votre e-mail et nous vous enverrons des instructions pour réinitialiser votre mot de passe.",
+      "Features": {
+        "Feature1": "Réinitialisation sécurisé",
+        "Feature2": "E-mail envoyé en quelques minutes",
+        "Feature3": "Lien valide pendant 24 heures",
+        "Feature4": "Retournez inspirer les autres"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Mot de Passe Oublié",
+    "Subheading": "Entrez votre e-mail pour recevoir un lien de réinitialisation",
+    "Form": {
+      "EmailLabel": "Adresse e-mail",
+      "EmailPlaceholder": "votre.email@exemple.com",
+      "EmailHint": "Nous enverrons un lien de récupération à cette adresse e-mail",
+      "SubmitButton": "Envoyer le Lien",
+      "SubmittingButton": "Envoi en cours..."
+    },
+    "Divider": "ou",
+    "BackToLogin": "Retour à la connexion",
+    "HelpBox": {
+      "Title": "Vous n'avez pas reçu l'e-mail ?",
+      "Description": "Vérifiez votre dossier spam ou attendez quelques minutes avant de réessayer."
+    },
+    "Toast": {
+      "Success": "E-mail de réinitialisation envoyé avec succès ! Veuillez vérifier votre boîte de réception.",
+      "ErrorDefault": "Échec de l'envoi de l'e-mail de réinitialisation",
+      "ErrorGeneral": "Une erreur s'est produite. Veuillez réessayer plus tard."
+    }
+  },
+
+  "ResetPasswordPage": {
+    "LeftPanel": {
+      "TitleLine1": "Créer un",
+      "TitleLine2": "nouveau mot de passe",
+      "Subtitle": "Choisissez un mot de passe sécurisé pour protéger votre compte.",
+      "Feature1": "Au moins 8 caractères",
+      "Feature2": "Lettres, chiffres et symboles",
+      "Feature3": "Évitez les mots de passe courants",
+      "Feature4": "Unique et sécurisé"
+    },
+    "Form": {
+      "Title": "Réinitialiser le mot de passe",
+      "Subtitle": "Créez un nouveau mot de passe",
+      "NewPassword": "Nouveau mot de passe",
+      "ConfirmPassword": "Confirmer le mot de passe",
+      "PlaceholderNew": "Entrez un nouveau mot de passe",
+      "PlaceholderConfirm": "Confirmez le mot de passe",
+      "PasswordsMustMatch": "Les mots de passe doivent correspondre",
+      "PasswordStrength": "Force du mot de passe",
+      "Strong": "Fort",
+      "Weak": "Faible",
+      "ResetButton": "Réinitialiser",
+      "Resetting": "Réinitialisation...",
+      "BackToLogin": "Retour à la connexion",
+      "Or": "ou",
+      "Loading": "Chargement...",
+      "Errors": {
+        "NotMatch": "Les mots de passe ne correspondent pas",
+        "Failed": "Échec de la réinitialisation",
+        "ServerError": "Une erreur est survenue. Réessayez plus tard.",
+        "Success": "Mot de passe réinitialisé avec succès !"
+      }
+    }
+  },
+
+  "Navbar": {
+    "NavItems": {
+      "Home": "Accueil",
+      "Library": "Bibliothèque",
+      "Events": "Événements",
+      "Achievements": "Réalisations",
+      "Contact": "Contact",
+      "About": "À propos"
+    },
+    "ProfileSettings": "Paramètres du profil",
+    "Meetings": "Réunions",
+    "MemberFallback": "Membre Spark"
+  },
+
+  "AuthNavbar": {
+    "Home": "Accueil"
+  },
+
+  "ContactPage": {
+    "Hero": {
+      "Badge": "Wake Up & Spark · Espace sûr",
+      "Title": "Parlons de ce qui compte",
+      "Highlight": "pour vous",
+      "Description": "Élèves, parents et enseignants : partagez vos questions, vos besoins ou vos idées. Notre équipe répond avec bienveillance et confidentialité pour soutenir l’intelligence émotionnelle de chacun.",
+      "Pills": {
+        "Response": "Réponse sous 48h",
+        "Anonymous": "Anonymat possible",
+        "Community": "Communauté bienveillante"
+      },
+      "InfoCard": {
+        "Overline": "Nous sommes là pour vous",
+        "Title": "Une équipe à l’écoute"
+      }
+    },
+    "ContactInfo": {
+      "Rally": {
+        "Title": "Point de ralliement",
+        "Line1": "Wake Up & Spark",
+        "Line2": "Lycée Habib Thameur, Tunisie"
+      },
+      "Email": {
+        "Title": "Email principal",
+        "Line1": "contact@wakeupandspark.com",
+        "Line2": "Réponse sous 48h"
+      },
+      "Response": {
+        "Title": "Délai de réponse",
+        "Line1": "48h max pour les demandes générales",
+        "Line2": "24h pour les situations sensibles"
+      },
+      "Privacy": {
+        "Title": "Confidentialité",
+        "Line1": "Les messages sensibles restent privés",
+        "Line2": "Espace sûr pour élèves, parents, enseignants"
+      }
+    },
+    "Channels": {
+      "Listening": {
+        "Title": "Écoute et soutien",
+        "Description": "Partage anonyme ou accompagné pour gérer les émotions et les situations difficiles.",
+        "Tags": {
+          "Tag1": "Bienveillance",
+          "Tag2": "Anonymat possible",
+          "Tag3": "Réponses humaines"
+        }
+      },
+      "Parents": {
+        "Title": "Parents & enseignants",
+        "Description": "Questions sur l’accompagnement, la vie du club ou les besoins d’une classe.",
+        "Tags": {
+          "Tag1": "Parents",
+          "Tag2": "Enseignants",
+          "Tag3": "Orientation"
+        }
+      },
+      "Partnerships": {
+        "Title": "Partenariats & ateliers",
+        "Description": "Envie d’apporter un atelier, un témoignage ou un soutien matériel au club.",
+        "Tags": {
+          "Tag1": "Entreprises",
+          "Tag2": "Associations",
+          "Tag3": "Invités"
+        }
+      },
+      "Technical": {
+        "Title": "Technique & accès",
+        "Description": "Problèmes de connexion, de publication ou de notification sur la plateforme.",
+        "Tags": {
+          "Tag1": "Support",
+          "Tag2": "Accès",
+          "Tag3": "Compte"
+        }
+      }
+    },
+    "Form": {
+      "Overline": "Formulaire de contact",
+      "Title": "Écrivons ensemble",
+      "Description": "Dites-nous comment nous pouvons vous aider. Précisez si votre message doit rester confidentiel.",
+      "NameLabel": "Nom complet *",
+      "NamePlaceholder": "Votre nom",
+      "EmailLabel": "Email *",
+      "EmailPlaceholder": "vous@example.com",
+      "SubjectLabel": "Sujet *",
+      "SubjectPlaceholder": "Choisissez le motif",
+      "SubjectOptions": {
+        "General": "Question générale",
+        "StudentSupport": "Soutien étudiant",
+        "ParentQuestion": "Question parent",
+        "TeacherCollaboration": "Collaboration enseignant",
+        "Partnership": "Partenariat / sponsor",
+        "Event": "Événement / atelier",
+        "Technical": "Problème technique",
+        "Other": "Autre"
+      },
+      "MessageLabel": "Message *",
+      "MessagePlaceholder": "Expliquez votre besoin. Précisez si vous souhaitez rester anonyme.",
+      "ButtonSend": "Envoyer le message",
+      "ButtonSending": "Envoi en cours...",
+      "StatusSuccess": "Votre message a bien été envoyé. Nous revenons vers vous très vite.",
+      "StatusError": "Une erreur est survenue. Veuillez réessayer.",
+      "Errors": {
+        "Generic": "Une erreur est survenue. Veuillez réessayer."
+      }
+    },
+    "Commitments": {
+      "Title": "Nos engagements",
+      "Pledge1": "Réponse en 48h (24h si sensible)",
+      "Pledge2": "Confidentialité et respect",
+      "Pledge3": "Guides et ressources émotionnelles"
+    },
+    "WhyWrite": {
+      "Title": "Pourquoi nous écrire ?",
+      "Description": "Pour une idée de post, une situation émotionnelle, un besoin d’accompagnement ou une question sur les activités du club."
+    },
+    "FAQ": {
+      "Badge": "FAQ",
+      "Title": "Questions fréquentes",
+      "Subtitle": "Les réponses rapides pour continuer à grandir ensemble.",
+      "Item1": {
+        "Question": "Puis-je écrire anonymement ?",
+        "Answer": "Oui. Mentionnez-le dans votre message ; nous traiterons votre demande sans révéler votre identité aux autres membres."
+      },
+      "Item2": {
+        "Question": "Qui lit les messages sensibles ?",
+        "Answer": "Seule l’équipe encadrante Wake Up & Spark, engagée sur la confidentialité et la bienveillance."
+      },
+      "Item3": {
+        "Question": "Comment proposer un atelier ou un partenariat ?",
+        "Answer": "Choisissez “Partenariat / sponsor” ou “Événement / atelier” dans le sujet, décrivez votre idée et vos disponibilités."
+      }
+    }
+  },
+  "AboutPage": {
+    "Hero": {
+      "Badge": "Lycée Secondaire Habib Thameur",
+      "Title": "À propos de",
+      "Highlight": "Wake Up & Spark",
+      "Description": "Nous sommes un club d'élèves dédié au développement de l'intelligence émotionnelle, des valeurs morales et des liens humains au sein de notre communauté scolaire.",
+      "Stat1": {
+        "Value": "2022",
+        "Label": "Fondé en"
+      },
+      "Stat2": {
+        "Value": "3",
+        "Label": "Langues"
+      },
+      "Stat3": {
+        "Value": "∞",
+        "Label": "Voix entendues"
+      }
+    },
+    "Vision": {
+      "Badge": "Notre Vision",
+      "Title": "Un Monde Où Chaque Voix Compte",
+      "Subtitle": "Nous croyons que les écoles peuvent être des espaces de croissance émotionnelle authentique, où élèves, enseignants et parents se connectent au-delà des notes.",
+      "Statement": "Construire une culture scolaire où l'intelligence émotionnelle, l'empathie et le courage moral sont aussi valorisés que la réussite académique.",
+      "SubStatement": "Lycée Secondaire Habib Thameur — Club Spark",
+      "Pillar1": {
+        "Title": "Conscience Émotionnelle",
+        "Description": "Aider les élèves à comprendre et exprimer leurs émotions de manière sûre et constructive."
+      },
+      "Pillar2": {
+        "Title": "Appartenance Communautaire",
+        "Description": "Créer un espace où chaque élève, enseignant et parent se sent écouté et valorisé."
+      },
+      "Pillar3": {
+        "Title": "Développement du Caractère",
+        "Description": "Encourager les valeurs morales et le développement positif du caractère à travers des expériences partagées."
+      }
+    },
+    "Mission": {
+      "Badge": "Notre Mission",
+      "Title": "Ce Que Nous Faisons",
+      "Subtitle": "Notre mission est de sensibiliser à l'intelligence émotionnelle et de créer un espace anonyme et sûr pour une expression personnelle significative.",
+      "Point1": "Sensibiliser à l'intelligence émotionnelle et à son rôle dans la vie quotidienne.",
+      "Point2": "Offrir une plateforme anonyme aux élèves pour partager pensées, émotions et leçons morales.",
+      "Point3": "Favoriser des échanges positifs entre élèves, enseignants et parents à travers des histoires partagées.",
+      "Point4": "Promouvoir une culture d'empathie, de respect et de dialogue constructif dans notre communauté scolaire.",
+      "CardTitle": "Qui Nous Servons",
+      "CardDescription": "Notre plateforme est construite pour toute la communauté scolaire — des élèves gérant leurs émotions aux enseignants cherchant à se connecter et aux parents souhaitant soutenir leurs enfants.",
+      "AudienceLabel": "Notre communauté",
+      "Audience": {
+        "Students": "Élèves",
+        "Teachers": "Enseignants",
+        "Parents": "Parents"
+      }
+    },
+    "Values": {
+      "Badge": "Nos Valeurs",
+      "Title": "Les Principes Qui Nous Guident",
+      "Subtitle": "Chaque fonctionnalité que nous développons et chaque décision que nous prenons sont guidées par ces valeurs fondamentales.",
+      "Value1": {
+        "Title": "Confidentialité",
+        "Description": "Nous protégeons l'identité de chaque utilisateur qui choisit de partager anonymement. La confiance est le fondement de notre communauté."
+      },
+      "Value2": {
+        "Title": "Empathie",
+        "Description": "Nous agissons avec compassion et encourageons chaque interaction à être bienveillante, respectueuse et compréhensive."
+      },
+      "Value3": {
+        "Title": "Inclusion",
+        "Description": "Chaque élève, enseignant et parent a sa place ici. Nous célébrons la diversité des pensées, des cultures et des expériences."
+      },
+      "Value4": {
+        "Title": "Positivité",
+        "Description": "Nous cultivons un espace centré sur la croissance, l'encouragement et la conviction que les choses peuvent s'améliorer."
+      },
+      "Value5": {
+        "Title": "Éducation",
+        "Description": "Nous croyons en l'apprentissage continu — pas seulement académiquement, mais émotionnellement, moralement et socialement."
+      },
+      "Value6": {
+        "Title": "Authenticité",
+        "Description": "Nous encourageons l'expression sincère. Les vraies histoires et les pensées honnêtes suscitent un vrai changement."
+      }
+    },
+    "Founders": {
+      "Badge": "Membres Fondateurs",
+      "Title": "Ceux Qui Ont Tout Commencé",
+      "Subtitle": "Notre équipe fondatrice avait un rêve simple mais puissant : faire de notre école un lieu plus bienveillant et émotionnellement conscient.",
+      "Member1": {
+        "Name": "Fondateur 1",
+        "Role": "Fondateur & Président",
+        "Description": "Passionné par l'éducation émotionnelle et le bien-être des élèves, il a concrétisé la vision initiale."
+      },
+      "Member2": {
+        "Name": "Fondateur 2",
+        "Role": "Co-Fondateur & Vice-Président",
+        "Description": "Centré sur la construction communautaire et la sensibilisation, il a façonné l'identité inclusive du club."
+      },
+      "Member3": {
+        "Name": "Fondateur 3",
+        "Role": "Co-Fondateur & Secrétaire",
+        "Description": "Il a géré les communications et la structure, garantissant le bon fonctionnement du club dès le premier jour."
+      },
+      "NoteTitle": "Les fondateurs ont les privilèges Super Admin",
+      "NoteDescription": "Tous les membres fondateurs conservent un accès administratif complet à la plateforme. Leurs contributions au club sont reconnues de manière permanente.",
+      "Empty": "Aucun membre fondateur n'a encore été ajouté."
+    },
+    "Members": {
+      "Badge": "Membres 2025/2026",
+      "Title": "L'Équipe de Cette Année",
+      "Subtitle": "Découvrez les membres dévoués qui dirigent actuellement le club Wake Up & Spark pour l'année scolaire 2025/2026.",
+      "SchoolYear": "Année Scolaire {year}",
+      "SchoolYearNote": "Cette liste est gérée par le Super Admin et mise à jour chaque année scolaire.",
+      "Empty": "Aucun membre n'a encore été ajouté pour cette année scolaire."
+    }
+  },
+  "AchievementsPage": {
+    "Hero": {
+      "Badge": "Nos Réalisations",
+      "Title": "Jalons &",
+      "Highlight": "Moments de Fierté",
+      "Description": "Une collection des accomplissements, prix et étapes qui définissent le parcours du club Wake Up & Spark.",
+      "StatLabel": "Réalisations"
+    },
+    "Empty": {
+      "Title": "Aucune réalisation pour l'instant",
+      "Description": "Revenez bientôt — de grandes choses arrivent."
+    },
+    "Stats": {
+      "Badge": "En Chiffres",
+      "Title": "Notre Impact en un Coup d'Œil",
+      "Total": "Total des Réalisations",
+      "Categories": "Catégories",
+      "ThisYear": "Cette Année"
+    }
+  },
+  "EventsPage": {
+    "Hero": {
+      "Badge": "Événements du Club",
+      "Title": "Événements &",
+      "Highlight": "Rencontres",
+      "Description": "Restez informé de tout ce qui se passe chez Wake Up & Spark — des ateliers à venir aux moments passés.",
+      "StatUpcoming": "À venir",
+      "StatPast": "Passés"
+    },
+    "Empty": {
+      "Title": "Aucun événement pour l'instant",
+      "Description": "Revenez bientôt — quelque chose d'excitant est en préparation."
+    },
+    "Section": {
+      "Present": "En ce moment",
+      "Upcoming": "Événements à venir",
+      "Past": "Événements passés"
+    },
+    "Stats": {
+      "Badge": "Aperçu",
+      "Title": "Les événements en un coup d'œil",
+      "Present": "En direct",
+      "Upcoming": "À venir",
+      "Past": "Passés"
+    }
+  },
+  "MeetingsPage": {
+    "Hero": {
+      "Badge": "Réunions Communautaires",
+      "Title": "Vos",
+      "Highlight": "Réunions",
+      "Description": "Restez connecté avec votre communauté scolaire — rejoignez les réunions organisées pour vous par le club.",
+      "StatActive": "Actives",
+      "StatPast": "Passées"
+    },
+    "Empty": {
+      "Title": "Aucune réunion pour vous",
+      "Description": "Aucune réunion n'est prévue pour votre rôle pour le moment. Revenez bientôt."
+    },
+    "Section": {
+      "Ongoing": "En ce moment",
+      "Upcoming": "À venir",
+      "Past": "Réunions passées"
+    },
+    "Stats": {
+      "Badge": "Aperçu",
+      "Ongoing": "En direct",
+      "Upcoming": "À venir",
+      "Past": "Passées"
+    }
+  }
+}

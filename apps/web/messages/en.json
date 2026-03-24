@@ -1,0 +1,506 @@
+{
+  "HomePage": {
+    "Title": "Welcome to our website!",
+    "Description": "This is a simple starting page."
+  },
+
+  "LoginPage": {
+    "LeftPanel": {
+      "Title": "Welcome Back",
+      "Subtitle": "Access your admin dashboard and manage the Wake Up & Spark community.",
+      "Features": {
+        "Feature1": "Manage posts & content",
+        "Feature2": "Review pending submissions",
+        "Feature3": "Monitor community activity",
+        "Feature4": "Organize events & meetings"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Admin Login",
+    "Subheading": "Sign in to your admin account",
+    "Form": {
+      "EmailLabel": "Email Address",
+      "EmailPlaceholder": "admin@example.com",
+      "PasswordLabel": "Password",
+      "PasswordPlaceholder": "Enter your password",
+      "ForgotPassword": "Forgot password?",
+      "SubmitButton": "Sign in",
+      "SubmittingButton": "Signing in..."
+    },
+    "Divider": "or",
+    "Footer": {
+      "Text": "Don't have an account?",
+      "SignUpLink": "Sign up"
+    },
+    "Toast": {
+      "Success": "Login successful!",
+      "Error": "An error occurred during login"
+    }
+  },
+
+  "SignupPage": {
+    "LeftPanel": {
+      "Title": "Wake Up\nAnd Spark",
+      "Subtitle": "A community where students, teachers, and parents grow together through shared wisdom.",
+      "Features": {
+        "Feature1": "Share thoughts & moral lessons",
+        "Feature2": "Post anonymously if you prefer",
+        "Feature3": "Discover inspiring books & articles",
+        "Feature4": "Join events & community meetings"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Join Our Community",
+    "Subheading": "Start your journey of growth and inspiration",
+    "Form": {
+      "NameLabel": "Full Name",
+      "NamePlaceholder": "Enter your full name",
+      "EmailLabel": "Email Address",
+      "EmailPlaceholder": "your.email@example.com",
+      "PasswordLabel": "Password",
+      "PasswordPlaceholder": "Create a strong password",
+      "PasswordHint": "Must be at least 8 characters",
+      "PhoneLabel": "Phone Number",
+      "PhonePlaceholder": "Enter phone number",
+      "PhoneOptional": "(Optional)",
+      "UserTypeLabel": "I am a",
+      "UserTypes": {
+        "Student": {
+          "Label": "Student",
+          "Icon": "🎓",
+          "Description": "I'm here to learn & share"
+        },
+        "Teacher": {
+          "Label": "Teacher",
+          "Icon": "📚",
+          "Description": "I guide & inspire"
+        },
+        "Parent": {
+          "Label": "Parent",
+          "Icon": "🏠",
+          "Description": "I support & engage"
+        }
+      },
+      "SubmitButton": "Create Account",
+      "SubmittingButton": "Creating your account..."
+    },
+    "Divider": "or",
+    "Footer": {
+      "Text": "Already have an account?",
+      "SignInLink": "Sign in"
+    },
+    "Toast": {
+      "Success": "Account created successfully! Redirecting to login...",
+      "Error": "An error occurred during registration"
+    }
+  },
+
+  "ForgotPasswordPage": {
+    "LeftPanel": {
+      "Title": "Reset Your\nPassword",
+      "Subtitle": "No worries! Enter your email and we'll send you instructions to reset your password.",
+      "Features": {
+        "Feature1": "Secure password reset process",
+        "Feature2": "Email sent within minutes",
+        "Feature3": "Link valid for 24 hours",
+        "Feature4": "Get back to inspiring others"
+      }
+    },
+    "Brand": "Wake Up & Spark",
+    "Heading": "Forgot Password",
+    "Subheading": "Enter your email to receive a password reset link",
+    "Form": {
+      "EmailLabel": "Email Address",
+      "EmailPlaceholder": "your.email@example.com",
+      "EmailHint": "We'll send a recovery link to this email address",
+      "SubmitButton": "Send Reset Link",
+      "SubmittingButton": "Sending..."
+    },
+    "Divider": "or",
+    "BackToLogin": "Back to login",
+    "HelpBox": {
+      "Title": "Didn't receive the email?",
+      "Description": "Check your spam folder or wait a few minutes before trying again."
+    },
+    "Toast": {
+      "Success": "Password reset email sent successfully! Please check your inbox.",
+      "ErrorDefault": "Failed to send password reset email",
+      "ErrorGeneral": "An error occurred. Please try again later."
+    }
+  },
+
+  "ResetPasswordPage": {
+    "LeftPanel": {
+      "TitleLine1": "Create New",
+      "TitleLine2": "Password",
+      "Subtitle": "Choose a strong password to secure your account and protect your personal information.",
+      "Feature1": "Use at least 8 characters",
+      "Feature2": "Mix letters, numbers & symbols",
+      "Feature3": "Avoid common passwords",
+      "Feature4": "Keep it unique and secure"
+    },
+    "Form": {
+      "Title": "Reset Password",
+      "Subtitle": "Create a new password for your account",
+      "NewPassword": "New Password",
+      "ConfirmPassword": "Confirm Password",
+      "PlaceholderNew": "Enter new password",
+      "PlaceholderConfirm": "Confirm new password",
+      "PasswordsMustMatch": "Passwords must match",
+      "PasswordStrength": "Password Strength",
+      "Strong": "Strong",
+      "Weak": "Weak",
+      "ResetButton": "Reset Password",
+      "Resetting": "Resetting...",
+      "BackToLogin": "Back to login",
+      "Or": "or",
+      "Loading": "Loading...",
+      "Errors": {
+        "NotMatch": "Passwords do not match",
+        "Failed": "Failed to reset password",
+        "ServerError": "An error occurred. Please try again later.",
+        "Success": "Password reset successfully!"
+      }
+    }
+  },
+
+  "Navbar": {
+    "NavItems": {
+      "Home": "Home",
+      "Library": "Library",
+      "Events": "Events",
+      "Achievements": "Achievements",
+      "Contact": "Contact",
+      "About": "About Us"
+    },
+    "ProfileSettings": "Profile settings",
+    "Meetings": "Meetings",
+    "MemberFallback": "Spark Member"
+  },
+
+  "AuthNavbar": {
+    "Home": "Home"
+  },
+
+  "ContactPage": {
+    "Hero": {
+      "Badge": "Wake Up & Spark · Safe space",
+      "Title": "Let's talk about what matters",
+      "Highlight": "to you",
+      "Description": "Students, parents, and teachers: share your questions, your needs, or your ideas. Our team replies with care and confidentiality to support everyone's emotional intelligence.",
+      "Pills": {
+        "Response": "Response within 48h",
+        "Anonymous": "Anonymous option",
+        "Community": "Caring community"
+      },
+      "InfoCard": {
+        "Overline": "We are here for you",
+        "Title": "A team that listens"
+      }
+    },
+    "ContactInfo": {
+      "Rally": {
+        "Title": "Meeting point",
+        "Line1": "Wake Up & Spark",
+        "Line2": "Habib Thameur High School, Tunisia"
+      },
+      "Email": {
+        "Title": "Main email",
+        "Line1": "contact@wakeupandspark.com",
+        "Line2": "Reply within 48h"
+      },
+      "Response": {
+        "Title": "Response time",
+        "Line1": "Up to 48h for general requests",
+        "Line2": "24h for sensitive situations"
+      },
+      "Privacy": {
+        "Title": "Privacy",
+        "Line1": "Sensitive messages stay private",
+        "Line2": "Safe space for students, parents, teachers"
+      }
+    },
+    "Channels": {
+      "Listening": {
+        "Title": "Listening & support",
+        "Description": "Share anonymously or with guidance to handle emotions and difficult situations.",
+        "Tags": {
+          "Tag1": "Care",
+          "Tag2": "Anonymous option",
+          "Tag3": "Human replies"
+        }
+      },
+      "Parents": {
+        "Title": "Parents & teachers",
+        "Description": "Questions about support, club life, or the needs of a class.",
+        "Tags": {
+          "Tag1": "Parents",
+          "Tag2": "Teachers",
+          "Tag3": "Guidance"
+        }
+      },
+      "Partnerships": {
+        "Title": "Partnerships & workshops",
+        "Description": "Want to bring a workshop, testimony, or material support to the club.",
+        "Tags": {
+          "Tag1": "Companies",
+          "Tag2": "Associations",
+          "Tag3": "Guests"
+        }
+      },
+      "Technical": {
+        "Title": "Technical & access",
+        "Description": "Issues with login, posting, or notifications on the platform.",
+        "Tags": {
+          "Tag1": "Support",
+          "Tag2": "Access",
+          "Tag3": "Account"
+        }
+      }
+    },
+    "Form": {
+      "Overline": "Contact form",
+      "Title": "Let's write together",
+      "Description": "Tell us how we can help. Mention if your message should remain confidential.",
+      "NameLabel": "Full name *",
+      "NamePlaceholder": "Your name",
+      "EmailLabel": "Email *",
+      "EmailPlaceholder": "you@example.com",
+      "SubjectLabel": "Subject *",
+      "SubjectPlaceholder": "Choose a topic",
+      "SubjectOptions": {
+        "General": "General question",
+        "StudentSupport": "Student support",
+        "ParentQuestion": "Parent question",
+        "TeacherCollaboration": "Teacher collaboration",
+        "Partnership": "Partnership / sponsor",
+        "Event": "Event / workshop",
+        "Technical": "Technical issue",
+        "Other": "Other"
+      },
+      "MessageLabel": "Message *",
+      "MessagePlaceholder": "Explain your need. Mention if you prefer to stay anonymous.",
+      "ButtonSend": "Send message",
+      "ButtonSending": "Sending...",
+      "StatusSuccess": "Your message was sent. We will get back to you soon.",
+      "StatusError": "Something went wrong. Please try again.",
+      "Errors": {
+        "Generic": "Something went wrong. Please try again."
+      }
+    },
+    "Commitments": {
+      "Title": "Our commitments",
+      "Pledge1": "Reply within 48h (24h if sensitive)",
+      "Pledge2": "Confidentiality and respect",
+      "Pledge3": "Guides and emotional resources"
+    },
+    "WhyWrite": {
+      "Title": "Why write to us?",
+      "Description": "For a post idea, an emotional situation, a need for support, or a question about club activities."
+    },
+    "FAQ": {
+      "Badge": "FAQ",
+      "Title": "Frequently asked questions",
+      "Subtitle": "Quick answers to keep growing together.",
+      "Item1": {
+        "Question": "Can I write anonymously?",
+        "Answer": "Yes. Mention it in your message; we will handle your request without revealing your identity to other members."
+      },
+      "Item2": {
+        "Question": "Who reads sensitive messages?",
+        "Answer": "Only the Wake Up & Spark lead team, committed to confidentiality and care."
+      },
+      "Item3": {
+        "Question": "How can I propose a workshop or partnership?",
+        "Answer": "Choose “Partnership / sponsor” or “Event / workshop” in the subject, describe your idea, and share your availability."
+      }
+    }
+  },
+  "AboutPage": {
+    "Hero": {
+      "Badge": "Habib Thameur Secondary School",
+      "Title": "About",
+      "Highlight": "Wake Up & Spark",
+      "Description": "We are a student-led club dedicated to nurturing emotional intelligence, moral values, and meaningful human connection within our school community.",
+      "Stat1": {
+        "Value": "2022",
+        "Label": "Founded"
+      },
+      "Stat2": {
+        "Value": "3",
+        "Label": "Languages"
+      },
+      "Stat3": {
+        "Value": "∞",
+        "Label": "Voices heard"
+      }
+    },
+    "Vision": {
+      "Badge": "Our Vision",
+      "Title": "A World Where Every Voice Matters",
+      "Subtitle": "We believe that schools can be spaces of genuine emotional growth — where students, teachers, and parents connect beyond grades.",
+      "Statement": "To build a school culture where emotional intelligence, empathy, and moral courage are as valued as academic achievement.",
+      "SubStatement": "Habib Thameur Secondary School — Spark Club",
+      "Pillar1": {
+        "Title": "Emotional Awareness",
+        "Description": "Helping students understand and express their feelings safely and constructively."
+      },
+      "Pillar2": {
+        "Title": "Community Belonging",
+        "Description": "Creating a space where every student, teacher, and parent feels heard and valued."
+      },
+      "Pillar3": {
+        "Title": "Character Growth",
+        "Description": "Encouraging moral values and positive character development through shared experiences."
+      }
+    },
+    "Mission": {
+      "Badge": "Our Mission",
+      "Title": "What We're Here to Do",
+      "Subtitle": "Our mission is to raise awareness about emotional intelligence and create a safe, anonymous space for meaningful self-expression.",
+      "Point1": "Raise awareness about emotional intelligence and its role in daily life.",
+      "Point2": "Provide an anonymous platform for students to share thoughts, feelings, and moral lessons.",
+      "Point3": "Foster positive interaction between students, teachers, and parents through shared stories.",
+      "Point4": "Promote a culture of empathy, respect, and constructive dialogue in our school community.",
+      "CardTitle": "Who We Serve",
+      "CardDescription": "Our platform is built for the entire school community — from students navigating emotions to teachers seeking connection and parents looking to support their children.",
+      "AudienceLabel": "Our community",
+      "Audience": {
+        "Students": "Students",
+        "Teachers": "Teachers",
+        "Parents": "Parents"
+      }
+    },
+    "Values": {
+      "Badge": "Our Values",
+      "Title": "The Principles We Stand By",
+      "Subtitle": "Every feature we build and every decision we make is guided by these core values.",
+      "Value1": {
+        "Title": "Privacy",
+        "Description": "We protect the identity of every user who chooses to share anonymously. Trust is the foundation of our community."
+      },
+      "Value2": {
+        "Title": "Empathy",
+        "Description": "We lead with compassion and encourage every interaction to be kind, respectful, and understanding."
+      },
+      "Value3": {
+        "Title": "Inclusion",
+        "Description": "Every student, teacher, and parent belongs here. We celebrate diversity of thought, culture, and experience."
+      },
+      "Value4": {
+        "Title": "Positivity",
+        "Description": "We curate a space focused on growth, encouragement, and the belief that things can get better."
+      },
+      "Value5": {
+        "Title": "Education",
+        "Description": "We believe in continuous learning — not just academically, but emotionally, morally, and socially."
+      },
+      "Value6": {
+        "Title": "Authenticity",
+        "Description": "We encourage genuine self-expression. Real stories and honest thoughts spark real change."
+      }
+    },
+    "Founders": {
+      "Badge": "Founding Members",
+      "Title": "The People Who Started It All",
+      "Subtitle": "Our founding team had a simple but powerful dream: to make our school a kinder, more emotionally aware place.",
+      "Member1": {
+        "Name": "Founder Name 1",
+        "Role": "Founder & President",
+        "Description": "Passionate about emotional education and student well-being, they brought the initial vision to life."
+      },
+      "Member2": {
+        "Name": "Founder Name 2",
+        "Role": "Co-Founder & Vice President",
+        "Description": "Focused on community building and outreach, they shaped the club's inclusive identity."
+      },
+      "Member3": {
+        "Name": "Founder Name 3",
+        "Role": "Co-Founder & Secretary",
+        "Description": "Handled communications and structure, ensuring the club ran smoothly from day one."
+      },
+      "NoteTitle": "Founders hold Super Admin privileges",
+      "NoteDescription": "All founding members retain full administrative access to the platform. Their contributions to the club are permanently recognized.",
+      "Empty": "No founding members have been added yet."
+    },
+    "Members": {
+      "Badge": "2025/2026 Members",
+      "Title": "This Year's Team",
+      "Subtitle": "Meet the dedicated members currently running the Wake Up & Spark club for the 2025/2026 school year.",
+      "SchoolYear": "School Year {year}",
+      "SchoolYearNote": "This list is managed by the Super Admin and updated each academic year.",
+      "Empty": "No members have been added for this school year yet."
+    }
+  },
+  "AchievementsPage": {
+    "Hero": {
+      "Badge": "Our Achievements",
+      "Title": "Milestones &",
+      "Highlight": "Proud Moments",
+      "Description": "A collection of the accomplishments, awards, and milestones that define the Wake Up & Spark club's journey.",
+      "StatLabel": "Achievements"
+    },
+    "Empty": {
+      "Title": "No achievements yet",
+      "Description": "Check back soon — great things are coming."
+    },
+    "Stats": {
+      "Badge": "By the Numbers",
+      "Title": "Our Impact at a Glance",
+      "Total": "Total Achievements",
+      "Categories": "Categories",
+      "ThisYear": "This Year"
+    }
+  },
+  "EventsPage": {
+    "Hero": {
+      "Badge": "Club Events",
+      "Title": "Events &",
+      "Highlight": "Gatherings",
+      "Description": "Stay up to date with everything happening at Wake Up & Spark — from upcoming workshops to past milestones.",
+      "StatUpcoming": "Coming Up",
+      "StatPast": "Past Events"
+    },
+    "Empty": {
+      "Title": "No events yet",
+      "Description": "Check back soon — something exciting is being planned."
+    },
+    "Section": {
+      "Present": "Happening Now",
+      "Upcoming": "Upcoming Events",
+      "Past": "Past Events"
+    },
+    "Stats": {
+      "Badge": "Overview",
+      "Title": "Events at a Glance",
+      "Present": "Live Now",
+      "Upcoming": "Upcoming",
+      "Past": "Past"
+    }
+  },
+  "MeetingsPage": {
+    "Hero": {
+      "Badge": "Community Meetings",
+      "Title": "Your",
+      "Highlight": "Meetings",
+      "Description": "Stay connected with your school community — join meetings organised for you by the club.",
+      "StatActive": "Active",
+      "StatPast": "Past"
+    },
+    "Empty": {
+      "Title": "No meetings for you yet",
+      "Description": "There are currently no meetings scheduled for your role. Check back soon."
+    },
+    "Section": {
+      "Ongoing": "Happening Now",
+      "Upcoming": "Upcoming",
+      "Past": "Past Meetings"
+    },
+    "Stats": {
+      "Badge": "Overview",
+      "Ongoing": "Live Now",
+      "Upcoming": "Upcoming",
+      "Past": "Past"
+    }
+  }
+}
