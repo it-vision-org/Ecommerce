@@ -14,6 +14,7 @@ import {
   UserIcon,
   ShoppingBagIcon,
   SpinnerIcon,
+  MapPinIcon,
 } from "@/components/ui/Icons";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
@@ -24,6 +25,7 @@ export default function SignupPage() {
     password: "",
     phoneNumber: "",
     countryCode: "+216",
+    address: "",
     userType: "INDIVIDUAL",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -228,6 +230,22 @@ export default function SignupPage() {
             {/* Phone Number */}
             <div className="animate-field-in delay-250">
               <PhoneNumberInput formData={formData} setFormData={setFormData} />
+            </div>
+
+            {/* Address */}
+            <div className="animate-field-in delay-300">
+              <AuthInput
+                id="address"
+                name="address"
+                type="text"
+                isRTL={isRTL}
+                label={t("Form.AddressLabel")}
+                icon={<MapPinIcon />}
+                placeholder={t("Form.AddressPlaceholder")}
+                hint={t("Form.AddressHint")}
+                value={formData.address}
+                onChange={handleChange}
+              />
             </div>
 
             {/* Submit Button */}
