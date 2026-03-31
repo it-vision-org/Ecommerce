@@ -2,19 +2,34 @@ import { NextResponse } from "next/server";
 import { db } from "@monkeyprint/db";
 import { generateToken } from "@monkeyprint/utils/token";
 import { sendPasswordResetEmail } from "@monkeyprint/utils/email";
+import { forgotPasswordSchema } from "@monkeyprint/utils/zod";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const body = await req.json();
+
+    const result = forgotPasswordSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid email address" },
+        { status: 400 },
+      );
+    }
+
+    const { email } = result.data;
 
     const user = await db.user.findUnique({
       where: { email },
     });
 
-    if (!user) {
+    if (!user || user.isDeleted) {
+      // Return success even if user not found to prevent email enumeration
       return NextResponse.json(
-        { message: "User with this email does not exist" },
-        { status: 404 }
+        {
+          message:
+            "If an account exists with this email, a reset link has been sent.",
+        },
+        { status: 200 },
       );
     }
 
@@ -32,14 +47,14 @@ export async function POST(req: Request) {
     await sendPasswordResetEmail(email, resetToken);
 
     return NextResponse.json(
-      { message: "Password reset email sent" },
-      { status: 200 }
+      { message: "If an account exists with this email, a reset link has been sent." },
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error in POST /api/forgotPassword:", error);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
