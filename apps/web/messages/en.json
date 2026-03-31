@@ -64,6 +64,9 @@
       "PhoneLabel": "Phone Number",
       "PhonePlaceholder": "Enter phone number",
       "PhoneOptional": "(Optional)",
+      "AddressLabel": "Delivery Address",
+      "AddressPlaceholder": "Enter your delivery address",
+      "AddressHint": "Optional — you can add this later",
       "UserTypeLabel": "I am a",
       "UserTypes": {
         "Individual": {

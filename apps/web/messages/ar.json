@@ -64,6 +64,9 @@
       "PhoneLabel": "رقم الهاتف",
       "PhonePlaceholder": "أدخل رقم الهاتف",
       "PhoneOptional": "(اختياري)",
+      "AddressLabel": "عنوان التوصيل",
+      "AddressPlaceholder": "أدخل عنوان التوصيل الخاص بك",
+      "AddressHint": "اختياري — يمكنك إضافته لاحقًا",
       "UserTypeLabel": "أنا",
       "UserTypes": {
         "Individual": {
