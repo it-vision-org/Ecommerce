@@ -15,7 +15,7 @@ export default function SignupPage() {
     password: "",
     phoneNumber: "",
     countryCode: "+216",
-    userType: "STUDENT",
+    userType: "INDIVIDUAL",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +23,6 @@ export default function SignupPage() {
   const t = useTranslations("SignupPage");
   const locale = useLocale();
 
-  // Check if current locale is RTL (Arabic)
   const isRTL = locale === "ar";
 
   const handleChange = (
@@ -70,99 +69,171 @@ export default function SignupPage() {
 
   const userTypeOptions = [
     {
-      value: "STUDENT",
-      label: t("Form.UserTypes.Student.Label"),
-      icon: t("Form.UserTypes.Student.Icon"),
-      desc: t("Form.UserTypes.Student.Description"),
+      value: "INDIVIDUAL",
+      label: t("Form.UserTypes.Individual.Label"),
+      icon: t("Form.UserTypes.Individual.Icon"),
+      desc: t("Form.UserTypes.Individual.Description"),
     },
     {
-      value: "TEACHER",
-      label: t("Form.UserTypes.Teacher.Label"),
-      icon: t("Form.UserTypes.Teacher.Icon"),
-      desc: t("Form.UserTypes.Teacher.Description"),
+      value: "RESTAURANT",
+      label: t("Form.UserTypes.Restaurant.Label"),
+      icon: t("Form.UserTypes.Restaurant.Icon"),
+      desc: t("Form.UserTypes.Restaurant.Description"),
     },
     {
-      value: "PARENT",
-      label: t("Form.UserTypes.Parent.Label"),
-      icon: t("Form.UserTypes.Parent.Icon"),
-      desc: t("Form.UserTypes.Parent.Description"),
+      value: "WHOLESALE",
+      label: t("Form.UserTypes.Wholesale.Label"),
+      icon: t("Form.UserTypes.Wholesale.Icon"),
+      desc: t("Form.UserTypes.Wholesale.Description"),
     },
   ];
+
+  const inputBase = `w-full py-3 rounded-xl text-[0.92rem] transition-all duration-200 outline-none`;
+  const inputStyle: React.CSSProperties = {
+    border: "1.5px solid var(--border)",
+    color: "var(--text-primary)",
+    background: "var(--bg-card)",
+    paddingLeft: isRTL ? "1rem" : "2.75rem",
+    paddingRight: isRTL ? "2.75rem" : "1rem",
+    textAlign: isRTL ? "right" : "left",
+  };
+  const inputStyleWithToggle: React.CSSProperties = {
+    border: "1.5px solid var(--border)",
+    color: "var(--text-primary)",
+    background: "var(--bg-card)",
+    paddingLeft: isRTL ? "2.75rem" : "2.75rem",
+    paddingRight: isRTL ? "2.75rem" : "2.75rem",
+    textAlign: isRTL ? "right" : "left",
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "var(--primary)";
+    e.target.style.boxShadow = "0 0 0 3px rgba(14,165,233,0.1)";
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "var(--border)";
+    e.target.style.boxShadow = "none";
+  };
 
   return (
     <>
       <div
         className="min-h-screen flex relative overflow-hidden"
-        style={{ fontFamily: "Inter, sans-serif" }}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        {/* ═══════════════════════════════════════════════════════════
-            LEFT PANEL (Desktop Only) 
-        ═══════════════════════════════════════════════════════════ */}
+        {/* ═══════════════════════════════════════════════════════
+            LEFT PANEL — Ocean Blue Gradient (Desktop)
+        ═══════════════════════════════════════════════════════ */}
         <div
-          className="hidden lg:flex lg:w-[42%] relative overflow-hidden items-center justify-center flex-col"
+          className="hidden lg:flex lg:w-[46%] relative overflow-hidden items-center justify-center flex-col"
           style={{
             background:
-              "linear-gradient(160deg, var(--color-primary-600) 0%, var(--color-primary-500) 40%, var(--color-accent-400) 100%)",
+              "linear-gradient(160deg, #0c4a6e 0%, #0369a1 40%, #0ea5e9 100%)",
           }}
         >
-          {/* Floating Orb 1 */}
+          {/* Wave shapes */}
           <div
-            className={`absolute -top-[20%] w-[500px] h-[500px] rounded-full animate-drift ${isRTL ? "-left-[20%]" : "-right-[20%]"}`}
+            className={`absolute top-[5%] w-[400px] h-[400px] rounded-full pointer-events-none animate-drift ${isRTL ? "left-[-15%]" : "right-[-15%]"}`}
             style={{
               background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)",
+                "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            className={`absolute bottom-[5%] w-[350px] h-[350px] rounded-full pointer-events-none animate-drift-reverse ${isRTL ? "right-[-10%]" : "left-[-10%]"}`}
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
             }}
           />
 
-          {/* Floating Orb 2 */}
-          <div
-            className={`absolute -bottom-[15%] w-[400px] h-[400px] rounded-full animate-drift-reverse ${isRTL ? "-right-[10%]" : "-left-[10%]"}`}
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%)",
-            }}
-          />
-
-          {/* Panel Content */}
-          <div
-            className={`fixed top-28.5 text-center px-12 text-white ${isRTL ? "text-right" : ""}`}
-          >
-            {/* Spark Icon */}
+          {/* Floating dots */}
+          {[
+            { size: 6, x: "20%", y: "28%", delay: "0s" },
+            { size: 4, x: "70%", y: "15%", delay: "1.5s" },
+            { size: 8, x: "58%", y: "68%", delay: "0.8s" },
+            { size: 5, x: "32%", y: "80%", delay: "2.5s" },
+          ].map((d, i) => (
             <div
-              className="w-20 h-20 mx-auto mb-8 rounded-3xl flex items-center justify-center animate-glow"
+              key={i}
+              className="absolute rounded-full pointer-events-none animate-float"
               style={{
-                background: "rgba(255, 255, 255, 0.2)",
+                width: d.size,
+                height: d.size,
+                left: d.x,
+                top: d.y,
+                animationDelay: d.delay,
+                background: "rgba(255,255,255,0.35)",
+              }}
+            />
+          ))}
+
+          {/* Top accent */}
+          <div
+            className="absolute top-0 left-0 right-0 h-[2px]"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+            }}
+          />
+
+          {/* Panel content */}
+          <div
+            className={`relative z-10 px-12 text-center ${isRTL ? "text-right" : ""}`}
+          >
+            {/* Icon */}
+            <div
+              className="w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center animate-glow"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.25)",
                 backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
               }}
             >
               <svg
-                className="w-10 h-10 fill-white"
+                width="38"
+                height="38"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                stroke="white"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="M7,2V13H10V22L17,10H13L17,2H7Z" />
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
               </svg>
             </div>
 
-            {/* Title */}
             <h1
-              className="text-5xl font-bold leading-tight mb-4 whitespace-pre-line"
+              className="text-[2.6rem] leading-tight mb-4 font-bold whitespace-pre-line"
               style={{
-                fontFamily: "Playfair Display, serif",
-                textShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                color: "#fff",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.15,
               }}
             >
               {t("LeftPanel.Title")}
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-lg opacity-90 leading-relaxed max-w-xs mx-auto">
+            <div
+              className="w-14 h-[2px] mx-auto mb-5 rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
+              }}
+            />
+
+            <p
+              className="text-[0.95rem] leading-relaxed max-w-[300px] mx-auto"
+              style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}
+            >
               {t("LeftPanel.Subtitle")}
             </p>
 
-            {/* Features List */}
+            {/* Features */}
             <div
               className={`mt-10 max-w-[280px] mx-auto space-y-3 ${isRTL ? "text-right" : "text-left"}`}
             >
@@ -170,86 +241,114 @@ export default function SignupPage() {
                 (feature, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-center gap-3 opacity-90 ${isRTL ? "justify-start" : ""}`}
+                    className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
                   >
-                    {isRTL ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    )}
+                    <span
+                      className="w-[6px] h-[6px] rounded-full flex-shrink-0"
+                      style={{ background: "rgba(255,255,255,0.6)" }}
+                    />
+                    <span
+                      className="text-[0.9rem] font-light"
+                      style={{ color: "rgba(255,255,255,0.8)" }}
+                    >
+                      {t(`LeftPanel.Features.${feature}`)}
+                    </span>
                   </div>
                 ),
               )}
             </div>
+
+            <p
+              className="mt-12 text-[0.75rem] uppercase tracking-[0.18em] font-medium"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              {t("LeftPanel.Tagline")}
+            </p>
+          </div>
+
+          {/* Bottom wave */}
+          <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+            <svg
+              viewBox="0 0 1440 80"
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
+              style={{ display: "block", width: "100%", height: 60 }}
+            >
+              <path
+                d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+                fill="rgba(255,255,255,0.05)"
+              />
+            </svg>
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            RIGHT FORM AREA 
-        ═══════════════════════════════════════════════════════════ */}
+        {/* ═══════════════════════════════════════════════════════
+            RIGHT FORM AREA
+        ═══════════════════════════════════════════════════════ */}
         <div
-          className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-8"
-          style={{
-            background:
-              "linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-accent-50) 50%, var(--color-primary-50) 100%)",
-          }}
+          className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-10"
+          style={{ background: "var(--bg)" }}
         >
-          {/* Background Orb */}
           <div
-            className="absolute -top-[30%] w-[500px] h-[500px] rounded-full"
+            className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
+                "radial-gradient(circle at 80% 10%, rgba(14,165,233,0.06) 0%, transparent 60%)",
+            }}
+          />
+          <div
+            className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle at 20% 90%, rgba(6,182,212,0.06) 0%, transparent 60%)",
             }}
           />
 
-          {/* Back Button (Mobile Only) */}
           <div
-            className={`absolute top-6 z-20 lg:hidden ${isRTL ? "right-6" : "left-6"}`}
+            className="absolute top-0 left-0 right-0 h-[2px] lg:hidden"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, var(--primary), transparent)",
+            }}
+          />
+
+          <div
+            className={`absolute top-5 z-20 lg:hidden ${isRTL ? "right-5" : "left-5"}`}
           >
-            <BackButton color="var(--color-primary-600)" path="/" />
+            <BackButton color="var(--primary)" path="/" />
           </div>
 
           {/* Form Card */}
-          <div className="w-full max-w-[480px] relative z-10 animate-card-in py-4">
-            {/* Mobile Logo (Mobile Only) */}
+          <div className="w-full max-w-[440px] relative z-10 animate-card-in py-4">
+            {/* Mobile Logo */}
             <div
-              className={`flex items-center gap-3 mb-6 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
+              className={`flex items-center gap-3 mb-7 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
                 style={{
                   background:
-                    "linear-gradient(135deg, var(--color-primary-500), var(--color-accent-400))",
+                    "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
                 }}
               >
                 <svg
-                  className="w-6 h-6 fill-white"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path d="M7,2V13H10V22L17,10H13L17,2H7Z" />
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 01-8 0" />
                 </svg>
               </div>
               <span
-                className="text-xl font-bold bg-clip-text text-transparent"
-                style={{
-                  fontFamily: "Playfair Display, serif",
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-700), var(--color-primary-600))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
+                className="text-xl font-bold"
+                style={{ color: "var(--text-primary)" }}
               >
                 {t("Brand")}
               </span>
@@ -257,42 +356,48 @@ export default function SignupPage() {
 
             {/* Heading */}
             <h2
-              className={`text-3xl font-bold mb-2 ${isRTL ? "text-right" : ""}`}
-              style={{
-                fontFamily: "Playfair Display, serif",
-                color: "var(--color-neutral-900)",
-              }}
+              className={`text-[2rem] mb-2 leading-tight font-bold ${isRTL ? "text-right" : ""}`}
+              style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
             >
               {t("Heading")}
             </h2>
+
+            <div
+              className={`w-10 h-[2.5px] mb-3 rounded-full ${isRTL ? "mr-0 ml-auto" : ""}`}
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--primary), var(--accent))",
+              }}
+            />
+
             <p
-              className={`text-[0.95rem] mb-7 ${isRTL ? "text-right" : ""}`}
-              style={{ color: "var(--color-neutral-600)" }}
+              className={`text-[0.9rem] mb-7 font-normal ${isRTL ? "text-right" : ""}`}
+              style={{ color: "var(--text-secondary)" }}
             >
               {t("Subheading")}
             </p>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-[1.1rem]">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Full Name */}
               <div className="animate-field-in delay-100">
                 <label
                   htmlFor="name"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
+                  className={`block text-[0.82rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                  style={{ color: "var(--text-primary)" }}
                 >
                   {t("Form.NameLabel")}
                 </label>
                 <div className="relative">
                   <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
+                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-3.5" : "left-3.5"}`}
+                    style={{ color: "var(--text-muted)" }}
+                    width="17"
+                    height="17"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
@@ -304,23 +409,13 @@ export default function SignupPage() {
                     name="name"
                     type="text"
                     required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-4 text-right" : "pl-11 pr-4"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
+                    className={inputBase}
+                    style={inputStyle}
                     placeholder={t("Form.NamePlaceholder")}
                     value={formData.name}
                     onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                   />
                 </div>
               </div>
@@ -329,21 +424,21 @@ export default function SignupPage() {
               <div className="animate-field-in delay-150">
                 <label
                   htmlFor="email"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
+                  className={`block text-[0.82rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                  style={{ color: "var(--text-primary)" }}
                 >
                   {t("Form.EmailLabel")}
                 </label>
                 <div className="relative">
                   <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
+                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-3.5" : "left-3.5"}`}
+                    style={{ color: "var(--text-muted)" }}
+                    width="17"
+                    height="17"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
@@ -356,23 +451,13 @@ export default function SignupPage() {
                     type="email"
                     autoComplete="email"
                     required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-4 text-right" : "pl-11 pr-4"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
+                    className={inputBase}
+                    style={inputStyle}
                     placeholder={t("Form.EmailPlaceholder")}
                     value={formData.email}
                     onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                   />
                 </div>
               </div>
@@ -381,21 +466,21 @@ export default function SignupPage() {
               <div className="animate-field-in delay-200">
                 <label
                   htmlFor="password"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
+                  className={`block text-[0.82rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                  style={{ color: "var(--text-primary)" }}
                 >
                   {t("Form.PasswordLabel")}
                 </label>
                 <div className="relative">
                   <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
+                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-3.5" : "left-3.5"}`}
+                    style={{ color: "var(--text-muted)" }}
+                    width="17"
+                    height="17"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
@@ -408,45 +493,38 @@ export default function SignupPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-11 text-right" : "pl-11 pr-11"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
+                    className={inputBase}
+                    style={inputStyleWithToggle}
                     placeholder={t("Form.PasswordPlaceholder")}
                     value={formData.password}
                     onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                   />
                   <button
                     type="button"
-                    className={`absolute top-1/2 -translate-y-1/2 p-0 bg-transparent border-none cursor-pointer transition-colors duration-200 ${isRTL ? "left-4" : "right-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
+                    className="absolute top-1/2 -translate-y-1/2 p-0 bg-transparent border-none cursor-pointer transition-colors duration-200"
+                    style={{
+                      color: "var(--text-muted)",
+                      [isRTL ? "left" : "right"]: "0.875rem",
+                    }}
                     onClick={() => setShowPassword(!showPassword)}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "var(--color-neutral-600)")
+                      (e.currentTarget.style.color = "var(--primary)")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "var(--color-neutral-400)")
+                      (e.currentTarget.style.color = "var(--text-muted)")
                     }
                     aria-label="Toggle password visibility"
                   >
                     {showPassword ? (
                       <svg
-                        width="18"
-                        height="18"
+                        width="17"
+                        height="17"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
@@ -456,12 +534,12 @@ export default function SignupPage() {
                       </svg>
                     ) : (
                       <svg
-                        width="18"
-                        height="18"
+                        width="17"
+                        height="17"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
@@ -472,8 +550,8 @@ export default function SignupPage() {
                   </button>
                 </div>
                 <p
-                  className={`text-xs mt-[0.35rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-500)" }}
+                  className={`text-[0.78rem] mt-1.5 ${isRTL ? "text-right" : ""}`}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   {t("Form.PasswordHint")}
                 </p>
@@ -487,164 +565,101 @@ export default function SignupPage() {
                 />
               </div>
 
-              {/* User Type */}
-              <div className="animate-field-in delay-300">
-                <label
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.UserTypeLabel")}
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {userTypeOptions.map((opt) => (
-                    <label key={opt.value} className="relative cursor-pointer">
-                      <input
-                        type="radio"
-                        name="userType"
-                        value={opt.value}
-                        checked={formData.userType === opt.value}
-                        onChange={handleChange}
-                        className="absolute opacity-0 w-0 h-0"
-                      />
-                      <div
-                        className={`flex flex-col items-center py-4 px-2 rounded-2xl bg-white transition-all duration-300 text-center ${
-                          formData.userType === opt.value
-                            ? "shadow-lg -translate-y-0.5"
-                            : "hover:-translate-y-0.5"
-                        }`}
-                        style={{
-                          border:
-                            formData.userType === opt.value
-                              ? "2px solid var(--color-primary-500)"
-                              : "2px solid var(--color-primary-100)",
-                          background:
-                            formData.userType === opt.value
-                              ? "linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100))"
-                              : "white",
-                          boxShadow:
-                            formData.userType === opt.value
-                              ? "0 4px 16px rgba(59, 130, 246, 0.15)"
-                              : "none",
-                        }}
-                      >
-                        <span className="text-[1.75rem] mb-[0.4rem]">
-                          {opt.icon}
-                        </span>
-                        <span
-                          className="text-[0.85rem] font-semibold"
-                          style={{ color: "var(--color-neutral-700)" }}
-                        >
-                          {opt.label}
-                        </span>
-                        <span
-                          className="text-[0.65rem] mt-[0.2rem] leading-tight"
-                          style={{ color: "var(--color-neutral-500)" }}
-                        >
-                          {opt.desc}
-                        </span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-[0.95rem] rounded-xl font-semibold text-white transition-all duration-300 mt-2 disabled:opacity-55 disabled:cursor-not-allowed"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-accent-400) 100%)",
-                  boxShadow: "0 4px 16px rgba(59, 130, 246, 0.25)",
-                }}
-                onMouseEnter={(e) =>
-                  !isLoading &&
-                  ((e.currentTarget.style.transform = "translateY(-2px)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 8px 24px rgba(59, 130, 246, 0.35)"))
-                }
-                onMouseLeave={(e) =>
-                  !isLoading &&
-                  ((e.currentTarget.style.transform = "translateY(0)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 4px 16px rgba(59, 130, 246, 0.25)"))
-                }
-                onMouseDown={(e) =>
-                  !isLoading &&
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      className="animate-spin"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="white"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="31.4 31.4"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    {t("Form.SubmittingButton")}
-                  </span>
-                ) : (
-                  t("Form.SubmitButton")
-                )}
-              </button>
+              <div className="animate-field-in delay-350 pt-1">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 rounded-xl font-semibold text-[0.92rem] transition-all duration-200 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+                    color: "#fff",
+                    boxShadow: "0 4px 16px rgba(14,165,233,0.25)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 28px rgba(14,165,233,0.35)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 16px rgba(14,165,233,0.25)";
+                    }
+                  }}
+                  onMouseDown={(e) => {
+                    if (!isLoading)
+                      e.currentTarget.style.transform = "translateY(0)";
+                  }}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        className="animate-spin"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="white"
+                          strokeWidth="3"
+                          fill="none"
+                          strokeDasharray="31.4 31.4"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      {t("Form.SubmittingButton")}
+                    </span>
+                  ) : (
+                    t("Form.SubmitButton")
+                  )}
+                </button>
+              </div>
             </form>
 
             {/* Divider */}
             <div className="flex items-center gap-4 my-6">
               <div
                 className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
+                style={{ background: "var(--border)" }}
               />
               <span
-                className="text-xs"
-                style={{ color: "var(--color-neutral-400)" }}
+                className="text-[0.75rem] uppercase tracking-[0.12em] font-medium"
+                style={{ color: "var(--text-muted)" }}
               >
                 {t("Divider")}
               </span>
               <div
                 className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
+                style={{ background: "var(--border)" }}
               />
             </div>
 
-            {/* Footer Link */}
+            {/* Footer link */}
             <div
               className={`text-center text-[0.9rem] ${isRTL ? "text-right" : ""}`}
-              style={{ color: "var(--color-neutral-600)" }}
+              style={{ color: "var(--text-secondary)" }}
             >
               {t("Footer.Text")}{" "}
               <Link
                 href="/auth/login"
-                className="font-semibold relative inline-block transition-colors duration-200 group"
-                style={{ color: "var(--color-primary-600)" }}
+                className="font-semibold transition-colors duration-200"
+                style={{ color: "var(--primary)" }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-700)")
+                  (e.currentTarget.style.color = "var(--primary-hover)")
                 }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-600)")
+                  (e.currentTarget.style.color = "var(--primary)")
                 }
               >
                 {t("Footer.SignInLink")}
-                <span
-                  className={`absolute bottom-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full ${isRTL ? "right-0" : "left-0"}`}
-                  style={{
-                    background:
-                      "linear-gradient(90deg, var(--color-primary-500), var(--color-accent-400))",
-                  }}
-                />
               </Link>
             </div>
           </div>

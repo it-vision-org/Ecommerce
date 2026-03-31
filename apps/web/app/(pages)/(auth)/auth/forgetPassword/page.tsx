@@ -1,462 +1,491 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useTranslations, useLocale } from "next-intl";
 import BackButton from "@/components/ui/BackButton";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("ForgotPasswordPage");
   const locale = useLocale();
-
-  // Check if current locale is RTL (Arabic)
   const isRTL = locale === "ar";
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/auth/forgetPassword", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
-      if (response.ok) {
-        toast.success(t("Toast.Success"));
-        // setTimeout(() => router.push("/auth/login"), 2000);
-      } else {
-        toast.error(result.message || t("Toast.ErrorDefault"));
+      if (!response.ok) {
+        throw new Error(data.error || t("Toast.ErrorDefault"));
       }
-    } catch (error) {
-      toast.error(t("Toast.ErrorGeneral"));
+
+      toast.success(t("Toast.Success"));
+    } catch (err: any) {
+      toast.error(err.message || t("Toast.ErrorGeneral"));
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
+    <div
+      className="min-h-screen flex relative overflow-hidden"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      {/* ═══════════════════════════════════════════════════════════
+          LEFT PANEL (Desktop Only)
+      ═══════════════════════════════════════════════════════════ */}
       <div
-        className="min-h-screen flex relative overflow-hidden"
-        style={{ fontFamily: "Inter, sans-serif" }}
-        dir={isRTL ? "rtl" : "ltr"}
+        className="hidden lg:flex lg:w-[46%] relative overflow-hidden items-center justify-center flex-col"
+        style={{
+          background:
+            "linear-gradient(160deg, #0c4a6e 0%, #0369a1 40%, #0ea5e9 100%)",
+        }}
       >
-        {/* ═══════════════════════════════════════════════════════════
-            LEFT PANEL (Desktop Only) 
-        ═══════════════════════════════════════════════════════════ */}
+        {/* Wave shapes */}
         <div
-          className="hidden lg:flex lg:w-[42%] relative overflow-hidden items-center justify-center flex-col"
+          className={`absolute top-[5%] w-[400px] h-[400px] rounded-full pointer-events-none animate-drift ${isRTL ? "left-[-15%]" : "right-[-15%]"}`}
           style={{
             background:
-              "linear-gradient(160deg, var(--color-primary-600) 0%, var(--color-primary-500) 40%, var(--color-accent-400) 100%)",
+              "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
           }}
+        />
+        <div
+          className={`absolute bottom-[5%] w-[350px] h-[350px] rounded-full pointer-events-none animate-drift-reverse ${isRTL ? "right-[-10%]" : "left-[-10%]"}`}
+          style={{
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Floating dots */}
+        {[
+          { size: 6, x: "22%", y: "30%", delay: "0s" },
+          { size: 4, x: "68%", y: "20%", delay: "2s" },
+          { size: 8, x: "52%", y: "72%", delay: "1s" },
+          { size: 5, x: "35%", y: "82%", delay: "3s" },
+        ].map((d, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full pointer-events-none animate-float"
+            style={{
+              width: d.size,
+              height: d.size,
+              left: d.x,
+              top: d.y,
+              animationDelay: d.delay,
+              background: "rgba(255,255,255,0.35)",
+            }}
+          />
+        ))}
+
+        {/* Top accent */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+          }}
+        />
+
+        {/* Panel Content */}
+        <div
+          className={`relative z-10 px-12 text-center ${isRTL ? "text-right" : ""}`}
         >
-          {/* Floating Orb 1 */}
+          {/* Icon */}
           <div
-            className={`absolute -top-[20%] w-[500px] h-[500px] rounded-full animate-drift ${isRTL ? "-left-[20%]" : "-right-[20%]"}`}
+            className="w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center animate-glow"
             style={{
-              background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)",
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              backdropFilter: "blur(10px)",
             }}
-          />
-
-          {/* Floating Orb 2 */}
-          <div
-            className={`absolute -bottom-[15%] w-[400px] h-[400px] rounded-full animate-drift-reverse ${isRTL ? "-right-[10%]" : "-left-[10%]"}`}
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%)",
-            }}
-          />
-
-          {/* Panel Content */}
-          <div
-            className={`relative z-10 text-center px-12 text-white ${isRTL ? "text-right" : ""}`}
           >
-            {/* Lock Icon */}
+            <svg
+              width="38"
+              height="38"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          </div>
+
+          <h1
+            className="text-[2.6rem] leading-tight mb-4 font-bold whitespace-pre-line"
+            style={{
+              color: "#fff",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.15,
+            }}
+          >
+            {t("LeftPanel.Title")}
+          </h1>
+
+          <div
+            className="w-14 h-[2px] mx-auto mb-5 rounded-full"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
+            }}
+          />
+
+          <p
+            className="text-[0.95rem] leading-relaxed max-w-[300px] mx-auto"
+            style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}
+          >
+            {t("LeftPanel.Subtitle")}
+          </p>
+
+          {/* Features */}
+          <div
+            className={`mt-10 max-w-[280px] mx-auto space-y-3 ${isRTL ? "text-right" : "text-left"}`}
+          >
+            {["Feature1", "Feature2", "Feature3", "Feature4"].map(
+              (feature, idx) => (
+                <div
+                  key={idx}
+                  className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span
+                    className="w-[6px] h-[6px] rounded-full flex-shrink-0"
+                    style={{ background: "rgba(255,255,255,0.6)" }}
+                  />
+                  <span
+                    className="text-[0.9rem] font-light"
+                    style={{ color: "rgba(255,255,255,0.8)" }}
+                  >
+                    {t(`LeftPanel.Features.${feature}`)}
+                  </span>
+                </div>
+              ),
+            )}
+          </div>
+
+          <p
+            className="mt-12 text-[0.75rem] uppercase tracking-[0.18em] font-medium"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            {t("Brand")}
+          </p>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+          <svg
+            viewBox="0 0 1440 80"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+            style={{ display: "block", width: "100%", height: 60 }}
+          >
+            <path
+              d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+              fill="rgba(255,255,255,0.05)"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════
+          RIGHT FORM AREA
+      ═══════════════════════════════════════════════════════════ */}
+      <div
+        className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-8"
+        style={{ background: "var(--bg)" }}
+      >
+        <div
+          className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at 80% 10%, rgba(14,165,233,0.06) 0%, transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 90%, rgba(6,182,212,0.06) 0%, transparent 60%)",
+          }}
+        />
+
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px] lg:hidden"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, var(--primary), transparent)",
+          }}
+        />
+
+        <div
+          className={`absolute top-6 z-20 lg:hidden ${isRTL ? "right-6" : "left-6"}`}
+        >
+          <BackButton color="var(--primary)" path="/auth/login" />
+        </div>
+
+        {/* Form Card */}
+        <div className="w-full max-w-[440px] relative z-10 animate-card-in py-4">
+          {/* Mobile Logo */}
+          <div
+            className={`flex items-center gap-3 mb-7 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
+          >
             <div
-              className="w-20 h-20 mx-auto mb-8 rounded-3xl flex items-center justify-center animate-glow"
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
+                background:
+                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
               }}
             >
               <svg
-                className="w-10 h-10 stroke-white"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
+                stroke="white"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
               </svg>
             </div>
-
-            {/* Title */}
-            <h1
-              className="text-5xl font-bold leading-tight mb-4 whitespace-pre-line"
-              style={{
-                fontFamily: "Playfair Display, serif",
-                textShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-              }}
+            <span
+              className="text-xl font-bold"
+              style={{ color: "var(--text-primary)" }}
             >
-              {t("LeftPanel.Title")}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-lg opacity-90 leading-relaxed max-w-xs mx-auto">
-              {t("LeftPanel.Subtitle")}
-            </p>
-
-            {/* Features List */}
-            <div
-              className={`mt-10 max-w-[280px] mx-auto space-y-3 ${isRTL ? "text-right" : "text-left"}`}
-            >
-              {["Feature1", "Feature2", "Feature3", "Feature4"].map(
-                (feature, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center gap-3 opacity-90 ${isRTL ? "justify-start" : ""}`}
-                  >
-                    {isRTL ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                ),
-              )}
-            </div>
+              {t("Brand")}
+            </span>
           </div>
-        </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            RIGHT FORM AREA 
-        ═══════════════════════════════════════════════════════════ */}
-        <div
-          className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-8"
-          style={{
-            background:
-              "linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-accent-50) 50%, var(--color-primary-50) 100%)",
-          }}
-        >
-          {/* Background Orb */}
+          {/* Heading */}
+          <h2
+            className={`text-[2rem] mb-2 leading-tight font-bold ${isRTL ? "text-right" : ""}`}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
+          >
+            {t("Heading")}
+          </h2>
+
           <div
-            className="absolute -top-[30%] w-[500px] h-[500px] rounded-full"
+            className={`w-10 h-[2.5px] mb-3 rounded-full ${isRTL ? "mr-0 ml-auto" : ""}`}
             style={{
               background:
-                "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
+                "linear-gradient(90deg, var(--primary), var(--accent))",
             }}
           />
 
-          {/* Back Button (Mobile Only) */}
-          <div
-            className={`absolute top-6 z-20 lg:hidden ${isRTL ? "right-6" : "left-6"}`}
+          <p
+            className={`text-[0.9rem] mb-7 font-normal leading-relaxed ${isRTL ? "text-right" : ""}`}
+            style={{ color: "var(--text-secondary)" }}
           >
-            <BackButton color="var(--color-primary-600)" path="/auth/login" />
-          </div>
+            {t("Subheading")}
+          </p>
 
-          {/* Form Card */}
-          <div className="w-full max-w-[480px] relative z-10 animate-card-in py-4">
-            {/* Mobile Logo (Mobile Only) */}
-            <div
-              className={`flex items-center gap-3 mb-6 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-500), var(--color-accent-400))",
-                }}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <div className="animate-field-in delay-100">
+              <label
+                htmlFor="email-address"
+                className={`block text-[0.82rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                style={{ color: "var(--text-primary)" }}
               >
+                {t("Form.EmailLabel")}
+              </label>
+              <div className="relative">
                 <svg
-                  className="w-6 h-6 stroke-white"
+                  className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-3.5" : "left-3.5"}`}
+                  style={{ color: "var(--text-muted)" }}
+                  width="17"
+                  height="17"
                   viewBox="0 0 24 24"
                   fill="none"
-                  strokeWidth="2"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                 </svg>
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="w-full py-3 rounded-xl text-[0.92rem] transition-all duration-200 outline-none"
+                  style={{
+                    border: "1.5px solid var(--border)",
+                    color: "var(--text-primary)",
+                    background: "var(--bg-card)",
+                    paddingLeft: isRTL ? "1rem" : "2.75rem",
+                    paddingRight: isRTL ? "2.75rem" : "1rem",
+                    textAlign: isRTL ? "right" : "left",
+                  }}
+                  placeholder={t("Form.EmailPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--primary)";
+                    e.target.style.boxShadow = "0 0 0 3px rgba(14,165,233,0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--border)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
               </div>
-              <span
-                className="text-xl font-bold bg-clip-text text-transparent"
-                style={{
-                  fontFamily: "Playfair Display, serif",
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-700), var(--color-primary-600))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
+              <p
+                className={`text-[0.78rem] mt-1.5 ${isRTL ? "text-right" : ""}`}
+                style={{ color: "var(--text-muted)" }}
               >
-                {t("Brand")}
-              </span>
+                {t("Form.EmailHint")}
+              </p>
             </div>
 
-            {/* Heading */}
-            <h2
-              className={`text-3xl font-bold mb-2 ${isRTL ? "text-right" : ""}`}
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 rounded-xl font-semibold text-[0.92rem] transition-all duration-200 mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                fontFamily: "Playfair Display, serif",
-                color: "var(--color-neutral-900)",
+                background:
+                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(14,165,233,0.25)",
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 28px rgba(14,165,233,0.35)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 16px rgba(14,165,233,0.25)";
+                }
+              }}
+              onMouseDown={(e) => {
+                if (!isLoading)
+                  e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              {t("Heading")}
-            </h2>
-            <p
-              className={`text-[0.95rem] mb-7 ${isRTL ? "text-right" : ""}`}
-              style={{ color: "var(--color-neutral-600)" }}
-            >
-              {t("Subheading")}
-            </p>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-[1.1rem]">
-              {/* Email */}
-              <div className="animate-field-in delay-100">
-                <label
-                  htmlFor="email"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.EmailLabel")}
-                </label>
-                <div className="relative">
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
                   <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
                     width="18"
                     height="18"
                     viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    className="animate-spin"
                   >
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="white"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray="31.4 31.4"
+                      strokeLinecap="round"
+                    />
                   </svg>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-4 text-right" : "pl-11 pr-4"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
-                    placeholder={t("Form.EmailPlaceholder")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
-                </div>
-                <p
-                  className={`mt-2 text-xs flex items-start gap-1 ${isRTL ? "flex-row-reverse text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-500)" }}
-                >
-                  <svg
-                    className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{ color: "var(--color-primary-600)" }}
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="16" x2="12" y2="12" />
-                    <line x1="12" y1="8" x2="12.01" y2="8" />
-                  </svg>
-                  <span>{t("Form.EmailHint")}</span>
-                </p>
-              </div>
+                  {t("Form.SubmittingButton")}
+                </span>
+              ) : (
+                t("Form.SubmitButton")
+              )}
+            </button>
+          </form>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-[0.95rem] rounded-xl font-semibold text-white transition-all duration-300 mt-4 disabled:opacity-55 disabled:cursor-not-allowed"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-accent-400) 100%)",
-                  boxShadow: "0 4px 16px rgba(59, 130, 246, 0.25)",
-                }}
-                onMouseEnter={(e) =>
-                  !isSubmitting &&
-                  ((e.currentTarget.style.transform = "translateY(-2px)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 8px 24px rgba(59, 130, 246, 0.35)"))
-                }
-                onMouseLeave={(e) =>
-                  !isSubmitting &&
-                  ((e.currentTarget.style.transform = "translateY(0)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 4px 16px rgba(59, 130, 246, 0.25)"))
-                }
-                onMouseDown={(e) =>
-                  !isSubmitting &&
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      className="animate-spin"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="white"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="31.4 31.4"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    {t("Form.SubmittingButton")}
-                  </span>
-                ) : (
-                  t("Form.SubmitButton")
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="flex items-center gap-4 my-6">
-              <div
-                className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
-              />
-              <span
-                className="text-xs"
-                style={{ color: "var(--color-neutral-400)" }}
-              >
-                {t("Divider")}
-              </span>
-              <div
-                className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
-              />
-            </div>
-
-            {/* Footer Link */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => router.push("/auth/login")}
-                className={`text-[0.9rem] font-semibold relative inline-block transition-colors duration-200 group ${isRTL ? "flex-row-reverse" : ""}`}
-                style={{ color: "var(--color-primary-600)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-700)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-600)")
-                }
-              >
-                <svg
-                  className={`inline-block w-4 h-4 -mt-0.5 ${isRTL ? "mr-0 ml-2 rotate-180" : "mr-2"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
-                </svg>
-                {t("BackToLogin")}
-                <span
-                  className={`absolute bottom-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full ${isRTL ? "right-0" : "left-0"}`}
-                  style={{
-                    background:
-                      "linear-gradient(90deg, var(--color-primary-500), var(--color-accent-400))",
-                  }}
-                />
-              </button>
-            </div>
-
-            {/* Help Text */}
-            <div
-              className={`mt-8 p-4 rounded-xl text-sm ${isRTL ? "text-right" : ""}`}
-              style={{
-                background: "var(--color-accent-50)",
-                border: "1px solid var(--color-accent-200)",
-              }}
+          {/* Help box */}
+          <div
+            className="mt-6 p-4 rounded-xl"
+            style={{
+              background: "var(--primary-50)",
+              border: "1px solid var(--primary-100)",
+            }}
+          >
+            <p
+              className={`text-[0.82rem] font-semibold mb-1 ${isRTL ? "text-right" : ""}`}
+              style={{ color: "var(--primary-700)" }}
             >
-              <div className={`flex gap-3 ${isRTL ? "flex-row-reverse" : ""}`}>
-                <svg
-                  className="w-5 h-5 flex-shrink-0 mt-0.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ color: "var(--color-accent-600)" }}
-                >
-                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-                <div>
-                  <p
-                    className="font-semibold mb-1"
-                    style={{ color: "var(--color-neutral-800)" }}
-                  >
-                    {t("HelpBox.Title")}
-                  </p>
-                  <p style={{ color: "var(--color-neutral-600)" }}>
-                    {t("HelpBox.Description")}
-                  </p>
-                </div>
-              </div>
-            </div>
+              {t("HelpBox.Title")}
+            </p>
+            <p
+              className={`text-[0.78rem] leading-relaxed ${isRTL ? "text-right" : ""}`}
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {t("HelpBox.Description")}
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-6">
+            <div
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
+            <span
+              className="text-[0.75rem] uppercase tracking-[0.12em] font-medium"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {t("Divider")}
+            </span>
+            <div
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
+          </div>
+
+          {/* Back to login */}
+          <div className={`text-center ${isRTL ? "text-right" : ""}`}>
+            <Link
+              href="/auth/login"
+              className={`text-[0.9rem] font-semibold inline-flex items-center gap-2 transition-colors duration-200 ${isRTL ? "flex-row-reverse" : ""}`}
+              style={{ color: "var(--primary)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--primary-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--primary)")
+              }
+            >
+              <svg
+                className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+              {t("BackToLogin")}
+            </Link>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
