@@ -7,6 +7,7 @@ interface FormData {
   password: string;
   phoneNumber: string;
   countryCode: string;
+  address: string;
   userType: string;
 }
 
