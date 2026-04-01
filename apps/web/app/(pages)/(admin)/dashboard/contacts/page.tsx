@@ -45,11 +45,9 @@ export default function AdminContactsPage() {
   const filteredContacts = useMemo(() => {
     let list = [...contacts];
 
-    // Filter
     if (filter === "unread") list = list.filter((c) => !c.isRead);
     if (filter === "read") list = list.filter((c) => c.isRead);
 
-    // Search
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -61,7 +59,6 @@ export default function AdminContactsPage() {
       );
     }
 
-    // Sort
     list.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -162,36 +159,27 @@ export default function AdminContactsPage() {
         text: "var(--color-neutral-600)",
       };
     const s = subject.toLowerCase();
-    if (s.includes("technique") || s.includes("technical"))
+    if (s.includes("wholesale") || s.includes("export"))
+      return { bg: "#fffbeb", text: "#92400e" };
+    if (s.includes("order") && s.includes("issue"))
       return { bg: "#fef2f2", text: "#dc2626" };
-    if (s.includes("étudiant") || s.includes("student"))
+    if (s.includes("restaurant")) return { bg: "#f0fdf4", text: "#16a34a" };
+    if (s.includes("product"))
       return { bg: "#eff6ff", text: "var(--color-primary-600)" };
-    if (s.includes("parent")) return { bg: "#f0fdf4", text: "#16a34a" };
-    if (
-      s.includes("enseignant") ||
-      s.includes("teacher") ||
-      s.includes("collaboration")
-    )
-      return { bg: "#fdf4ff", text: "#9333ea" };
-    if (s.includes("partenariat") || s.includes("partnership"))
-      return { bg: "#fefce8", text: "#ca8a04" };
-    if (s.includes("événement") || s.includes("event"))
-      return { bg: "#fff7ed", text: "#ea580c" };
+    if (s.includes("technical")) return { bg: "#fdf4ff", text: "#9333ea" };
     return { bg: "var(--color-primary-50)", text: "var(--color-primary-700)" };
   };
 
   const getUserTypeBadge = (userType: string | null) => {
     switch (userType) {
-      case "STUDENT":
+      case "INDIVIDUAL":
         return {
-          label: "🎓 Student",
+          label: "🧑 Individual",
           bg: "#eff6ff",
           text: "var(--color-primary-600)",
         };
-      case "TEACHER":
-        return { label: "📚 Teacher", bg: "#f0fdf4", text: "#16a34a" };
-      case "PARENT":
-        return { label: "🏠 Parent", bg: "#fdf4ff", text: "#9333ea" };
+      case "RESTAURANT":
+        return { label: "🍽️ Restaurant", bg: "#f0fdf4", text: "#16a34a" };
       default:
         return null;
     }
@@ -205,8 +193,6 @@ export default function AdminContactsPage() {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  // ─── RENDER ──────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -238,13 +224,13 @@ export default function AdminContactsPage() {
       className="min-h-screen"
       style={{ background: "var(--color-neutral-50)" }}
     >
-      {/* ═══ Header ═══ */}
+      {/* Header */}
       <div
         className="border-b"
         style={{
           background:
-            "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-600) 50%, var(--color-accent-500) 100%)",
-          borderColor: "var(--color-primary-700)",
+            "linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
+          borderColor: "#075985",
         }}
       >
         <div className="max-w-[1600px] mx-auto px-6 py-8">
@@ -278,12 +264,11 @@ export default function AdminContactsPage() {
                 Contact Submissions
               </h1>
               <p className="text-sm text-white/80 mt-0.5">
-                Manage and respond to community messages
+                Manage customer inquiries & wholesale requests
               </p>
             </div>
           </div>
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-4">
             {[
               {
@@ -363,7 +348,7 @@ export default function AdminContactsPage() {
         </div>
       </div>
 
-      {/* ═══ Toolbar ═══ */}
+      {/* Toolbar */}
       <div className="max-w-[1600px] mx-auto px-6 py-4">
         <div
           className="flex flex-wrap items-center gap-3 p-4 rounded-2xl border"
@@ -372,7 +357,6 @@ export default function AdminContactsPage() {
             borderColor: "var(--color-neutral-200)",
           }}
         >
-          {/* Search */}
           <div className="relative flex-1 min-w-[240px]">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -402,7 +386,7 @@ export default function AdminContactsPage() {
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "var(--color-primary-400)";
-                e.target.style.boxShadow = "0 0 0 4px rgba(59, 130, 246, 0.1)";
+                e.target.style.boxShadow = "0 0 0 4px rgba(3, 105, 161, 0.1)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "var(--color-neutral-200)";
@@ -411,7 +395,6 @@ export default function AdminContactsPage() {
             />
           </div>
 
-          {/* Filter Buttons */}
           <div
             className="flex items-center rounded-xl overflow-hidden border"
             style={{ borderColor: "var(--color-neutral-200)" }}
@@ -422,8 +405,7 @@ export default function AdminContactsPage() {
                 onClick={() => setFilter(f)}
                 className="px-4 py-2.5 text-sm font-medium transition-all duration-200 capitalize"
                 style={{
-                  background:
-                    filter === f ? "var(--color-primary-600)" : "white",
+                  background: filter === f ? "#0369a1" : "white",
                   color: filter === f ? "white" : "var(--color-neutral-600)",
                 }}
               >
@@ -433,11 +415,8 @@ export default function AdminContactsPage() {
                     className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-bold"
                     style={{
                       background:
-                        filter === f
-                          ? "rgba(255,255,255,0.25)"
-                          : "var(--color-primary-100)",
-                      color:
-                        filter === f ? "white" : "var(--color-primary-700)",
+                        filter === f ? "rgba(255,255,255,0.25)" : "#f0f9ff",
+                      color: filter === f ? "white" : "#0369a1",
                     }}
                   >
                     {stats.unread}
@@ -447,7 +426,6 @@ export default function AdminContactsPage() {
             ))}
           </div>
 
-          {/* Sort */}
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortType)}
@@ -462,7 +440,6 @@ export default function AdminContactsPage() {
             <option value="oldest">Oldest first</option>
           </select>
 
-          {/* Refresh */}
           <button
             onClick={fetchContacts}
             className="p-2.5 rounded-xl transition-all duration-200 hover:scale-105"
@@ -491,7 +468,7 @@ export default function AdminContactsPage() {
         </div>
       </div>
 
-      {/* ═══ Content ═══ */}
+      {/* Content */}
       <div className="max-w-[1600px] mx-auto px-6 pb-8">
         {filteredContacts.length === 0 ? (
           <div
@@ -503,7 +480,7 @@ export default function AdminContactsPage() {
           >
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-              style={{ background: "var(--color-primary-50)" }}
+              style={{ background: "#f0f9ff" }}
             >
               <svg
                 width="32"
@@ -514,7 +491,7 @@ export default function AdminContactsPage() {
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ color: "var(--color-primary-400)" }}
+                style={{ color: "#0ea5e9" }}
               >
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
@@ -537,7 +514,7 @@ export default function AdminContactsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
-            {/* ─── Contact List ─── */}
+            {/* Contact List */}
             <div
               className="rounded-2xl border overflow-hidden"
               style={{
@@ -558,26 +535,25 @@ export default function AdminContactsPage() {
                       style={{
                         borderColor: "var(--color-neutral-100)",
                         background: isSelected
-                          ? "var(--color-primary-50)"
+                          ? "#f0f9ff"
                           : contact.isRead
                             ? "white"
-                            : "var(--color-accent-50)",
+                            : "#fffbeb",
                         borderLeft: isSelected
-                          ? "3px solid var(--color-primary-500)"
+                          ? "3px solid #0369a1"
                           : "3px solid transparent",
                       }}
                     >
                       <div className="flex items-start gap-3">
-                        {/* Avatar */}
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
                           style={{
                             background: contact.isRead
                               ? "var(--color-neutral-100)"
-                              : "var(--color-primary-100)",
+                              : "#e0f2fe",
                             color: contact.isRead
                               ? "var(--color-neutral-600)"
-                              : "var(--color-primary-700)",
+                              : "#0369a1",
                           }}
                         >
                           {contact.user?.profileImage ? (
@@ -636,9 +612,7 @@ export default function AdminContactsPage() {
                             {!contact.isRead && (
                               <span
                                 className="w-2 h-2 rounded-full flex-shrink-0"
-                                style={{
-                                  background: "var(--color-primary-500)",
-                                }}
+                                style={{ background: "#0369a1" }}
                               />
                             )}
                           </div>
@@ -650,7 +624,7 @@ export default function AdminContactsPage() {
               </div>
             </div>
 
-            {/* ─── Detail Panel ─── */}
+            {/* Detail Panel */}
             <div
               className="rounded-2xl border overflow-hidden"
               style={{
@@ -660,7 +634,6 @@ export default function AdminContactsPage() {
             >
               {selectedContact ? (
                 <div className="h-full flex flex-col">
-                  {/* Detail Header */}
                   <div
                     className="px-6 py-5 border-b"
                     style={{ borderColor: "var(--color-neutral-100)" }}
@@ -670,8 +643,8 @@ export default function AdminContactsPage() {
                         <div
                           className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold"
                           style={{
-                            background: "var(--color-primary-100)",
-                            color: "var(--color-primary-700)",
+                            background: "#e0f2fe",
+                            color: "#0369a1",
                           }}
                         >
                           {selectedContact.user?.profileImage ? (
@@ -694,7 +667,7 @@ export default function AdminContactsPage() {
                           <a
                             href={`mailto:${selectedContact.email}`}
                             className="text-sm hover:underline transition-colors"
-                            style={{ color: "var(--color-primary-600)" }}
+                            style={{ color: "#0369a1" }}
                           >
                             {selectedContact.email}
                           </a>
@@ -736,14 +709,13 @@ export default function AdminContactsPage() {
                                   color: "var(--color-neutral-500)",
                                 }}
                               >
-                                Visitor (not logged in)
+                                Guest
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Actions */}
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleToggleRead(selectedContact)}
@@ -752,7 +724,7 @@ export default function AdminContactsPage() {
                             border: "1.5px solid var(--color-neutral-200)",
                             color: selectedContact.isRead
                               ? "var(--color-neutral-500)"
-                              : "var(--color-primary-600)",
+                              : "#0369a1",
                             background: "white",
                           }}
                           title={
@@ -792,12 +764,12 @@ export default function AdminContactsPage() {
                         </button>
 
                         <a
-                          href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject || "Your message"}`}
+                          href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject || "Your inquiry"}`}
                           className="p-2 rounded-xl transition-all duration-200 hover:scale-105"
                           style={{
-                            border: "1.5px solid var(--color-primary-200)",
-                            color: "var(--color-primary-600)",
-                            background: "var(--color-primary-50)",
+                            border: "1.5px solid #bae6fd",
+                            color: "#0369a1",
+                            background: "#f0f9ff",
                           }}
                           title="Reply via email"
                         >
@@ -885,9 +857,7 @@ export default function AdminContactsPage() {
                     </div>
                   </div>
 
-                  {/* Detail Body */}
                   <div className="flex-1 overflow-y-auto px-6 py-6">
-                    {/* Meta Row */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       {selectedContact.subject &&
                         (() => {
@@ -948,10 +918,8 @@ export default function AdminContactsPage() {
                         style={{
                           background: selectedContact.isRead
                             ? "#f0fdf4"
-                            : "var(--color-accent-100)",
-                          color: selectedContact.isRead
-                            ? "#16a34a"
-                            : "var(--color-primary-700)",
+                            : "#fffbeb",
+                          color: selectedContact.isRead ? "#16a34a" : "#92400e",
                         }}
                       >
                         {selectedContact.isRead ? (
@@ -974,7 +942,7 @@ export default function AdminContactsPage() {
                           <>
                             <span
                               className="w-2 h-2 rounded-full"
-                              style={{ background: "var(--color-primary-500)" }}
+                              style={{ background: "#d4a853" }}
                             />
                             Unread
                           </>
@@ -982,7 +950,6 @@ export default function AdminContactsPage() {
                       </span>
                     </div>
 
-                    {/* Message */}
                     <div
                       className="rounded-2xl p-6 border"
                       style={{
@@ -1019,11 +986,10 @@ export default function AdminContactsPage() {
                       </p>
                     </div>
 
-                    {/* Quick Reply */}
                     <div className="mt-6">
                       <PrimaryButton
                         as="a"
-                        href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject || "Your message to Wake Up & Spark"}&body=%0A%0A──────────────────%0AOriginal message from ${selectedContact.name}:%0A${selectedContact.message}`}
+                        href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject || "Your inquiry to Seefood"}&body=%0A%0A──────────────────%0AOriginal message from ${selectedContact.name}:%0A${encodeURIComponent(selectedContact.message)}`}
                       >
                         <svg
                           width="16"
@@ -1047,7 +1013,7 @@ export default function AdminContactsPage() {
                 <div className="h-full min-h-[500px] flex flex-col items-center justify-center">
                   <div
                     className="w-24 h-24 rounded-full flex items-center justify-center mb-5"
-                    style={{ background: "var(--color-primary-50)" }}
+                    style={{ background: "#f0f9ff" }}
                   >
                     <svg
                       width="40"
@@ -1058,7 +1024,7 @@ export default function AdminContactsPage() {
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      style={{ color: "var(--color-primary-300)" }}
+                      style={{ color: "#7dd3fc" }}
                     >
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <polyline points="22,6 12,13 2,6" />
