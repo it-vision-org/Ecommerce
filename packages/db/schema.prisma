@@ -18,6 +18,11 @@ enum Role {
   NORMAL_USER
 }
 
+enum UserType {
+  INDIVIDUAL
+  RESTAURANT
+}
+
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -44,6 +49,7 @@ model User {
   phoneNumber          String?
   address              String?
   role                 Role      @default(NORMAL_USER)
+  userType             UserType?
   passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
   createdAt            DateTime  @default(now())
