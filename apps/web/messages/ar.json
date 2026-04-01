@@ -171,15 +171,15 @@
   "Navbar": {
     "NavItems": {
       "Home": "الرئيسية",
-      "Library": "المكتبة",
-      "Events": "الفعاليات",
-      "Achievements": "الإنجازات",
+      "Products": "المنتجات",
       "Contact": "اتصل بنا",
       "About": "من نحن"
     },
-    "ProfileSettings": "إعدادات الحساب",
-    "Meetings": "الاجتماعات",
-    "MemberFallback": "عضو سبارك"
+    "Profile": "الحساب",
+    "Orders": "طلباتي",
+    "MemberFallback": "عضو Seefood",
+    "OpenMenu": "فتح القائمة",
+    "CloseMenu": "إغلاق القائمة"
   },
 
   "AuthNavbar": {
