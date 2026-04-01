@@ -188,105 +188,113 @@
 
   "ContactPage": {
     "Hero": {
-      "Badge": "Wake Up & Spark · Espace sûr",
-      "Title": "Parlons de ce qui compte",
-      "Highlight": "pour vous",
-      "Description": "Élèves, parents et enseignants : partagez vos questions, vos besoins ou vos idées. Notre équipe répond avec bienveillance et confidentialité pour soutenir l’intelligence émotionnelle de chacun.",
+      "Badge": "Seefood · Fruits de mer premium",
+      "Title": "Contactez",
+      "Highlight": "Seefood",
+      "Description": "Que vous passiez une commande en gros, ayez des questions sur nos crevettes premium, ou besoin d'aide avec une commande précédente — notre équipe est là pour vous.",
       "Pills": {
-        "Response": "Réponse sous 48h",
-        "Anonymous": "Anonymat possible",
-        "Community": "Communauté bienveillante"
+        "FastResponse": "Réponse rapide",
+        "Wholesale": "Gros & export",
+        "Quality": "Qualité premium"
       },
       "InfoCard": {
         "Overline": "Nous sommes là pour vous",
-        "Title": "Une équipe à l’écoute"
+        "Title": "Nos coordonnées"
       }
     },
     "ContactInfo": {
-      "Rally": {
-        "Title": "Point de ralliement",
-        "Line1": "Wake Up & Spark",
-        "Line2": "Lycée Habib Thameur, Tunisie"
+      "Address": {
+        "Title": "Adresse",
+        "Line1": "Seefood HQ",
+        "Line2": "Tunisie"
+      },
+      "Phone": {
+        "Title": "Téléphone",
+        "Line1": "+216 XX XXX XXX",
+        "Line2": "Lun–Sam, 9h–18h"
       },
       "Email": {
-        "Title": "Email principal",
-        "Line1": "contact@wakeupandspark.com",
-        "Line2": "Réponse sous 48h"
+        "Title": "Email",
+        "Line1": "contact@seefood.com",
+        "Line2": "Réponse sous 24h"
       },
-      "Response": {
-        "Title": "Délai de réponse",
-        "Line1": "48h max pour les demandes générales",
-        "Line2": "24h pour les situations sensibles"
-      },
-      "Privacy": {
-        "Title": "Confidentialité",
-        "Line1": "Les messages sensibles restent privés",
-        "Line2": "Espace sûr pour élèves, parents, enseignants"
+      "Hours": {
+        "Title": "Horaires",
+        "Line1": "Lundi – Samedi",
+        "Line2": "9h00 – 18h00"
       }
     },
     "Channels": {
-      "Listening": {
-        "Title": "Écoute et soutien",
-        "Description": "Partage anonyme ou accompagné pour gérer les émotions et les situations difficiles.",
+      "Badge": "Comment pouvons-nous vous aider ?",
+      "Title": "Choisissez le bon canal pour vos besoins",
+      "Wholesale": {
+        "Title": "Commandes en gros",
+        "Description": "Passez des commandes en grande quantité. Idéal pour les distributeurs et exportateurs.",
         "Tags": {
-          "Tag1": "Bienveillance",
-          "Tag2": "Anonymat possible",
-          "Tag3": "Réponses humaines"
+          "Tag1": "Gros",
+          "Tag2": "Export",
+          "Tag3": "Quantités sur mesure"
         }
       },
-      "Parents": {
-        "Title": "Parents & enseignants",
-        "Description": "Questions sur l’accompagnement, la vie du club ou les besoins d’une classe.",
+      "Restaurant": {
+        "Title": "Partenariat restaurant",
+        "Description": "Commandez des boîtes de crevettes premium pour votre menu. Qualité constante garantie.",
         "Tags": {
-          "Tag1": "Parents",
-          "Tag2": "Enseignants",
-          "Tag3": "Orientation"
+          "Tag1": "Restaurants",
+          "Tag2": "300–900 pcs",
+          "Tag3": "Approvisionnement régulier"
         }
       },
-      "Partnerships": {
-        "Title": "Partenariats & ateliers",
-        "Description": "Envie d’apporter un atelier, un témoignage ou un soutien matériel au club.",
+      "Orders": {
+        "Title": "Support commande",
+        "Description": "Questions sur une commande en cours ou passée ? Suivez votre livraison ou résolvez un problème.",
         "Tags": {
-          "Tag1": "Entreprises",
-          "Tag2": "Associations",
-          "Tag3": "Invités"
+          "Tag1": "Suivi",
+          "Tag2": "Retours",
+          "Tag3": "Problèmes"
         }
       },
-      "Technical": {
-        "Title": "Technique & accès",
-        "Description": "Problèmes de connexion, de publication ou de notification sur la plateforme.",
+      "Export": {
+        "Title": "Export international",
+        "Description": "Intéressé par l'import de produits Seefood ? Contactez-nous pour les tarifs et la logistique.",
         "Tags": {
-          "Tag1": "Support",
-          "Tag2": "Accès",
-          "Tag3": "Compte"
+          "Tag1": "International",
+          "Tag2": "Logistique",
+          "Tag3": "Tarification"
         }
       }
     },
     "Form": {
       "Overline": "Formulaire de contact",
-      "Title": "Écrivons ensemble",
-      "Description": "Dites-nous comment nous pouvons vous aider. Précisez si votre message doit rester confidentiel.",
+      "Title": "Envoyez-nous un message",
+      "Description": "Remplissez le formulaire ci-dessous et notre équipe vous répondra dans les plus brefs délais.",
       "NameLabel": "Nom complet *",
-      "NamePlaceholder": "Votre nom",
+      "NamePlaceholder": "Votre nom complet",
       "EmailLabel": "Email *",
-      "EmailPlaceholder": "vous@example.com",
+      "EmailPlaceholder": "vous@exemple.com",
+      "PhoneLabel": "Numéro de téléphone *",
+      "PhonePlaceholder": "+216 XX XXX XXX",
       "SubjectLabel": "Sujet *",
-      "SubjectPlaceholder": "Choisissez le motif",
+      "SubjectPlaceholder": "Quel est l'objet de votre demande ?",
       "SubjectOptions": {
+        "WholesaleOrder": "Commande en gros",
+        "OrderIssue": "Problème avec une commande",
+        "ProductInquiry": "Renseignement produit",
+        "RestaurantPartnership": "Partenariat restaurant",
+        "ExportInquiry": "Demande export / international",
         "General": "Question générale",
-        "StudentSupport": "Soutien étudiant",
-        "ParentQuestion": "Question parent",
-        "TeacherCollaboration": "Collaboration enseignant",
-        "Partnership": "Partenariat / sponsor",
-        "Event": "Événement / atelier",
-        "Technical": "Problème technique",
         "Other": "Autre"
       },
+      "WholesaleSection": "Détails de la commande en gros",
+      "CountryLabel": "Pays *",
+      "CountryPlaceholder": "Votre pays",
+      "ProductsLabel": "Produits qui vous intéressent",
+      "AdditionalInfo": "Informations supplémentaires",
       "MessageLabel": "Message *",
-      "MessagePlaceholder": "Expliquez votre besoin. Précisez si vous souhaitez rester anonyme.",
+      "MessagePlaceholder": "Décrivez vos besoins, les quantités souhaitées, ou toute question que vous avez...",
       "ButtonSend": "Envoyer le message",
       "ButtonSending": "Envoi en cours...",
-      "StatusSuccess": "Votre message a bien été envoyé. Nous revenons vers vous très vite.",
+      "StatusSuccess": "Votre message a été envoyé avec succès ! Nous vous répondrons sous 24 heures.",
       "StatusError": "Une erreur est survenue. Veuillez réessayer.",
       "Errors": {
         "Generic": "Une erreur est survenue. Veuillez réessayer."
@@ -294,29 +302,37 @@
     },
     "Commitments": {
       "Title": "Nos engagements",
-      "Pledge1": "Réponse en 48h (24h si sensible)",
-      "Pledge2": "Confidentialité et respect",
-      "Pledge3": "Guides et ressources émotionnelles"
+      "Pledge1": "Réponse sous 24h les jours ouvrables",
+      "Pledge2": "Fruits de mer premium, toujours frais",
+      "Pledge3": "Quantités flexibles pour toutes tailles d'entreprise"
     },
-    "WhyWrite": {
-      "Title": "Pourquoi nous écrire ?",
-      "Description": "Pour une idée de post, une situation émotionnelle, un besoin d’accompagnement ou une question sur les activités du club."
+    "WhyContact": {
+      "Title": "Pourquoi nous contacter ?",
+      "Description": "Pour des renseignements produits, tarifs en gros, partenariats restaurant, support commande, ou toute question sur nos crevettes premium."
+    },
+    "WholesaleCTA": {
+      "Title": "Clients grossistes & export",
+      "Description": "Pour les commandes en grand volume et l'export international, soumettez le formulaire avec \"Gros\" ou \"Export\" comme sujet. Notre équipe commerciale préparera un devis personnalisé."
     },
     "FAQ": {
       "Badge": "FAQ",
       "Title": "Questions fréquentes",
-      "Subtitle": "Les réponses rapides pour continuer à grandir ensemble.",
+      "Subtitle": "Réponses rapides aux questions courantes sur nos produits et services.",
       "Item1": {
-        "Question": "Puis-je écrire anonymement ?",
-        "Answer": "Oui. Mentionnez-le dans votre message ; nous traiterons votre demande sans révéler votre identité aux autres membres."
+        "Question": "Quels produits de crevettes proposez-vous ?",
+        "Answer": "Nous sommes spécialisés dans les crevettes panées premium en quatre variétés : Pistache, Amande, Chapelure Maïs et Spicy. Disponibles en boîtes individuelles (6, 8 ou 12 pièces) et boîtes restaurant (300, 600 ou 900 pièces)."
       },
       "Item2": {
-        "Question": "Qui lit les messages sensibles ?",
-        "Answer": "Seule l’équipe encadrante Wake Up & Spark, engagée sur la confidentialité et la bienveillance."
+        "Question": "Comment fonctionnent les commandes en gros ?",
+        "Answer": "Pour les commandes en gros et export, soumettez le formulaire avec vos besoins. Notre équipe vous contactera sous 24h avec un devis personnalisé et les détails logistiques."
       },
       "Item3": {
-        "Question": "Comment proposer un atelier ou un partenariat ?",
-        "Answer": "Choisissez “Partenariat / sponsor” ou “Événement / atelier” dans le sujet, décrivez votre idée et vos disponibilités."
+        "Question": "Puis-je mélanger différentes variétés dans une boîte ?",
+        "Answer": "Oui ! Chaque boîte peut contenir jusqu'à 2 variétés différentes. Par exemple, moitié pistache et moitié spicy dans une même boîte."
+      },
+      "Item4": {
+        "Question": "Livrez-vous à l'international ?",
+        "Answer": "Oui, nous gérons les commandes d'export international. Contactez-nous avec votre pays et les quantités souhaitées, et nous vous proposerons les options d'expédition et tarifs."
       }
     }
   },

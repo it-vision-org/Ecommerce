@@ -188,105 +188,113 @@
 
   "ContactPage": {
     "Hero": {
-      "Badge": "Wake Up & Spark · Safe space",
-      "Title": "Let's talk about what matters",
-      "Highlight": "to you",
-      "Description": "Students, parents, and teachers: share your questions, your needs, or your ideas. Our team replies with care and confidentiality to support everyone's emotional intelligence.",
+      "Badge": "Seefood · Premium Seafood",
+      "Title": "Get in touch with",
+      "Highlight": "Seefood",
+      "Description": "Whether you're placing a wholesale order, have questions about our premium shrimp products, or need help with a previous order — our team is here to assist you.",
       "Pills": {
-        "Response": "Response within 48h",
-        "Anonymous": "Anonymous option",
-        "Community": "Caring community"
+        "FastResponse": "Fast response",
+        "Wholesale": "Wholesale & export",
+        "Quality": "Premium quality"
       },
       "InfoCard": {
-        "Overline": "We are here for you",
-        "Title": "A team that listens"
+        "Overline": "We're here for you",
+        "Title": "Contact information"
       }
     },
     "ContactInfo": {
-      "Rally": {
-        "Title": "Meeting point",
-        "Line1": "Wake Up & Spark",
-        "Line2": "Habib Thameur High School, Tunisia"
+      "Address": {
+        "Title": "Address",
+        "Line1": "Seefood HQ",
+        "Line2": "Tunisia"
+      },
+      "Phone": {
+        "Title": "Phone",
+        "Line1": "+216 XX XXX XXX",
+        "Line2": "Mon–Sat, 9am–6pm"
       },
       "Email": {
-        "Title": "Main email",
-        "Line1": "contact@wakeupandspark.com",
-        "Line2": "Reply within 48h"
+        "Title": "Email",
+        "Line1": "contact@seefood.com",
+        "Line2": "Reply within 24h"
       },
-      "Response": {
-        "Title": "Response time",
-        "Line1": "Up to 48h for general requests",
-        "Line2": "24h for sensitive situations"
-      },
-      "Privacy": {
-        "Title": "Privacy",
-        "Line1": "Sensitive messages stay private",
-        "Line2": "Safe space for students, parents, teachers"
+      "Hours": {
+        "Title": "Business hours",
+        "Line1": "Monday – Saturday",
+        "Line2": "9:00 AM – 6:00 PM"
       }
     },
     "Channels": {
-      "Listening": {
-        "Title": "Listening & support",
-        "Description": "Share anonymously or with guidance to handle emotions and difficult situations.",
+      "Badge": "How can we help?",
+      "Title": "Choose the right channel for your needs",
+      "Wholesale": {
+        "Title": "Wholesale orders",
+        "Description": "Place bulk orders for large quantities. Perfect for distributors and exporters.",
         "Tags": {
-          "Tag1": "Care",
-          "Tag2": "Anonymous option",
-          "Tag3": "Human replies"
+          "Tag1": "Bulk",
+          "Tag2": "Export",
+          "Tag3": "Custom quantities"
         }
       },
-      "Parents": {
-        "Title": "Parents & teachers",
-        "Description": "Questions about support, club life, or the needs of a class.",
+      "Restaurant": {
+        "Title": "Restaurant partnership",
+        "Description": "Order premium shrimp boxes for your restaurant menu. Consistent quality guaranteed.",
         "Tags": {
-          "Tag1": "Parents",
-          "Tag2": "Teachers",
-          "Tag3": "Guidance"
+          "Tag1": "Restaurants",
+          "Tag2": "300–900 pcs",
+          "Tag3": "Regular supply"
         }
       },
-      "Partnerships": {
-        "Title": "Partnerships & workshops",
-        "Description": "Want to bring a workshop, testimony, or material support to the club.",
+      "Orders": {
+        "Title": "Order support",
+        "Description": "Questions about a current or past order? Track your delivery or resolve any issues.",
         "Tags": {
-          "Tag1": "Companies",
-          "Tag2": "Associations",
-          "Tag3": "Guests"
+          "Tag1": "Tracking",
+          "Tag2": "Returns",
+          "Tag3": "Issues"
         }
       },
-      "Technical": {
-        "Title": "Technical & access",
-        "Description": "Issues with login, posting, or notifications on the platform.",
+      "Export": {
+        "Title": "International export",
+        "Description": "Interested in importing Seefood products? Contact us for pricing and logistics.",
         "Tags": {
-          "Tag1": "Support",
-          "Tag2": "Access",
-          "Tag3": "Account"
+          "Tag1": "International",
+          "Tag2": "Logistics",
+          "Tag3": "Pricing"
         }
       }
     },
     "Form": {
       "Overline": "Contact form",
-      "Title": "Let's write together",
-      "Description": "Tell us how we can help. Mention if your message should remain confidential.",
+      "Title": "Send us a message",
+      "Description": "Fill out the form below and our team will get back to you as soon as possible.",
       "NameLabel": "Full name *",
-      "NamePlaceholder": "Your name",
+      "NamePlaceholder": "Your full name",
       "EmailLabel": "Email *",
       "EmailPlaceholder": "you@example.com",
+      "PhoneLabel": "Phone number *",
+      "PhonePlaceholder": "+216 XX XXX XXX",
       "SubjectLabel": "Subject *",
-      "SubjectPlaceholder": "Choose a topic",
+      "SubjectPlaceholder": "What is your inquiry about?",
       "SubjectOptions": {
+        "WholesaleOrder": "Wholesale / Bulk order",
+        "OrderIssue": "Issue with previous order",
+        "ProductInquiry": "Product inquiry",
+        "RestaurantPartnership": "Restaurant partnership",
+        "ExportInquiry": "Export / International inquiry",
         "General": "General question",
-        "StudentSupport": "Student support",
-        "ParentQuestion": "Parent question",
-        "TeacherCollaboration": "Teacher collaboration",
-        "Partnership": "Partnership / sponsor",
-        "Event": "Event / workshop",
-        "Technical": "Technical issue",
         "Other": "Other"
       },
+      "WholesaleSection": "Wholesale order details",
+      "CountryLabel": "Country *",
+      "CountryPlaceholder": "Your country",
+      "ProductsLabel": "Products of interest",
+      "AdditionalInfo": "Additional Information",
       "MessageLabel": "Message *",
-      "MessagePlaceholder": "Explain your need. Mention if you prefer to stay anonymous.",
+      "MessagePlaceholder": "Tell us about your needs, desired quantities, or any questions you have...",
       "ButtonSend": "Send message",
       "ButtonSending": "Sending...",
-      "StatusSuccess": "Your message was sent. We will get back to you soon.",
+      "StatusSuccess": "Your message has been sent successfully! We'll get back to you within 24 hours.",
       "StatusError": "Something went wrong. Please try again.",
       "Errors": {
         "Generic": "Something went wrong. Please try again."
@@ -294,29 +302,37 @@
     },
     "Commitments": {
       "Title": "Our commitments",
-      "Pledge1": "Reply within 48h (24h if sensitive)",
-      "Pledge2": "Confidentiality and respect",
-      "Pledge3": "Guides and emotional resources"
+      "Pledge1": "Response within 24 hours on business days",
+      "Pledge2": "Premium quality seafood, always fresh",
+      "Pledge3": "Flexible quantities for all business sizes"
     },
-    "WhyWrite": {
-      "Title": "Why write to us?",
-      "Description": "For a post idea, an emotional situation, a need for support, or a question about club activities."
+    "WhyContact": {
+      "Title": "Why contact us?",
+      "Description": "For product inquiries, wholesale pricing, restaurant partnerships, order support, or any questions about our premium shrimp products."
+    },
+    "WholesaleCTA": {
+      "Title": "Wholesale & export customers",
+      "Description": "For large volume orders and international export, submit the form with \"Wholesale\" or \"Export\" as subject. Our sales team will prepare a custom quote for you."
     },
     "FAQ": {
       "Badge": "FAQ",
       "Title": "Frequently asked questions",
-      "Subtitle": "Quick answers to keep growing together.",
+      "Subtitle": "Quick answers to common questions about our products and services.",
       "Item1": {
-        "Question": "Can I write anonymously?",
-        "Answer": "Yes. Mention it in your message; we will handle your request without revealing your identity to other members."
+        "Question": "What shrimp products do you offer?",
+        "Answer": "We specialize in premium breaded shrimp (Crevette Panée) in four delicious varieties: Pistachio, Almond, Corn Breadcrumb, and Spicy. Available in individual boxes (6, 8, or 12 pieces) and restaurant boxes (300, 600, or 900 pieces)."
       },
       "Item2": {
-        "Question": "Who reads sensitive messages?",
-        "Answer": "Only the Wake Up & Spark lead team, committed to confidentiality and care."
+        "Question": "How do wholesale orders work?",
+        "Answer": "For wholesale and export orders, submit the contact form with your requirements. Our team will contact you within 24 hours with custom pricing and logistics details."
       },
       "Item3": {
-        "Question": "How can I propose a workshop or partnership?",
-        "Answer": "Choose “Partnership / sponsor” or “Event / workshop” in the subject, describe your idea, and share your availability."
+        "Question": "Can I mix different varieties in one box?",
+        "Answer": "Yes! Each box can contain up to 2 different varieties. For example, you can have half pistachio and half spicy in a single box."
+      },
+      "Item4": {
+        "Question": "Do you deliver internationally?",
+        "Answer": "Yes, we handle international export orders. Contact us with your country and desired quantities, and we'll provide shipping options and pricing."
       }
     }
   },
