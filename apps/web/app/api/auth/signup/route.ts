@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, phoneNumber, address } = result.data;
+    const { name, email, password, phoneNumber, address, userType } =
+      result.data;
 
     // Check if user with this email already exists
     const existingUser = await db.user.findUnique({
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
         email,
         password: await hashPassword(password),
         role: "NORMAL_USER",
+        userType: userType || "INDIVIDUAL",
         phoneNumber: phoneNumber || null,
         address: address || null,
       },
