@@ -14,6 +14,7 @@ export type AuthUser = {
   id: string;
   email: string;
   role: "SUPER_ADMIN" | "ADMIN" | "NORMAL_USER";
+  userType: "INDIVIDUAL" | "RESTAURANT";
   name: string;
 };
 
@@ -51,6 +52,7 @@ export async function refreshToken(): Promise<AuthUser | null> {
       id: payload.id as string,
       email: payload.email as string,
       role: payload.role as AuthUser["role"],
+      userType: payload.userType as AuthUser["userType"],
       name: payload.name as string,
     };
 
