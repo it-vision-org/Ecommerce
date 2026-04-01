@@ -74,6 +74,20 @@ export default function SignupPage() {
     }
   };
 
+  const userTypeOptions = [
+    {
+      value: "INDIVIDUAL",
+      label: t("Form.UserTypes.Individual.Label"),
+      icon: t("Form.UserTypes.Individual.Icon"),
+      desc: t("Form.UserTypes.Individual.Description"),
+    },
+    {
+      value: "RESTAURANT",
+      label: t("Form.UserTypes.Restaurant.Label"),
+      icon: t("Form.UserTypes.Restaurant.Icon"),
+      desc: t("Form.UserTypes.Restaurant.Description"),
+    },
+  ];
   const features = ["Feature1", "Feature2", "Feature3", "Feature4"].map((key) =>
     t(`LeftPanel.Features.${key}`),
   );
@@ -248,6 +262,66 @@ export default function SignupPage() {
               />
             </div>
 
+            {/* User Type */}
+            <div className="animate-field-in delay-300">
+              <label
+                className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                style={{ color: "var(--color-neutral-700)" }}
+              >
+                {t("Form.UserTypeLabel")}
+              </label>
+              <div className="grid grid-cols-2 gap-5">
+                {userTypeOptions.map((opt) => (
+                  <label key={opt.value} className="relative cursor-pointer">
+                    <input
+                      type="radio"
+                      name="userType"
+                      value={opt.value}
+                      checked={formData.userType === opt.value}
+                      onChange={handleChange}
+                      className="absolute opacity-0 w-0 h-0"
+                    />
+                    <div
+                      className={`flex flex-col items-center py-4 px-2 rounded-2xl bg-white transition-all duration-300 text-center ${
+                        formData.userType === opt.value
+                          ? "shadow-lg -translate-y-0.5"
+                          : "hover:-translate-y-0.5"
+                      }`}
+                      style={{
+                        border:
+                          formData.userType === opt.value
+                            ? "2px solid var(--color-primary-500)"
+                            : "2px solid var(--color-primary-100)",
+                        background:
+                          formData.userType === opt.value
+                            ? "linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100))"
+                            : "white",
+                        boxShadow:
+                          formData.userType === opt.value
+                            ? "0 4px 16px rgba(59, 130, 246, 0.15)"
+                            : "none",
+                      }}
+                    >
+                      <span className="text-[1.75rem] mb-[0.4rem]">
+                        {opt.icon}
+                      </span>
+                      <span
+                        className="text-[0.85rem] font-semibold"
+                        style={{ color: "var(--color-neutral-700)" }}
+                      >
+                        {opt.label}
+                      </span>
+                      <span
+                        className="text-[0.65rem] mt-[0.2rem] leading-tight"
+                        style={{ color: "var(--color-neutral-500)" }}
+                      >
+                        {opt.desc}
+                      </span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
             {/* Submit Button */}
             <div className="animate-field-in delay-350 pt-1">
               <button
