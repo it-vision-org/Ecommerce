@@ -5,34 +5,26 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/resetPassword?token=${token}`;
 
-  // Professional HTML email template
+  // Updated for Seefood ecommerce branding
   const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset Your Password - Wake Up & Spark</title>
-  <!--[if mso]>
-  <style type="text/css">
-    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
-  </style>
-  <![endif]-->
+  <title>Reset Your Password - Seefood</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   
-  <!-- Main Container -->
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8fafc;">
     <tr>
       <td style="padding: 40px 20px;">
         
-        <!-- Email Card -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); overflow: hidden;">
           
-          <!-- Header with Gradient -->
+          <!-- Header with Ocean Gradient -->
           <tr>
-            <td style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #38bdf8 100%); padding: 40px 40px 60px 40px; text-align: center; position: relative;">
-              <!-- Orange gradient: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fbbf24 100%) -->
+            <td style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%); padding: 40px 40px 60px 40px; text-align: center; position: relative;">
               
               <!-- Lock Icon -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="80" style="margin: 0 auto 20px auto;">
@@ -46,7 +38,6 @@ export async function sendPasswordResetEmail(email: string, token: string) {
                 </tr>
               </table>
               
-              <!-- Title -->
               <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; font-family: 'Georgia', serif; line-height: 1.2;">
                 Reset Your Password
               </h1>
@@ -57,22 +48,19 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           <tr>
             <td style="padding: 40px;">
               
-              <!-- Greeting -->
               <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #334155;">
                 Hello,
               </p>
               
-              <!-- Main Message -->
               <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #334155;">
-                We received a request to reset your password for your <strong>Wake Up & Spark</strong> account. Click the button below to create a new password:
+                We received a request to reset your password for your <strong>Seefood</strong> account. Click the button below to create a new password:
               </p>
               
               <!-- CTA Button -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td style="text-align: center; padding: 10px 0 30px 0;">
-                    <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #38bdf8 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; padding: 16px 40px; border-radius: 12px; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);">
-                      <!-- Orange gradient: linear-gradient(135deg, #f97316 0%, #fbbf24 100%) -->
+                    <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; padding: 16px 40px; border-radius: 12px; box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);">
                       Reset Password
                     </a>
                   </td>
@@ -81,24 +69,20 @@ export async function sendPasswordResetEmail(email: string, token: string) {
               
               <!-- Info Box -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 20px; margin: 0 0 24px 0;">
-                <!-- Orange: background-color: #fffbeb; border: 1px solid #fde68a; -->
                 <tr>
                   <td>
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
                         <td width="24" style="vertical-align: top; padding-right: 12px;">
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <!-- Orange: stroke="#d97706" -->
                             <circle cx="12" cy="12" r="10"/>
                             <line x1="12" y1="16" x2="12" y2="12"/>
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                           </svg>
                         </td>
                         <td style="font-size: 14px; line-height: 1.6; color: #0369a1;">
-                          <!-- Orange: color: #b45309; -->
                           <strong style="display: block; margin-bottom: 4px; color: #0c4a6e;">Important:</strong>
-                          <!-- Orange: color: #7c2d12; -->
-                          This link will expire in <strong>24 hours</strong> for security reasons. If you didn't request this reset, you can safely ignore this email.
+                          This link will expire in <strong>1 hour</strong> for security reasons. If you didn't request this reset, you can safely ignore this email.
                         </td>
                       </tr>
                     </table>
@@ -106,17 +90,13 @@ export async function sendPasswordResetEmail(email: string, token: string) {
                 </tr>
               </table>
               
-              <!-- Alternative Link -->
               <p style="margin: 0 0 8px 0; font-size: 14px; line-height: 1.6; color: #64748b;">
                 If the button doesn't work, copy and paste this link into your browser:
               </p>
-              <p style="margin: 0 0 24px 0; font-size: 13px; line-height: 1.6; color: #3b82f6; word-break: break-all;">
-                <!-- Orange: color: #f97316; -->
-                <a href="${resetUrl}" style="color: #3b82f6; text-decoration: underline;">${resetUrl}</a>
-                <!-- Orange: color: #f97316; -->
+              <p style="margin: 0 0 24px 0; font-size: 13px; line-height: 1.6; color: #0369a1; word-break: break-all;">
+                <a href="${resetUrl}" style="color: #0369a1; text-decoration: underline;">${resetUrl}</a>
               </p>
               
-              <!-- Security Notice -->
               <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #64748b;">
                 For security reasons, never share this link with anyone. If you're concerned about your account security, please contact our support team.
               </p>
@@ -133,31 +113,26 @@ export async function sendPasswordResetEmail(email: string, token: string) {
                 <tr>
                   <td style="text-align: center;">
                     <div style="display: inline-flex; align-items: center; gap: 8px;">
-                      <!-- Spark Icon -->
-                      <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #38bdf8); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">
-                        <!-- Orange gradient: linear-gradient(135deg, #f97316, #fbbf24) -->
+                      <!-- Fish Icon for Seefood -->
+                      <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #0369a1, #0ea5e9); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
-                          <path d="M7,2V13H10V22L17,10H13L17,2H7Z"/>
+                          <path d="M6.5 12C5.5 14 5.5 10 6.5 12M17.5 12C18.5 14 18.5 10 17.5 12M12 22C16 20 21 16 21 12C21 8 16 4 12 2C8 4 3 8 3 12C3 16 8 20 12 22Z"/>
                         </svg>
                       </div>
-                      <!-- Brand Text -->
-                      <span style="font-size: 18px; font-weight: 700; color: #1e3a8a; font-family: 'Georgia', serif; vertical-align: middle;">
-                        <!-- Orange: color: #7c2d12; -->
-                        Wake Up & Spark
+                      <span style="font-size: 18px; font-weight: 700; color: #0c4a6e; font-family: 'Georgia', serif; vertical-align: middle;">
+                        Seefood
                       </span>
                     </div>
                   </td>
                 </tr>
               </table>
               
-              <!-- Footer Text -->
               <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #64748b; text-align: center;">
-                A community where students, teachers, and parents<br />grow together through shared wisdom.
+                Premium seafood delivered fresh to your door<br />Quality you can taste, service you can trust.
               </p>
               
-              <!-- Copyright -->
               <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #94a3b8; text-align: center;">
-                © ${new Date().getFullYear()} Wake Up & Spark. All rights reserved.
+                © ${new Date().getFullYear()} Seefood. All rights reserved.
               </p>
               
             </td>
@@ -165,7 +140,6 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           
         </table>
         
-        <!-- Extra Footer Note -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 20px auto 0 auto;">
           <tr>
             <td style="text-align: center; padding: 0 20px;">
@@ -184,12 +158,20 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 </html>
   `;
 
-  await resend.emails.send({
-    from: "Wake Up & Spark <onboarding@resend.dev>",
-    to: email,
-    subject: "Reset Your Password - Wake Up & Spark",
-    html: emailHtml,
-  });
+  try {
+    const result = await resend.emails.send({
+      from: "Seefood <onboarding@resend.dev>",
+      to: email,
+      subject: "Reset Your Password - Seefood",
+      html: emailHtml,
+    });
+
+    console.log("Password reset email sent successfully:", result);
+    return result;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
 }
 
 export async function sendContactFormEmail({

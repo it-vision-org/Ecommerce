@@ -3,7 +3,6 @@
 import { cookies } from "next/headers";
 import { jwtVerify, SignJWT } from "jose";
 
-// Shared constants — single source of truth for cookie name and secret
 const COOKIE_NAME = "authToken";
 const getSecret = () => {
   const secret = process.env.JWT_SECRET;
@@ -14,14 +13,13 @@ const getSecret = () => {
 export type AuthUser = {
   id: string;
   email: string;
-  role: string;
-  name?: string;
-  userType?: string;
+  role: "SUPER_ADMIN" | "ADMIN" | "NORMAL_USER";
+  userType: "INDIVIDUAL" | "RESTAURANT";
+  name: string;
 };
 
 /**
  * Get the currently authenticated user from the JWT cookie.
- * Use this in server components & server actions.
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const cookiesStore = await cookies();
@@ -32,7 +30,6 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     const { payload } = await jwtVerify(token, getSecret());
     return payload as AuthUser;
   } catch {
-    // Token is invalid or expired — clear it
     cookiesStore.delete(COOKIE_NAME);
     return null;
   }
@@ -40,7 +37,6 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
 /**
  * Refresh the JWT token with a new expiration.
- * Call this periodically (e.g., on page load) to keep the session alive.
  */
 export async function refreshToken(): Promise<AuthUser | null> {
   const cookiesStore = await cookies();
@@ -52,13 +48,15 @@ export async function refreshToken(): Promise<AuthUser | null> {
     const secret = getSecret();
     const { payload } = await jwtVerify(token, secret);
 
-    const newToken = await new SignJWT({
-      id: payload.id,
-      email: payload.email,
-      role: payload.role,
-      name: payload.name,
-      userType: payload.userType,
-    })
+    const user: AuthUser = {
+      id: payload.id as string,
+      email: payload.email as string,
+      role: payload.role as AuthUser["role"],
+      userType: payload.userType as AuthUser["userType"],
+      name: payload.name as string,
+    };
+
+    const newToken = await new SignJWT({ ...user })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
@@ -71,10 +69,10 @@ export async function refreshToken(): Promise<AuthUser | null> {
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    return payload as AuthUser;
+    return user;
   } catch (error) {
     console.error("Token refresh failed:", error);
     cookiesStore.delete(COOKIE_NAME);
@@ -83,7 +81,7 @@ export async function refreshToken(): Promise<AuthUser | null> {
 }
 
 /**
- * Sign out the current user by clearing the auth cookie.
+ * Sign out the current user.
  */
 export async function signOutAction() {
   const cookiesStore = await cookies();

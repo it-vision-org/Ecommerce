@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Compare password
-    const passwordMatch = await comparePassword(password, user.password || "");
+    const passwordMatch = await comparePassword(password, user.password);
     if (!passwordMatch) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -70,7 +70,6 @@ export async function POST(req: NextRequest) {
       email: user.email,
       role: user.role,
       name: user.name,
-      userType: user.userType,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()

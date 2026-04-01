@@ -6,7 +6,17 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useTranslations, useLocale } from "next-intl";
 import BackButton from "@/components/ui/BackButton";
-import { PhoneNumberInput } from "@/components/ui/PhoneNumberInput";
+import { AuthInput } from "@/components/auth/AuthInput";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { PhoneNumberInput } from "@/components/auth/PhoneNumberInput";
+import {
+  EmailIcon,
+  UserIcon,
+  ShoppingBagIcon,
+  SpinnerIcon,
+  MapPinIcon,
+} from "@/components/ui/Icons";
+import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -15,15 +25,13 @@ export default function SignupPage() {
     password: "",
     phoneNumber: "",
     countryCode: "+216",
-    userType: "STUDENT",
+    address: "",
+    userType: "INDIVIDUAL",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const t = useTranslations("SignupPage");
   const locale = useLocale();
-
-  // Check if current locale is RTL (Arabic)
   const isRTL = locale === "ar";
 
   const handleChange = (
@@ -58,9 +66,7 @@ export default function SignupPage() {
       }
 
       toast.success(t("Toast.Success"));
-      setTimeout(() => {
-        router.push("/auth/login");
-      }, 1500);
+      setTimeout(() => router.push("/auth/login"), 1500);
     } catch (error: any) {
       toast.error(error.message || t("Toast.Error"));
     } finally {
@@ -70,586 +76,311 @@ export default function SignupPage() {
 
   const userTypeOptions = [
     {
-      value: "STUDENT",
-      label: t("Form.UserTypes.Student.Label"),
-      icon: t("Form.UserTypes.Student.Icon"),
-      desc: t("Form.UserTypes.Student.Description"),
+      value: "INDIVIDUAL",
+      label: t("Form.UserTypes.Individual.Label"),
+      icon: t("Form.UserTypes.Individual.Icon"),
+      desc: t("Form.UserTypes.Individual.Description"),
     },
     {
-      value: "TEACHER",
-      label: t("Form.UserTypes.Teacher.Label"),
-      icon: t("Form.UserTypes.Teacher.Icon"),
-      desc: t("Form.UserTypes.Teacher.Description"),
-    },
-    {
-      value: "PARENT",
-      label: t("Form.UserTypes.Parent.Label"),
-      icon: t("Form.UserTypes.Parent.Icon"),
-      desc: t("Form.UserTypes.Parent.Description"),
+      value: "RESTAURANT",
+      label: t("Form.UserTypes.Restaurant.Label"),
+      icon: t("Form.UserTypes.Restaurant.Icon"),
+      desc: t("Form.UserTypes.Restaurant.Description"),
     },
   ];
+  const features = ["Feature1", "Feature2", "Feature3", "Feature4"].map((key) =>
+    t(`LeftPanel.Features.${key}`),
+  );
 
   return (
-    <>
+    <div
+      className="min-h-screen flex relative overflow-hidden"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      {/* Left Panel */}
+      <AuthLeftPanel
+        isRTL={isRTL}
+        title={t("LeftPanel.Title")}
+        subtitle={t("LeftPanel.Subtitle")}
+        features={features}
+        tagline={t("LeftPanel.Tagline")}
+        icon={<ShoppingBagIcon size={38} />}
+      />
+
+      {/* Right Form Area */}
       <div
-        className="min-h-screen flex relative overflow-hidden"
-        style={{ fontFamily: "Inter, sans-serif" }}
-        dir={isRTL ? "rtl" : "ltr"}
+        className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-10"
+        style={{ background: "var(--bg)" }}
       >
-        {/* ═══════════════════════════════════════════════════════════
-            LEFT PANEL (Desktop Only) 
-        ═══════════════════════════════════════════════════════════ */}
+        {/* Background decorations */}
         <div
-          className="hidden lg:flex lg:w-[42%] relative overflow-hidden items-center justify-center flex-col"
+          className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none"
           style={{
             background:
-              "linear-gradient(160deg, var(--color-primary-600) 0%, var(--color-primary-500) 40%, var(--color-accent-400) 100%)",
+              "radial-gradient(circle at 80% 10%, rgba(14,165,233,0.06) 0%, transparent 60%)",
           }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 90%, rgba(6,182,212,0.06) 0%, transparent 60%)",
+          }}
+        />
+
+        {/* Mobile accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px] lg:hidden"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, var(--primary), transparent)",
+          }}
+        />
+
+        {/* Back Button (Mobile) */}
+        <div
+          className={`absolute top-5 z-20 lg:hidden ${isRTL ? "right-5" : "left-5"}`}
         >
-          {/* Floating Orb 1 */}
-          <div
-            className={`absolute -top-[20%] w-[500px] h-[500px] rounded-full animate-drift ${isRTL ? "-left-[20%]" : "-right-[20%]"}`}
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)",
-            }}
-          />
-
-          {/* Floating Orb 2 */}
-          <div
-            className={`absolute -bottom-[15%] w-[400px] h-[400px] rounded-full animate-drift-reverse ${isRTL ? "-right-[10%]" : "-left-[10%]"}`}
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%)",
-            }}
-          />
-
-          {/* Panel Content */}
-          <div
-            className={`fixed top-28.5 text-center px-12 text-white ${isRTL ? "text-right" : ""}`}
-          >
-            {/* Spark Icon */}
-            <div
-              className="w-20 h-20 mx-auto mb-8 rounded-3xl flex items-center justify-center animate-glow"
-              style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-              }}
-            >
-              <svg
-                className="w-10 h-10 fill-white"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M7,2V13H10V22L17,10H13L17,2H7Z" />
-              </svg>
-            </div>
-
-            {/* Title */}
-            <h1
-              className="text-5xl font-bold leading-tight mb-4 whitespace-pre-line"
-              style={{
-                fontFamily: "Playfair Display, serif",
-                textShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              {t("LeftPanel.Title")}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-lg opacity-90 leading-relaxed max-w-xs mx-auto">
-              {t("LeftPanel.Subtitle")}
-            </p>
-
-            {/* Features List */}
-            <div
-              className={`mt-10 max-w-[280px] mx-auto space-y-3 ${isRTL ? "text-right" : "text-left"}`}
-            >
-              {["Feature1", "Feature2", "Feature3", "Feature4"].map(
-                (feature, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center gap-3 opacity-90 ${isRTL ? "justify-start" : ""}`}
-                  >
-                    {isRTL ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                        <span className="text-[0.95rem]">
-                          {t(`LeftPanel.Features.${feature}`)}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
+          <BackButton color="var(--primary)" path="/" />
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            RIGHT FORM AREA 
-        ═══════════════════════════════════════════════════════════ */}
-        <div
-          className="flex-1 flex items-center justify-center relative overflow-y-auto px-8 py-8"
-          style={{
-            background:
-              "linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-accent-50) 50%, var(--color-primary-50) 100%)",
-          }}
-        >
-          {/* Background Orb */}
+        {/* Form Card */}
+        <div className="w-full max-w-[440px] relative z-10 animate-card-in py-4">
+          {/* Mobile Logo */}
           <div
-            className="absolute -top-[30%] w-[500px] h-[500px] rounded-full"
+            className={`flex items-center gap-3 mb-7 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
+          >
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+              }}
+            >
+              <ShoppingBagIcon size={20} />
+            </div>
+            <span
+              className="text-xl font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {t("Brand")}
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h2
+            className={`text-[2rem] mb-2 leading-tight font-bold ${isRTL ? "text-right" : ""}`}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}
+          >
+            {t("Heading")}
+          </h2>
+
+          <div
+            className={`w-10 h-[2.5px] mb-3 rounded-full ${isRTL ? "mr-0 ml-auto" : ""}`}
             style={{
               background:
-                "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
+                "linear-gradient(90deg, var(--primary), var(--accent))",
             }}
           />
 
-          {/* Back Button (Mobile Only) */}
-          <div
-            className={`absolute top-6 z-20 lg:hidden ${isRTL ? "right-6" : "left-6"}`}
+          <p
+            className={`text-[0.9rem] mb-7 font-normal ${isRTL ? "text-right" : ""}`}
+            style={{ color: "var(--text-secondary)" }}
           >
-            <BackButton color="var(--color-primary-600)" path="/" />
-          </div>
+            {t("Subheading")}
+          </p>
 
-          {/* Form Card */}
-          <div className="w-full max-w-[480px] relative z-10 animate-card-in py-4">
-            {/* Mobile Logo (Mobile Only) */}
-            <div
-              className={`flex items-center gap-3 mb-6 lg:hidden ${isRTL ? "flex-row-reverse" : ""}`}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-500), var(--color-accent-400))",
-                }}
-              >
-                <svg
-                  className="w-6 h-6 fill-white"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M7,2V13H10V22L17,10H13L17,2H7Z" />
-                </svg>
-              </div>
-              <span
-                className="text-xl font-bold bg-clip-text text-transparent"
-                style={{
-                  fontFamily: "Playfair Display, serif",
-                  background:
-                    "linear-gradient(135deg, var(--color-primary-700), var(--color-primary-600))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {t("Brand")}
-              </span>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Full Name */}
+            <div className="animate-field-in delay-100">
+              <AuthInput
+                id="name"
+                name="name"
+                type="text"
+                required
+                isRTL={isRTL}
+                label={t("Form.NameLabel")}
+                icon={<UserIcon />}
+                placeholder={t("Form.NamePlaceholder")}
+                value={formData.name}
+                onChange={handleChange}
+              />
             </div>
 
-            {/* Heading */}
-            <h2
-              className={`text-3xl font-bold mb-2 ${isRTL ? "text-right" : ""}`}
-              style={{
-                fontFamily: "Playfair Display, serif",
-                color: "var(--color-neutral-900)",
-              }}
-            >
-              {t("Heading")}
-            </h2>
-            <p
-              className={`text-[0.95rem] mb-7 ${isRTL ? "text-right" : ""}`}
-              style={{ color: "var(--color-neutral-600)" }}
-            >
-              {t("Subheading")}
-            </p>
+            {/* Email */}
+            <div className="animate-field-in delay-150">
+              <AuthInput
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                isRTL={isRTL}
+                label={t("Form.EmailLabel")}
+                icon={<EmailIcon />}
+                placeholder={t("Form.EmailPlaceholder")}
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-[1.1rem]">
-              {/* Full Name */}
-              <div className="animate-field-in delay-100">
-                <label
-                  htmlFor="name"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.NameLabel")}
-                </label>
-                <div className="relative">
-                  <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-4 text-right" : "pl-11 pr-4"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
-                    placeholder={t("Form.NamePlaceholder")}
-                    value={formData.name}
-                    onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
-                </div>
-              </div>
+            {/* Password */}
+            <div className="animate-field-in delay-200">
+              <PasswordInput
+                id="password"
+                name="password"
+                autoComplete="new-password"
+                required
+                isRTL={isRTL}
+                label={t("Form.PasswordLabel")}
+                placeholder={t("Form.PasswordPlaceholder")}
+                hint={t("Form.PasswordHint")}
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
 
-              {/* Email */}
-              <div className="animate-field-in delay-150">
-                <label
-                  htmlFor="email"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.EmailLabel")}
-                </label>
-                <div className="relative">
-                  <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-4 text-right" : "pl-11 pr-4"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
-                    placeholder={t("Form.EmailPlaceholder")}
-                    value={formData.email}
-                    onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
-                </div>
-              </div>
+            {/* Phone Number */}
+            <div className="animate-field-in delay-250">
+              <PhoneNumberInput formData={formData} setFormData={setFormData} />
+            </div>
 
-              {/* Password */}
-              <div className="animate-field-in delay-200">
-                <label
-                  htmlFor="password"
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.PasswordLabel")}
-                </label>
-                <div className="relative">
-                  <svg
-                    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? "right-4" : "left-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    className={`w-full py-[0.85rem] rounded-xl text-[0.95rem] bg-white transition-all duration-300 outline-none ${isRTL ? "pr-11 pl-11 text-right" : "pl-11 pr-11"}`}
-                    style={{
-                      border: "2px solid var(--color-primary-100)",
-                      color: "var(--color-neutral-900)",
-                    }}
-                    placeholder={t("Form.PasswordPlaceholder")}
-                    value={formData.password}
-                    onChange={handleChange}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-400)";
-                      e.target.style.boxShadow =
-                        "0 0 0 4px rgba(59, 130, 246, 0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--color-primary-100)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className={`absolute top-1/2 -translate-y-1/2 p-0 bg-transparent border-none cursor-pointer transition-colors duration-200 ${isRTL ? "left-4" : "right-4"}`}
-                    style={{ color: "var(--color-neutral-400)" }}
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "var(--color-neutral-600)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "var(--color-neutral-400)")
-                    }
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <p
-                  className={`text-xs mt-[0.35rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-500)" }}
-                >
-                  {t("Form.PasswordHint")}
-                </p>
-              </div>
+            {/* Address */}
+            <div className="animate-field-in delay-300">
+              <AuthInput
+                id="address"
+                name="address"
+                type="text"
+                isRTL={isRTL}
+                label={t("Form.AddressLabel")}
+                icon={<MapPinIcon />}
+                placeholder={t("Form.AddressPlaceholder")}
+                hint={t("Form.AddressHint")}
+                value={formData.address}
+                onChange={handleChange}
+              />
+            </div>
 
-              {/* Phone Number */}
-              <div className="animate-field-in delay-250">
-                <PhoneNumberInput
-                  formData={formData}
-                  setFormData={setFormData}
-                />
-              </div>
-
-              {/* User Type */}
-              <div className="animate-field-in delay-300">
-                <label
-                  className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
-                  style={{ color: "var(--color-neutral-700)" }}
-                >
-                  {t("Form.UserTypeLabel")}
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {userTypeOptions.map((opt) => (
-                    <label key={opt.value} className="relative cursor-pointer">
-                      <input
-                        type="radio"
-                        name="userType"
-                        value={opt.value}
-                        checked={formData.userType === opt.value}
-                        onChange={handleChange}
-                        className="absolute opacity-0 w-0 h-0"
-                      />
-                      <div
-                        className={`flex flex-col items-center py-4 px-2 rounded-2xl bg-white transition-all duration-300 text-center ${
+            {/* User Type */}
+            <div className="animate-field-in delay-300">
+              <label
+                className={`block text-[0.85rem] font-semibold mb-[0.4rem] ${isRTL ? "text-right" : ""}`}
+                style={{ color: "var(--color-neutral-700)" }}
+              >
+                {t("Form.UserTypeLabel")}
+              </label>
+              <div className="grid grid-cols-2 gap-5">
+                {userTypeOptions.map((opt) => (
+                  <label key={opt.value} className="relative cursor-pointer">
+                    <input
+                      type="radio"
+                      name="userType"
+                      value={opt.value}
+                      checked={formData.userType === opt.value}
+                      onChange={handleChange}
+                      className="absolute opacity-0 w-0 h-0"
+                    />
+                    <div
+                      className={`flex flex-col items-center py-4 px-2 rounded-2xl bg-white transition-all duration-300 text-center ${
+                        formData.userType === opt.value
+                          ? "shadow-lg -translate-y-0.5"
+                          : "hover:-translate-y-0.5"
+                      }`}
+                      style={{
+                        border:
                           formData.userType === opt.value
-                            ? "shadow-lg -translate-y-0.5"
-                            : "hover:-translate-y-0.5"
-                        }`}
-                        style={{
-                          border:
-                            formData.userType === opt.value
-                              ? "2px solid var(--color-primary-500)"
-                              : "2px solid var(--color-primary-100)",
-                          background:
-                            formData.userType === opt.value
-                              ? "linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100))"
-                              : "white",
-                          boxShadow:
-                            formData.userType === opt.value
-                              ? "0 4px 16px rgba(59, 130, 246, 0.15)"
-                              : "none",
-                        }}
+                            ? "2px solid var(--color-primary-500)"
+                            : "2px solid var(--color-primary-100)",
+                        background:
+                          formData.userType === opt.value
+                            ? "linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100))"
+                            : "white",
+                        boxShadow:
+                          formData.userType === opt.value
+                            ? "0 4px 16px rgba(59, 130, 246, 0.15)"
+                            : "none",
+                      }}
+                    >
+                      <span className="text-[1.75rem] mb-[0.4rem]">
+                        {opt.icon}
+                      </span>
+                      <span
+                        className="text-[0.85rem] font-semibold"
+                        style={{ color: "var(--color-neutral-700)" }}
                       >
-                        <span className="text-[1.75rem] mb-[0.4rem]">
-                          {opt.icon}
-                        </span>
-                        <span
-                          className="text-[0.85rem] font-semibold"
-                          style={{ color: "var(--color-neutral-700)" }}
-                        >
-                          {opt.label}
-                        </span>
-                        <span
-                          className="text-[0.65rem] mt-[0.2rem] leading-tight"
-                          style={{ color: "var(--color-neutral-500)" }}
-                        >
-                          {opt.desc}
-                        </span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
+                        {opt.label}
+                      </span>
+                      <span
+                        className="text-[0.65rem] mt-[0.2rem] leading-tight"
+                        style={{ color: "var(--color-neutral-500)" }}
+                      >
+                        {opt.desc}
+                      </span>
+                    </div>
+                  </label>
+                ))}
               </div>
-
-              {/* Submit Button */}
+            </div>
+            {/* Submit Button */}
+            <div className="animate-field-in delay-350 pt-1">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-[0.95rem] rounded-xl font-semibold text-white transition-all duration-300 mt-2 disabled:opacity-55 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-xl font-semibold text-[0.92rem] transition-all duration-200 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background:
-                    "linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-accent-400) 100%)",
-                  boxShadow: "0 4px 16px rgba(59, 130, 246, 0.25)",
+                    "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(14,165,233,0.25)",
                 }}
-                onMouseEnter={(e) =>
-                  !isLoading &&
-                  ((e.currentTarget.style.transform = "translateY(-2px)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 8px 24px rgba(59, 130, 246, 0.35)"))
-                }
-                onMouseLeave={(e) =>
-                  !isLoading &&
-                  ((e.currentTarget.style.transform = "translateY(0)"),
-                  (e.currentTarget.style.boxShadow =
-                    "0 4px 16px rgba(59, 130, 246, 0.25)"))
-                }
-                onMouseDown={(e) =>
-                  !isLoading &&
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      className="animate-spin"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="white"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="31.4 31.4"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                    <SpinnerIcon />
                     {t("Form.SubmittingButton")}
                   </span>
                 ) : (
                   t("Form.SubmitButton")
                 )}
               </button>
-            </form>
-
-            {/* Divider */}
-            <div className="flex items-center gap-4 my-6">
-              <div
-                className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
-              />
-              <span
-                className="text-xs"
-                style={{ color: "var(--color-neutral-400)" }}
-              >
-                {t("Divider")}
-              </span>
-              <div
-                className="flex-1 h-px"
-                style={{ background: "var(--color-primary-200)" }}
-              />
             </div>
+          </form>
 
-            {/* Footer Link */}
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-6">
             <div
-              className={`text-center text-[0.9rem] ${isRTL ? "text-right" : ""}`}
-              style={{ color: "var(--color-neutral-600)" }}
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
+            <span
+              className="text-[0.75rem] uppercase tracking-[0.12em] font-medium"
+              style={{ color: "var(--text-muted)" }}
             >
-              {t("Footer.Text")}{" "}
-              <Link
-                href="/auth/login"
-                className="font-semibold relative inline-block transition-colors duration-200 group"
-                style={{ color: "var(--color-primary-600)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-700)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--color-primary-600)")
-                }
-              >
-                {t("Footer.SignInLink")}
-                <span
-                  className={`absolute bottom-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full ${isRTL ? "right-0" : "left-0"}`}
-                  style={{
-                    background:
-                      "linear-gradient(90deg, var(--color-primary-500), var(--color-accent-400))",
-                  }}
-                />
-              </Link>
-            </div>
+              {t("Divider")}
+            </span>
+            <div
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
+          </div>
+
+          {/* Footer link */}
+          <div
+            className={`text-center text-[0.9rem] ${isRTL ? "text-right" : ""}`}
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {t("Footer.Text")}{" "}
+            <Link
+              href="/auth/login"
+              className="font-semibold transition-colors duration-200"
+              style={{ color: "var(--primary)" }}
+            >
+              {t("Footer.SignInLink")}
+            </Link>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

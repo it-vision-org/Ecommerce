@@ -13,447 +13,168 @@ datasource db {
 // ──────────────────────────────────────────────
 
 enum Role {
-  FOUNDER
   SUPER_ADMIN
   ADMIN
   NORMAL_USER
 }
 
 enum UserType {
-  STUDENT
-  TEACHER
-  PARENT
+  INDIVIDUAL
+  RESTAURANT
 }
 
-enum PostType {
-  MORAL_LESSON
-  GOOD_THOUGHT
-  BAD_THOUGHT
-  ADVICE
-  MOTIVATION
-  OTHER
-}
-
-enum PostStatus {
+enum OrderStatus {
   PENDING
-  APPROVED
-  REJECTED
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
-enum ReactionType {
-  LIKE
-  LOVE
-  HAHA
-  OW
-  ANGRY
-}
-
-enum LibraryItemType {
-  BOOK
-  MAGAZINE
-  NEWS
-  ARTICLE
-}
-
-enum LibraryReactionType {
-  LIKE
-  DISLIKE
-  NEUTRAL
-}
-
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum EventStatus {
-  UPCOMING
-  PRESENT
-  PAST
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  BANK_TRANSFER
 }
 
 // ──────────────────────────────────────────────
-// Admin Permissions (assignable to ADMIN role)
-// ──────────────────────────────────────────────
-
-enum AdminPermission {
-  ACCEPT_POSTS
-  MODIFY_POSTS
-  ACCEPT_COMMENTS
-  MODIFY_COMMENTS
-  ACCEPT_LIBRARIES
-  MANAGE_EVENTS
-  MANAGE_MEETINGS
-  MANAGE_QUIZZES
-}
-
-// ──────────────────────────────────────────────
-// Models
+// User
 // ──────────────────────────────────────────────
 
 model User {
   id                   String    @id @default(cuid())
-  name                 String?
+  name                 String
   email                String    @unique
-  password             String?
+  password             String
   phoneNumber          String?
-  profileImage         String?
+  address              String?
   role                 Role      @default(NORMAL_USER)
   userType             UserType?
-  defaultAnonymous     Boolean   @default(false)
   passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   isDeleted            Boolean   @default(false)
 
-  // Admin permissions (only relevant for ADMIN role)
-  adminPermissions AdminPermission[]
-
-  // Relations
-  posts               Post[]
-  comments            Comment[]
-  postReactions       Reaction[]
-  libraries           LibraryItem[]
-  libraryReactions    LibraryReaction[]
-  meetingParticipants MeetingParticipant[]
-  quizParticipants    QuizParticipant[]
-
-  // Who added this admin/super_admin
-  addedById          String?
-  addedBy            User?               @relation("AddedByUser", fields: [addedById], references: [id], onDelete: SetNull)
-  addedUsers         User[]              @relation("AddedByUser")
-  reviewedPosts      Post[]              @relation("ReviewedPosts")
-  reviewedComments   Comment[]           @relation("ReviewedComments")
-  createdEvents      Event[]             @relation("EventCreator")
-  createdMeetings    Meeting[]           @relation("MeetingCreator")
-  createdQuizzes     Quiz[]              @relation("QuizCreator")
-  contactSubmissions ContactSubmission[] @relation("UserContactSubmissions")
+  orders             Order[]
+  contactSubmissions ContactSubmission[]
 
   @@index([role])
+  @@index([email])
 }
 
 // ──────────────────────────────────────────────
-// Posts (Home Feed)
+// Category
 // ──────────────────────────────────────────────
 
-model Post {
-  id              String     @id @default(cuid())
-  content         String     @db.Text
-  type            PostType
-  status          PostStatus @default(PENDING)
-  isAnonymous     Boolean    @default(false)
-  imageUrls       String[]
-  authorId        String
-  author          User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  originalContent String?    @db.Text // Store original before modification
-
-  // Super admin / admin who approved or modified
-  reviewedById String?
-  reviewedBy   User?   @relation("ReviewedPosts", fields: [reviewedById], references: [id], onDelete: SetNull)
-
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  reviewedAt DateTime?
-  isDeleted  Boolean   @default(false)
-
-  // Relations
-  comments  Comment[]
-  reactions Reaction[]
-
-  @@index([status])
-  @@index([authorId])
-  @@index([createdAt])
-}
-
-model Comment {
-  id        String        @id @default(cuid())
-  content   String        @db.Text
-  status    CommentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  isDeleted Boolean       @default(false)
-
-  reviewedById String?
-  reviewedBy   User?   @relation("ReviewedComments", fields: [reviewedById], references: [id], onDelete: SetNull)
-
-  originalComment String? @db.Text // Store original before modification
-
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  // Support nested comments
-  parentId String?
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  Comment[] @relation("CommentReplies")
-
-  reviewedAt DateTime?
-
-  @@index([postId])
-  @@index([status])
-  @@index([authorId])
-  @@index([createdAt])
-}
-
-model Reaction {
-  id        String       @id @default(cuid())
-  type      ReactionType
-  createdAt DateTime     @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId])
-  @@index([postId])
-  @@index([userId])
-}
-
-// ──────────────────────────────────────────────
-// Library (Books / Magazines / News)
-// ──────────────────────────────────────────────
-
-model LibraryItem {
-  id              String          @id @default(cuid())
-  title           String
-  author          String?
-  type            LibraryItemType
-  description     String?         @db.Text
-  coverImage      String?
-  images          String[]
-  status          PostStatus      @default(PENDING)
-  submittedById   String
-  submittedBy     User            @relation(fields: [submittedById], references: [id], onDelete: Cascade)
-  originalContent String?         @db.Text
-  isWinner        Boolean         @default(false)
-  winMonth        DateTime? // The month it won (e.g., 2026-02-01)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  isDeleted       Boolean         @default(false)
-
-  approvedById String?
-  approvedAt   DateTime?
-
-  reactions LibraryReaction[]
-
-  @@index([status])
-  @@index([submittedById])
-  @@index([isWinner])
-  @@index([createdAt])
-}
-
-model LibraryReaction {
-  id String @id @default(cuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  libraryItemId String
-  libraryItem   LibraryItem @relation(fields: [libraryItemId], references: [id], onDelete: Cascade)
-
-  type      LibraryReactionType
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-
-  @@unique([userId, libraryItemId])
-  @@index([libraryItemId])
-  @@index([userId])
-}
-
-// ──────────────────────────────────────────────
-// Events
-// ──────────────────────────────────────────────
-
-model Event {
-  id          String      @id @default(cuid())
-  title       String
-  description String?     @db.Text
-  coverImage  String?
-  images      String[]
-  location    String?
-  startDate   DateTime
-  endDate     DateTime?
-  status      EventStatus @default(UPCOMING)
-  createdById String
-  createdBy   User        @relation("EventCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  isDeleted   Boolean     @default(false)
-
-  @@index([startDate])
-  @@index([status])
-  @@index([createdById])
-}
-
-// ──────────────────────────────────────────────
-// Meetings (Advanced)
-// ──────────────────────────────────────────────
-
-model Meeting {
+model Category {
   id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  link        String? // e.g., Zoom or Google Meet link
-  startTime   DateTime
-  endTime     DateTime
-  location    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
-
-  // Which roles/user types can see and join this meeting
-  invitedRoles     Role[]
-  invitedUserTypes UserType[]
-
-  participants MeetingParticipant[]
-
-  createdById String
-  createdBy   User   @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
-
-  @@index([startTime])
-  @@index([createdById])
-}
-
-model MeetingParticipant {
-  id        String    @id @default(cuid())
-  joinedAt  DateTime?
-  createdAt DateTime  @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  meetingId String
-  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, meetingId])
-  @@index([meetingId])
-  @@index([userId])
-}
-
-// ──────────────────────────────────────────────
-// Quizzes & Competitions (Advanced)
-// ──────────────────────────────────────────────
-
-model Quiz {
-  id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  timeLimit   Int? // In minutes
+  name        String
+  slug        String   @unique
+  description String?
+  image       String?
+  order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
 
-  createdById String
-  createdBy   User   @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  products Product[]
 
-  questions    QuizQuestion[]
-  participants QuizParticipant[]
-
-  @@index([createdById])
-}
-
-model QuizQuestion {
-  id            String   @id @default(cuid())
-  question      String
-  options       String[] // Array of possible answers
-  correctAnswer Int // Index of the correct option
-  order         Int      @default(0)
-  points        Int      @default(1)
-
-  quizId String
-  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  // Relations
-  answers QuizAnswer[]
-
-  @@index([quizId])
-}
-
-model QuizAnswer {
-  id             String          @id @default(cuid())
-  participantId  String
-  participant    QuizParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  questionId     String
-  question       QuizQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  selectedAnswer Int
-  isCorrect      Boolean
-  createdAt      DateTime        @default(now())
-
-  @@unique([participantId, questionId]) // One answer per question per participant
-  @@index([participantId])
-  @@index([questionId])
-}
-
-model QuizParticipant {
-  id          String    @id @default(cuid())
-  score       Int       @default(0)
-  startedAt   DateTime  @default(now())
-  submittedAt DateTime?
-  totalPoints Int       @default(0)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  answers QuizAnswer[]
-  quizId  String
-  quiz    Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, quizId])
-  @@index([quizId])
-  @@index([userId])
-  @@index([submittedAt])
+  @@index([slug])
+  @@index([isActive])
 }
 
 // ──────────────────────────────────────────────
-// About Us - Club Members
+// Product
 // ──────────────────────────────────────────────
 
-model ClubMember {
-  id         String   @id @default(cuid())
-  name       String
-  role       String // e.g., "President", "Vice President", "Secretary"
-  image      String?
-  isFounder  Boolean  @default(false)
-  schoolYear String? // e.g., "2025/2026" — null means founder member
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isDeleted  Boolean  @default(false)
-
-  @@index([schoolYear])
-}
-
-// ──────────────────────────────────────────────
-// Achievements
-// ──────────────────────────────────────────────
-
-model Achievement {
-  id          String    @id @default(cuid())
-  title       String
-  description String    @db.Text
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(10, 3)
+  unit        String   @default("kg")
+  stock       Int      @default(0)
   images      String[]
-  date        DateTime?
-  category    String?
-  order       Int       @default(0)
-  isPublished Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isDeleted   Boolean   @default(false)
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@index([isPublished])
-  @@index([createdAt])
-  @@index([order])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  orderItems OrderItem[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isFeatured])
+  @@index([isActive])
 }
 
 // ──────────────────────────────────────────────
-// Contact Form Submissions
+// Order
+// ──────────────────────────────────────────────
+
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH_ON_DELIVERY)
+
+  // Customer info (snapshot at order time — works for guests & users)
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  address       String
+
+  // Pricing
+  subtotal     Decimal @db.Decimal(10, 3)
+  shippingCost Decimal @default(0) @db.Decimal(10, 3)
+  total        Decimal @db.Decimal(10, 3)
+
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Nullable — guests can order without an account
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  items OrderItem[]
+
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([orderNumber])
+}
+
+// ──────────────────────────────────────────────
+// Order Item
+// ──────────────────────────────────────────────
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  quantity     Decimal @db.Decimal(10, 3)
+  unitPrice    Decimal @db.Decimal(10, 3)
+  totalPrice   Decimal @db.Decimal(10, 3)
+  productName  String
+  productImage String?
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ──────────────────────────────────────────────
+// Contact Submission
 // ──────────────────────────────────────────────
 
 model ContactSubmission {
@@ -465,8 +186,8 @@ model ContactSubmission {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  userId String? // If user is logged in
-  user   User?   @relation("UserContactSubmissions", fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([isRead])
   @@index([createdAt])

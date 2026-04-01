@@ -1,30 +1,26 @@
 // packages/utils/zod.ts
 import * as z from "zod";
 
-export const UserTypeEnum = z.enum(["STUDENT", "TEACHER", "PARENT"]);
-
 // Define a schema for input validation
 export const registerSchema = z.object({
-  name: z.string().min(1, "Username is required").max(100),
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, "Password must have more than 8 characters"),
-  userType: UserTypeEnum,
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  image: z.string().optional(),
+  name: z.string().min(1, "Name is required").max(100),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  phoneNumber: z.string().optional().default(""),
+  userType: z.enum(["INDIVIDUAL", "RESTAURANT"]).optional().default("INDIVIDUAL"),
+  address: z.string().optional().default(""),
 });
 
-import { object, string } from "zod";
+export const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
-export const signInSchema = object({
-  email: string({ required_error: "Email is required" })
-    .min(1, "Email is required")
-    .email("Invalid email"),
-  password: string({ required_error: "Password is required" })
-    .min(1, "Password is required")
-    .min(8, "Password must be more than 8 characters"),
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });

@@ -7,20 +7,20 @@
   "LoginPage": {
     "LeftPanel": {
       "Title": "Welcome Back",
-      "Subtitle": "Access your admin dashboard and manage the Wake Up & Spark community.",
+      "Subtitle": "Sign in to your account and explore everything our platform has to offer.",
       "Features": {
-        "Feature1": "Manage posts & content",
-        "Feature2": "Review pending submissions",
-        "Feature3": "Monitor community activity",
-        "Feature4": "Organize events & meetings"
+        "Feature1": "Browse products & categories",
+        "Feature2": "Track your orders",
+        "Feature3": "Manage your profile",
+        "Feature4": "Access exclusive deals"
       }
     },
-    "Brand": "Wake Up & Spark",
-    "Heading": "Admin Login",
-    "Subheading": "Sign in to your admin account",
+    "Brand": "Our Store",
+    "Heading": "Sign In",
+    "Subheading": "Welcome back! Please sign in to your account",
     "Form": {
       "EmailLabel": "Email Address",
-      "EmailPlaceholder": "admin@example.com",
+      "EmailPlaceholder": "your.email@example.com",
       "PasswordLabel": "Password",
       "PasswordPlaceholder": "Enter your password",
       "ForgotPassword": "Forgot password?",
@@ -40,18 +40,19 @@
 
   "SignupPage": {
     "LeftPanel": {
-      "Title": "Wake Up\nAnd Spark",
-      "Subtitle": "A community where students, teachers, and parents grow together through shared wisdom.",
+      "Title": "Join Us\nToday",
+      "Subtitle": "Create an account and start shopping with us.",
       "Features": {
-        "Feature1": "Share thoughts & moral lessons",
-        "Feature2": "Post anonymously if you prefer",
-        "Feature3": "Discover inspiring books & articles",
-        "Feature4": "Join events & community meetings"
-      }
+        "Feature1": "Browse thousands of products",
+        "Feature2": "Track your orders in real time",
+        "Feature3": "Exclusive deals & discounts",
+        "Feature4": "Fast & secure checkout"
+      },
+      "Tagline": "Our Store"
     },
-    "Brand": "Wake Up & Spark",
-    "Heading": "Join Our Community",
-    "Subheading": "Start your journey of growth and inspiration",
+    "Brand": "Our Store",
+    "Heading": "Create Account",
+    "Subheading": "Start your shopping journey today",
     "Form": {
       "NameLabel": "Full Name",
       "NamePlaceholder": "Enter your full name",
@@ -63,22 +64,25 @@
       "PhoneLabel": "Phone Number",
       "PhonePlaceholder": "Enter phone number",
       "PhoneOptional": "(Optional)",
+      "AddressLabel": "Delivery Address",
+      "AddressPlaceholder": "Enter your delivery address",
+      "AddressHint": "Optional — you can add this later",
       "UserTypeLabel": "I am a",
       "UserTypes": {
-        "Student": {
-          "Label": "Student",
-          "Icon": "🎓",
-          "Description": "I'm here to learn & share"
+        "Individual": {
+          "Label": "Individual",
+          "Icon": "🧑",
+          "Description": "Shopping for myself"
         },
-        "Teacher": {
-          "Label": "Teacher",
-          "Icon": "📚",
-          "Description": "I guide & inspire"
+        "Restaurant": {
+          "Label": "Restaurant",
+          "Icon": "🍽️",
+          "Description": "Ordering for my restaurant"
         },
-        "Parent": {
-          "Label": "Parent",
-          "Icon": "🏠",
-          "Description": "I support & engage"
+        "Wholesale": {
+          "Label": "Wholesale",
+          "Icon": "🏭",
+          "Description": "Bulk orders & wholesale"
         }
       },
       "SubmitButton": "Create Account",
@@ -103,10 +107,10 @@
         "Feature1": "Secure password reset process",
         "Feature2": "Email sent within minutes",
         "Feature3": "Link valid for 24 hours",
-        "Feature4": "Get back to inspiring others"
+        "Feature4": "Back to shopping in no time"
       }
     },
-    "Brand": "Wake Up & Spark",
+    "Brand": "Our Store",
     "Heading": "Forgot Password",
     "Subheading": "Enter your email to receive a password reset link",
     "Form": {

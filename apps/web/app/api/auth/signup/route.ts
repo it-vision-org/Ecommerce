@@ -13,11 +13,12 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { error: "Invalid input", details: result.error.format() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { name, email, password, userType, phoneNumber } = result.data;
+    const { name, email, password, phoneNumber, address, userType } =
+      result.data;
 
     // Check if user with this email already exists
     const existingUser = await db.user.findUnique({
@@ -27,19 +28,20 @@ export async function POST(req: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { error: "User with this email already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    //hashing the password
+    // Create user with hashed password
     const newUser = await db.user.create({
       data: {
         name,
         email,
         password: await hashPassword(password),
         role: "NORMAL_USER",
-        userType,
-        phoneNumber,
+        userType: userType || "INDIVIDUAL",
+        phoneNumber: phoneNumber || null,
+        address: address || null,
       },
     });
 
@@ -48,13 +50,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { message: "Account created successfully", user: userWithoutPassword },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,6 +7,7 @@ interface FormData {
   password: string;
   phoneNumber: string;
   countryCode: string;
+  address: string;
   userType: string;
 }
 
@@ -59,24 +60,24 @@ export function PhoneNumberInput({
                   phoneNumber: "", // Clear phone number when country changes
                 }));
               }}
-              className={`appearance-none h-full py-[0.85rem] pl-3 pr-9 text-[0.9rem] bg-white transition-all duration-300 outline-none cursor-pointer font-medium ${
+              className={`appearance-none h-full py-3 pl-3 pr-9 text-[0.92rem] bg-white transition-all duration-300 outline-none cursor-pointer font-medium ${
                 isRTL ? "rounded-r-xl" : "rounded-l-xl"
               }`}
               style={{
-                border: "2px solid var(--color-primary-100)",
+                border: "1px solid var(--color-primary-100)",
                 ...(isRTL ? { borderLeft: "none" } : { borderRight: "none" }),
               }}
               onFocus={(e) => {
                 e.target.style.borderColor =
                   "var(--color-primary-400)"; /* Orange: #fb923c */
                 e.target.style.boxShadow =
-                  "0 0 0 4px rgba(59, 130, 246, 0.1)"; /* Orange: rgba(251, 146, 60, 0.1) */
+                  "0 0 0 2px rgba(59, 130, 246, 0.1)"; /* Orange: rgba(251, 146, 60, 0.1) */
                 const input = document.getElementById(
                   "phoneNumber",
                 ) as HTMLInputElement;
                 if (input) {
                   input.style.borderColor = "var(--color-primary-400)";
-                  input.style.boxShadow = "0 0 0 4px rgba(59, 130, 246, 0.1)";
+                  input.style.boxShadow = "0 0 0 2px rgba(59, 130, 246, 0.1)";
                 }
               }}
               onBlur={(e) => {
@@ -115,9 +116,12 @@ export function PhoneNumberInput({
 
           {/* Divider */}
           <div
-            className="w-px self-stretch my-2"
+            className=""
             style={{
-              background: "var(--color-primary-200)" /* Orange: #fed7aa */,
+              background: "var(--border)",
+              width: "1px",
+              alignSelf: "stretch",
+              margin: "0.5rem 0.1rem",
             }}
           />
 
@@ -135,7 +139,7 @@ export function PhoneNumberInput({
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="0"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -146,13 +150,13 @@ export function PhoneNumberInput({
               name="phoneNumber"
               type="tel"
               inputMode="numeric"
-              className={`w-full py-[0.85rem] text-[0.95rem] bg-white transition-all duration-300 outline-none ${
+              className={`w-full py-3 text-[0.92rem] bg-white transition-all duration-300 outline-none ${
                 isRTL
                   ? "pr-10 pl-4 rounded-l-xl text-right"
                   : "pl-10 pr-4 rounded-r-xl"
               }`}
               style={{
-                border: "2px solid var(--color-primary-100)",
+                border: "1px solid var(--color-primary-100)",
                 ...(isRTL ? { borderRight: "none" } : { borderLeft: "none" }),
               }}
               placeholder={
@@ -200,25 +204,25 @@ export function PhoneNumberInput({
               }}
               onFocus={(e) => {
                 e.target.style.borderColor =
-                  "var(--color-primary-400)"; /* Orange: #fb923c */
+                  "var(--color-primary-500)"; /* Orange: #fb923c */
                 e.target.style.boxShadow =
-                  "0 0 0 4px rgba(59, 130, 246, 0.1)"; /* Orange: rgba(251, 146, 60, 0.1) */
+                  "0 0 0 3px rgba(59, 130, 246, 0.1)"; /* Orange: rgba(251, 146, 60, 0.1) */
                 const select = e.target
                   .closest(".relative.flex")
                   ?.querySelector("select") as HTMLSelectElement;
                 if (select) {
-                  select.style.borderColor = "var(--color-primary-400)";
-                  select.style.boxShadow = "0 0 0 4px rgba(59, 130, 246, 0.1)";
+                  select.style.borderColor = "var(--color-primary-500)";
+                  select.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.1)";
                 }
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = "var(--color-primary-100)";
+                e.target.style.borderColor = "var(--border)";
                 e.target.style.boxShadow = "none";
                 const select = e.target
                   .closest(".relative.flex")
                   ?.querySelector("select") as HTMLSelectElement;
                 if (select) {
-                  select.style.borderColor = "var(--color-primary-100)";
+                  select.style.borderColor = "var(--border)";
                   select.style.boxShadow = "none";
                 }
               }}

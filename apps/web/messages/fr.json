@@ -7,20 +7,20 @@
   "LoginPage": {
     "LeftPanel": {
       "Title": "Bon Retour",
-      "Subtitle": "Accédez à votre tableau de bord administrateur et gérez la communauté Wake Up & Spark.",
+      "Subtitle": "Connectez-vous à votre compte et profitez de tout ce que notre plateforme a à offrir.",
       "Features": {
-        "Feature1": "Gérer les publications et le contenu",
-        "Feature2": "Examiner les soumissions en attente",
-        "Feature3": "Surveiller l'activité de la communauté",
-        "Feature4": "Organiser des événements et des réunions"
+        "Feature1": "Parcourir les produits et catégories",
+        "Feature2": "Suivre vos commandes",
+        "Feature3": "Gérer votre profil",
+        "Feature4": "Accéder aux offres exclusives"
       }
     },
-    "Brand": "Wake Up & Spark",
-    "Heading": "Connexion Administrateur",
-    "Subheading": "Connectez-vous à votre compte administrateur",
+    "Brand": "Notre Boutique",
+    "Heading": "Connexion",
+    "Subheading": "Bon retour ! Veuillez vous connecter à votre compte",
     "Form": {
       "EmailLabel": "Adresse e-mail",
-      "EmailPlaceholder": "admin@exemple.com",
+      "EmailPlaceholder": "votre.email@exemple.com",
       "PasswordLabel": "Mot de passe",
       "PasswordPlaceholder": "Entrez votre mot de passe",
       "ForgotPassword": "Mot de passe oublié ?",
@@ -40,18 +40,19 @@
 
   "SignupPage": {
     "LeftPanel": {
-      "Title": "Wake Up\nAnd Spark",
-      "Subtitle": "Une communauté où les étudiants, les enseignants et les parents grandissent ensemble.",
+      "Title": "Rejoignez-\nnous",
+      "Subtitle": "Créez un compte et commencez à faire vos achats avec nous.",
       "Features": {
-        "Feature1": "Partager pensées et leçons morales",
-        "Feature2": "Découvrir livres & articles inspirants",
-        "Feature3": "Rejoindre événements & réunions",
-        "Feature4": "Publier anonymement"
-      }
+        "Feature1": "Des milliers de produits disponibles",
+        "Feature2": "Suivi de commandes en temps réel",
+        "Feature3": "Offres et réductions exclusives",
+        "Feature4": "Paiement rapide et sécurisé"
+      },
+      "Tagline": "Notre Boutique"
     },
-    "Brand": "Wake Up & Spark",
-    "Heading": "Rejoignez Notre Communauté",
-    "Subheading": "Commencez votre voyage de croissance et d'inspiration",
+    "Brand": "Notre Boutique",
+    "Heading": "Créer un compte",
+    "Subheading": "Commencez votre aventure shopping aujourd'hui",
     "Form": {
       "NameLabel": "Nom complet",
       "NamePlaceholder": "Entrez votre nom complet",
@@ -63,22 +64,25 @@
       "PhoneLabel": "Numéro de téléphone",
       "PhonePlaceholder": "Entrez le numéro de téléphone",
       "PhoneOptional": "(Optionnel)",
-      "UserTypeLabel": "Je suis un(e)",
+      "AddressLabel": "Adresse de livraison",
+      "AddressPlaceholder": "Entrez votre adresse de livraison",
+      "AddressHint": "Optionnel — vous pouvez l'ajouter plus tard",
+      "UserTypeLabel": "Je suis",
       "UserTypes": {
-        "Student": {
-          "Label": "Étudiant(e)",
-          "Icon": "🎓",
-          "Description": "Je suis là pour apprendre et partager"
+        "Individual": {
+          "Label": "Particulier",
+          "Icon": "🧑",
+          "Description": "J'achète pour moi"
         },
-        "Teacher": {
-          "Label": "Enseignant(e)",
-          "Icon": "📚",
-          "Description": "Je guide et inspire"
+        "Restaurant": {
+          "Label": "Restaurant",
+          "Icon": "🍽️",
+          "Description": "Je commande pour mon restaurant"
         },
-        "Parent": {
-          "Label": "Parent",
-          "Icon": "🏠",
-          "Description": "Je soutiens et m'engage"
+        "Wholesale": {
+          "Label": "Grossiste",
+          "Icon": "🏭",
+          "Description": "Commandes en gros"
         }
       },
       "SubmitButton": "Créer un compte",
@@ -100,13 +104,13 @@
       "Title": "Réinitialisez\nVotre Mot de Passe",
       "Subtitle": "Pas de soucis ! Entrez votre e-mail et nous vous enverrons des instructions pour réinitialiser votre mot de passe.",
       "Features": {
-        "Feature1": "Réinitialisation sécurisé",
+        "Feature1": "Réinitialisation sécurisée",
         "Feature2": "E-mail envoyé en quelques minutes",
         "Feature3": "Lien valide pendant 24 heures",
-        "Feature4": "Retournez inspirer les autres"
+        "Feature4": "Retournez faire vos achats rapidement"
       }
     },
-    "Brand": "Wake Up & Spark",
+    "Brand": "Notre Boutique",
     "Heading": "Mot de Passe Oublié",
     "Subheading": "Entrez votre e-mail pour recevoir un lien de réinitialisation",
     "Form": {
@@ -141,7 +145,7 @@
     },
     "Form": {
       "Title": "Réinitialiser le mot de passe",
-      "Subtitle": "Créez un nouveau mot de passe",
+      "Subtitle": "Créez un nouveau mot de passe pour votre compte",
       "NewPassword": "Nouveau mot de passe",
       "ConfirmPassword": "Confirmer le mot de passe",
       "PlaceholderNew": "Entrez un nouveau mot de passe",
