@@ -16,14 +16,10 @@ type User = {
 
 const NAV_ITEMS = [
   { href: "/", key: "Home" },
-  { href: "/library", key: "Library" },
-  { href: "/events", key: "Events" },
-  { href: "/achievements", key: "Achievements" },
-  { href: "/contact", key: "Contact" },
+  { href: "/products", key: "Products" },
   { href: "/about", key: "About" },
+  { href: "/contact", key: "Contact" },
 ];
-
-const HIDE_PATHS = [""];
 
 export function AppHeader({
   user,
@@ -36,22 +32,48 @@ export function AppHeader({
   const t = useTranslations("Navbar");
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const isAuth = pathname.startsWith("/auth");
-  const shouldHide = isAuth || HIDE_PATHS.includes(pathname);
-  if (shouldHide) return null;
+  if (isAuth) return null;
 
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(href));
 
   useEffect(() => {
+    setMenuOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (!menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
     };
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setMobileOpen(false);
+      }
+    };
+
     document.addEventListener("pointerdown", handleClick);
-    return () => document.removeEventListener("pointerdown", handleClick);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("pointerdown", handleClick);
+      document.removeEventListener("keydown", handleEsc);
+    };
   }, []);
 
   const avatarInitial = (user?.name || user?.email || t("MemberFallback"))
@@ -70,25 +92,17 @@ export function AppHeader({
     [changeLocaleAction],
   );
 
-  const dropdownPosition = "right-0";
-
   return (
-    <header
-      className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur"
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-sky-300 hover:shadow-md"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-base font-bold">
-            S
+          <span className="flex size-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 text-sm font-bold">
+            🦐
           </span>
-          <div className="leading-tight">
-            <div className="text-xs uppercase tracking-[0.12em] text-slate-500">
-              Spark
-            </div>
-          </div>
+          <span className="text-sm font-bold tracking-wide">Seefood</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -98,9 +112,9 @@ export function AppHeader({
               href={item.href}
               className={[
                 "rounded-full px-3 py-2 text-sm font-medium transition",
-                "hover:text-blue-700 hover:bg-blue-50",
+                "hover:bg-sky-50 hover:text-sky-700",
                 isActive(item.href)
-                  ? "text-blue-700 bg-blue-50 border border-blue-100 shadow-xs"
+                  ? "border border-sky-100 bg-sky-50 text-sky-700 shadow-xs"
                   : "text-slate-700",
               ].join(" ")}
             >
@@ -109,17 +123,24 @@ export function AppHeader({
           ))}
         </nav>
 
-        <div
-          className="flex items-center gap-3"
-        >
+        <div className="flex items-center gap-2 md:gap-3">
           <LanguageSelector changeLocaleAction={handleLocaleChange} />
 
+          <button
+            type="button"
+            aria-label={mobileOpen ? t("CloseMenu") : t("OpenMenu")}
+            onClick={() => setMobileOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 md:hidden"
+          >
+            ☰
+          </button>
+
           {user ? (
-            <div className="relative" ref={menuRef}>
+            <div className="relative hidden md:block" ref={menuRef}>
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
-                className="flex size-10 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm ring-2 ring-transparent transition hover:ring-blue-100"
+                className="flex size-10 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm ring-2 ring-transparent transition hover:ring-sky-100"
               >
                 {user.profileImage ? (
                   <img
@@ -128,17 +149,15 @@ export function AppHeader({
                     className="size-full object-cover"
                   />
                 ) : (
-                  <span className="text-sm font-semibold text-blue-700">
+                  <span className="text-sm font-semibold text-sky-700">
                     {avatarInitial}
                   </span>
                 )}
               </button>
 
               {menuOpen && (
-                <div
-                  className={`absolute ${dropdownPosition} top-[calc(100%+10px)] w-72 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-blue-100/40 ring-1 ring-slate-100/60`}
-                >
-                  <div className="flex items-center gap-3 px-4 py-3 bg-slate-50">
+                <div className="absolute right-0 top-[calc(100%+10px)] w-72 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-sky-100/40 ring-1 ring-slate-100/60">
+                  <div className="flex items-center gap-3 bg-slate-50 px-4 py-3">
                     <div className="flex size-12 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
                       {user.profileImage ? (
                         <img
@@ -147,7 +166,7 @@ export function AppHeader({
                           className="size-full object-cover"
                         />
                       ) : (
-                        <span className="text-base font-semibold text-blue-700">
+                        <span className="text-base font-semibold text-sky-700">
                           {avatarInitial}
                         </span>
                       )}
@@ -165,28 +184,71 @@ export function AppHeader({
                   <div className="flex flex-col gap-1 px-2 py-2">
                     <Link
                       href="/profile"
-                      className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-blue-50 hover:text-blue-700"
+                      className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-sky-50 hover:text-sky-700"
                       onClick={() => setMenuOpen(false)}
                     >
-                      {t("ProfileSettings")}
+                      {t("Profile")}
                     </Link>
                     <Link
-                      href="/meetings"
-                      className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-blue-50 hover:text-blue-700"
+                      href="/orders"
+                      className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-sky-50 hover:text-sky-700"
                       onClick={() => setMenuOpen(false)}
                     >
-                      {t("Meetings")}
+                      {t("Orders")}
                     </Link>
-                    <LogoutButton className="inline-flex w/full items-center justify-start rounded-xl px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50" />
+                    <LogoutButton className="inline-flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50" />
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <LoginButton className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300" />
+            <LoginButton className="hidden rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 md:inline-flex" />
           )}
         </div>
       </div>
+
+      {mobileOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="border-t border-slate-200 bg-white md:hidden"
+        >
+          <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={[
+                  "rounded-xl px-3 py-2 text-sm font-medium transition",
+                  isActive(item.href)
+                    ? "bg-sky-50 text-sky-700"
+                    : "text-slate-700 hover:bg-sky-50 hover:text-sky-700",
+                ].join(" ")}
+              >
+                {t(`NavItems.${item.key}`)}
+              </Link>
+            ))}
+
+            {!user ? (
+              <LoginButton className="mt-2 inline-flex justify-center rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700" />
+            ) : (
+              <div className="mt-2 flex flex-col gap-1">
+                <Link
+                  href="/profile"
+                  className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 hover:bg-sky-50 hover:text-sky-700"
+                >
+                  {t("Profile")}
+                </Link>
+                <Link
+                  href="/orders"
+                  className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 hover:bg-sky-50 hover:text-sky-700"
+                >
+                  {t("Orders")}
+                </Link>
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

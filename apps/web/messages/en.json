@@ -171,15 +171,15 @@
   "Navbar": {
     "NavItems": {
       "Home": "Home",
-      "Library": "Library",
-      "Events": "Events",
-      "Achievements": "Achievements",
+      "Products": "Products",
       "Contact": "Contact",
       "About": "About Us"
     },
-    "ProfileSettings": "Profile settings",
-    "Meetings": "Meetings",
-    "MemberFallback": "Spark Member"
+    "Profile": "Profile",
+    "Orders": "My orders",
+    "MemberFallback": "Seefood Member",
+    "OpenMenu": "Open menu",
+    "CloseMenu": "Close menu"
   },
 
   "AuthNavbar": {
