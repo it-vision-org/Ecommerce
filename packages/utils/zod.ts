@@ -7,6 +7,7 @@ export const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   phoneNumber: z.string().optional().default(""),
+  userType: z.enum(["INDIVIDUAL", "RESTAURANT"]).optional().default("INDIVIDUAL"),
   address: z.string().optional().default(""),
 });
 
