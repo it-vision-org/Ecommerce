@@ -338,189 +338,66 @@
   },
   "AboutPage": {
     "Hero": {
-      "Badge": "Habib Thameur Secondary School",
+      "Badge": "Seefood · Premium Seafood",
       "Title": "About",
-      "Highlight": "Wake Up & Spark",
-      "Description": "We are a student-led club dedicated to nurturing emotional intelligence, moral values, and meaningful human connection within our school community.",
-      "Stat1": {
-        "Value": "2022",
-        "Label": "Founded"
+      "Highlight": "Seefood",
+      "Description": "We are a premium seafood brand focused on luxurious taste, trusted quality, and flexible solutions for individuals, restaurants, and wholesale clients.",
+      "Stat1": "4 crevette panée flavors",
+      "Stat2": "B2C + Restaurant + Wholesale",
+      "Stat3": "Fresh quality commitment"
+    },
+    "Story": {
+      "Badge": "Who we are",
+      "Title": "Luxury seafood, crafted for every table",
+      "Paragraph1": "Seefood was created to deliver premium seafood products with a refined taste and consistent quality. Our signature range includes delicious crevette panée varieties, alongside products like crevette sauté and calamar.",
+      "Paragraph2": "From home meals to restaurant kitchens and export requests, we focus on freshness, food safety, and reliable service in every order."
+    },
+    "Commitments": {
+      "Badge": "Our promise",
+      "Title": "What you can always expect from us",
+      "Item1": "Premium ingredients and strict quality standards",
+      "Item2": "Reliable preparation and delivery experience",
+      "Item3": "Flexible supply for local and international demand"
+    },
+    "Offerings": {
+      "Badge": "Our products",
+      "Title": "What we offer",
+      "Subtitle": "A curated seafood selection for different customer needs.",
+      "Item1": {
+        "Title": "Crevette Panée",
+        "Description": "Our flagship product in 4 flavors: pistachio, almond, corn breadcrumb, and spicy."
       },
-      "Stat2": {
-        "Value": "3",
-        "Label": "Languages"
+      "Item2": {
+        "Title": "Crevette Sauté",
+        "Description": "Premium sautéed shrimp options made for rich flavor and practical preparation."
       },
-      "Stat3": {
-        "Value": "∞",
-        "Label": "Voices heard"
+      "Item3": {
+        "Title": "Calamar",
+        "Description": "Carefully selected calamar products suitable for home, restaurant, and bulk use."
       }
     },
-    "Vision": {
-      "Badge": "Our Vision",
-      "Title": "A World Where Every Voice Matters",
-      "Subtitle": "We believe that schools can be spaces of genuine emotional growth — where students, teachers, and parents connect beyond grades.",
-      "Statement": "To build a school culture where emotional intelligence, empathy, and moral courage are as valued as academic achievement.",
-      "SubStatement": "Habib Thameur Secondary School — Spark Club",
-      "Pillar1": {
-        "Title": "Emotional Awareness",
-        "Description": "Helping students understand and express their feelings safely and constructively."
+    "Audience": {
+      "Badge": "Who we serve",
+      "Title": "Built for every type of customer",
+      "Subtitle": "Simple experience for individuals, scalable solutions for businesses.",
+      "Individual": {
+        "Title": "Individuals",
+        "Description": "Easy ordering for personal use, with practical box formats and premium taste."
       },
-      "Pillar2": {
-        "Title": "Community Belonging",
-        "Description": "Creating a space where every student, teacher, and parent feels heard and valued."
+      "Restaurant": {
+        "Title": "Restaurants",
+        "Description": "Higher quantity boxes and consistent product quality for professional kitchens."
       },
-      "Pillar3": {
-        "Title": "Character Growth",
-        "Description": "Encouraging moral values and positive character development through shared experiences."
+      "Wholesale": {
+        "Title": "Wholesale & Export",
+        "Description": "Large-volume inquiries managed through contact for custom quantities and logistics."
       }
     },
-    "Mission": {
-      "Badge": "Our Mission",
-      "Title": "What We're Here to Do",
-      "Subtitle": "Our mission is to raise awareness about emotional intelligence and create a safe, anonymous space for meaningful self-expression.",
-      "Point1": "Raise awareness about emotional intelligence and its role in daily life.",
-      "Point2": "Provide an anonymous platform for students to share thoughts, feelings, and moral lessons.",
-      "Point3": "Foster positive interaction between students, teachers, and parents through shared stories.",
-      "Point4": "Promote a culture of empathy, respect, and constructive dialogue in our school community.",
-      "CardTitle": "Who We Serve",
-      "CardDescription": "Our platform is built for the entire school community — from students navigating emotions to teachers seeking connection and parents looking to support their children.",
-      "AudienceLabel": "Our community",
-      "Audience": {
-        "Students": "Students",
-        "Teachers": "Teachers",
-        "Parents": "Parents"
-      }
-    },
-    "Values": {
-      "Badge": "Our Values",
-      "Title": "The Principles We Stand By",
-      "Subtitle": "Every feature we build and every decision we make is guided by these core values.",
-      "Value1": {
-        "Title": "Privacy",
-        "Description": "We protect the identity of every user who chooses to share anonymously. Trust is the foundation of our community."
-      },
-      "Value2": {
-        "Title": "Empathy",
-        "Description": "We lead with compassion and encourage every interaction to be kind, respectful, and understanding."
-      },
-      "Value3": {
-        "Title": "Inclusion",
-        "Description": "Every student, teacher, and parent belongs here. We celebrate diversity of thought, culture, and experience."
-      },
-      "Value4": {
-        "Title": "Positivity",
-        "Description": "We curate a space focused on growth, encouragement, and the belief that things can get better."
-      },
-      "Value5": {
-        "Title": "Education",
-        "Description": "We believe in continuous learning — not just academically, but emotionally, morally, and socially."
-      },
-      "Value6": {
-        "Title": "Authenticity",
-        "Description": "We encourage genuine self-expression. Real stories and honest thoughts spark real change."
-      }
-    },
-    "Founders": {
-      "Badge": "Founding Members",
-      "Title": "The People Who Started It All",
-      "Subtitle": "Our founding team had a simple but powerful dream: to make our school a kinder, more emotionally aware place.",
-      "Member1": {
-        "Name": "Founder Name 1",
-        "Role": "Founder & President",
-        "Description": "Passionate about emotional education and student well-being, they brought the initial vision to life."
-      },
-      "Member2": {
-        "Name": "Founder Name 2",
-        "Role": "Co-Founder & Vice President",
-        "Description": "Focused on community building and outreach, they shaped the club's inclusive identity."
-      },
-      "Member3": {
-        "Name": "Founder Name 3",
-        "Role": "Co-Founder & Secretary",
-        "Description": "Handled communications and structure, ensuring the club ran smoothly from day one."
-      },
-      "NoteTitle": "Founders hold Super Admin privileges",
-      "NoteDescription": "All founding members retain full administrative access to the platform. Their contributions to the club are permanently recognized.",
-      "Empty": "No founding members have been added yet."
-    },
-    "Members": {
-      "Badge": "2025/2026 Members",
-      "Title": "This Year's Team",
-      "Subtitle": "Meet the dedicated members currently running the Wake Up & Spark club for the 2025/2026 school year.",
-      "SchoolYear": "School Year {year}",
-      "SchoolYearNote": "This list is managed by the Super Admin and updated each academic year.",
-      "Empty": "No members have been added for this school year yet."
-    }
-  },
-  "AchievementsPage": {
-    "Hero": {
-      "Badge": "Our Achievements",
-      "Title": "Milestones &",
-      "Highlight": "Proud Moments",
-      "Description": "A collection of the accomplishments, awards, and milestones that define the Wake Up & Spark club's journey.",
-      "StatLabel": "Achievements"
-    },
-    "Empty": {
-      "Title": "No achievements yet",
-      "Description": "Check back soon — great things are coming."
-    },
-    "Stats": {
-      "Badge": "By the Numbers",
-      "Title": "Our Impact at a Glance",
-      "Total": "Total Achievements",
-      "Categories": "Categories",
-      "ThisYear": "This Year"
-    }
-  },
-  "EventsPage": {
-    "Hero": {
-      "Badge": "Club Events",
-      "Title": "Events &",
-      "Highlight": "Gatherings",
-      "Description": "Stay up to date with everything happening at Wake Up & Spark — from upcoming workshops to past milestones.",
-      "StatUpcoming": "Coming Up",
-      "StatPast": "Past Events"
-    },
-    "Empty": {
-      "Title": "No events yet",
-      "Description": "Check back soon — something exciting is being planned."
-    },
-    "Section": {
-      "Present": "Happening Now",
-      "Upcoming": "Upcoming Events",
-      "Past": "Past Events"
-    },
-    "Stats": {
-      "Badge": "Overview",
-      "Title": "Events at a Glance",
-      "Present": "Live Now",
-      "Upcoming": "Upcoming",
-      "Past": "Past"
-    }
-  },
-  "MeetingsPage": {
-    "Hero": {
-      "Badge": "Community Meetings",
-      "Title": "Your",
-      "Highlight": "Meetings",
-      "Description": "Stay connected with your school community — join meetings organised for you by the club.",
-      "StatActive": "Active",
-      "StatPast": "Past"
-    },
-    "Empty": {
-      "Title": "No meetings for you yet",
-      "Description": "There are currently no meetings scheduled for your role. Check back soon."
-    },
-    "Section": {
-      "Ongoing": "Happening Now",
-      "Upcoming": "Upcoming",
-      "Past": "Past Meetings"
-    },
-    "Stats": {
-      "Badge": "Overview",
-      "Ongoing": "Live Now",
-      "Upcoming": "Upcoming",
-      "Past": "Past"
+    "CTA": {
+      "Title": "Discover Seefood today",
+      "Description": "Browse our products or contact our team for restaurant and wholesale requests.",
+      "ButtonProducts": "Explore products",
+      "ButtonContact": "Contact us"
     }
   }
 }
