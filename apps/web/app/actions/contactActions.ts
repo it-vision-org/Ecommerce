@@ -7,6 +7,7 @@ import { getCurrentUser } from "./authActions";
 interface ContactFormData {
   name: string;
   email: string;
+  phone: string;
   subject: string;
   message: string;
 }
@@ -29,28 +30,37 @@ export interface ContactSubmission {
   } | null;
 }
 
-const CONTACT_RECIPIENT =
-  process.env.CONTACT_RECIPIENT || "ahmedzouaghi2003@gmail.com";
-
 const subjectLabels: Record<string, string> = {
-  general: "Question générale",
-  student_support: "Soutien étudiant",
-  parent_question: "Question parent",
-  teacher_collaboration: "Collaboration enseignant",
-  partnership: "Partenariat / sponsor",
-  event: "Événement ou atelier",
-  technical: "Problème technique",
-  other: "Autre",
+  wholesale_order: "Wholesale / Bulk Order",
+  order_issue: "Issue with Previous Order",
+  product_inquiry: "Product Inquiry",
+  restaurant_partnership: "Restaurant Partnership",
+  export_inquiry: "Export Inquiry",
+  general: "General Question",
+  other: "Other",
 };
+
+async function getSuperAdminEmail(): Promise<string> {
+  const superAdmin = await db.user.findFirst({
+    where: { role: "SUPER_ADMIN", isDeleted: false },
+    select: { email: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return (
+    superAdmin?.email || process.env.CONTACT_RECIPIENT || "ahmedzouaghi2003@gmail.com"
+  );
+}
 
 export async function sendContactEmail(data: ContactFormData) {
   const name = data.name?.trim();
   const email = data.email?.trim();
+  const phone = data.phone?.trim();
   const subject = data.subject?.trim();
   const message = data.message?.trim();
 
-  if (!name || !email || !subject || !message) {
-    return { success: false, error: "Tous les champs sont obligatoires" };
+  if (!name || !email || !phone || !subject || !message) {
+    return { success: false, error: "All fields are required" };
   }
 
   try {
@@ -62,15 +72,18 @@ export async function sendContactEmail(data: ContactFormData) {
         name,
         email,
         subject: subjectLabel,
-        message,
+        message: `Phone: ${phone}\n\n${message}`,
         userId: currentUser?.id ?? null,
       },
     });
 
+    const recipient = await getSuperAdminEmail();
+
     await sendContactFormEmail({
-      recipient: CONTACT_RECIPIENT,
+      recipient,
       name,
       email,
+      phone,
       subject: subjectLabel,
       message,
     });
@@ -78,7 +91,7 @@ export async function sendContactEmail(data: ContactFormData) {
     return { success: true, id: submission.id };
   } catch (error) {
     console.error("[CONTACT] Error in sendContactEmail:", error);
-    return { success: false, error: "Une erreur est survenue" };
+    return { success: false, error: "An error occurred. Please try again." };
   }
 }
 
@@ -95,7 +108,6 @@ export async function getContactSubmissions(): Promise<{
           select: {
             name: true,
             email: true,
-            profileImage: true,
             userType: true,
             role: true,
           },

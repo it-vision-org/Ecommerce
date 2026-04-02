@@ -5,7 +5,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/resetPassword?token=${token}`;
 
-  // Updated for Seefood ecommerce branding
   const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -22,14 +21,13 @@ export async function sendPasswordResetEmail(email: string, token: string) {
         
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); overflow: hidden;">
           
-          <!-- Header with Ocean Gradient -->
+          <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%); padding: 40px 40px 60px 40px; text-align: center; position: relative;">
+            <td style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%); padding: 40px 40px 60px 40px; text-align: center;">
               
-              <!-- Lock Icon -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="80" style="margin: 0 auto 20px auto;">
                 <tr>
-                  <td style="background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 20px; text-align: center;">
+                  <td style="background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 20px; text-align: center;">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -44,7 +42,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
             </td>
           </tr>
           
-          <!-- Content Area -->
+          <!-- Content -->
           <tr>
             <td style="padding: 40px;">
               
@@ -53,10 +51,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
               </p>
               
               <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #334155;">
-                We received a request to reset your password for your <strong>Seefood</strong> account. Click the button below to create a new password:
+                We received a request to reset your password for your <strong style="color: #0c4a6e;">Seefood</strong> account. Click the button below to create a new password:
               </p>
               
-              <!-- CTA Button -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td style="text-align: center; padding: 10px 0 30px 0;">
@@ -67,19 +64,11 @@ export async function sendPasswordResetEmail(email: string, token: string) {
                 </tr>
               </table>
               
-              <!-- Info Box -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 20px; margin: 0 0 24px 0;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px;">
                 <tr>
-                  <td>
+                  <td style="padding: 20px;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="24" style="vertical-align: top; padding-right: 12px;">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                          </svg>
-                        </td>
                         <td style="font-size: 14px; line-height: 1.6; color: #0369a1;">
                           <strong style="display: block; margin-bottom: 4px; color: #0c4a6e;">Important:</strong>
                           This link will expire in <strong>1 hour</strong> for security reasons. If you didn't request this reset, you can safely ignore this email.
@@ -90,15 +79,11 @@ export async function sendPasswordResetEmail(email: string, token: string) {
                 </tr>
               </table>
               
-              <p style="margin: 0 0 8px 0; font-size: 14px; line-height: 1.6; color: #64748b;">
+              <p style="margin: 20px 0 8px 0; font-size: 14px; line-height: 1.6; color: #64748b;">
                 If the button doesn't work, copy and paste this link into your browser:
               </p>
               <p style="margin: 0 0 24px 0; font-size: 13px; line-height: 1.6; color: #0369a1; word-break: break-all;">
                 <a href="${resetUrl}" style="color: #0369a1; text-decoration: underline;">${resetUrl}</a>
-              </p>
-              
-              <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #64748b;">
-                For security reasons, never share this link with anyone. If you're concerned about your account security, please contact our support team.
               </p>
               
             </td>
@@ -107,34 +92,23 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           <!-- Footer -->
           <tr>
             <td style="background-color: #f8fafc; padding: 30px 40px; border-top: 1px solid #e2e8f0;">
-              
-              <!-- Logo/Brand Name -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 16px;">
                 <tr>
                   <td style="text-align: center;">
-                    <div style="display: inline-flex; align-items: center; gap: 8px;">
-                      <!-- Fish Icon for Seefood -->
-                      <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #0369a1, #0ea5e9); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
-                          <path d="M6.5 12C5.5 14 5.5 10 6.5 12M17.5 12C18.5 14 18.5 10 17.5 12M12 22C16 20 21 16 21 12C21 8 16 4 12 2C8 4 3 8 3 12C3 16 8 20 12 22Z"/>
-                        </svg>
-                      </div>
-                      <span style="font-size: 18px; font-weight: 700; color: #0c4a6e; font-family: 'Georgia', serif; vertical-align: middle;">
-                        Seefood
-                      </span>
-                    </div>
+                    <span style="font-size: 20px; font-weight: 700; color: #0c4a6e; font-family: 'Georgia', serif;">
+                      🦐 Seefood
+                    </span>
                   </td>
                 </tr>
               </table>
               
               <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #64748b; text-align: center;">
-                Premium seafood delivered fresh to your door<br />Quality you can taste, service you can trust.
+                Premium luxury seafood — delivered fresh to your door.
               </p>
               
               <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #94a3b8; text-align: center;">
                 © ${new Date().getFullYear()} Seefood. All rights reserved.
               </p>
-              
             </td>
           </tr>
           
@@ -144,7 +118,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           <tr>
             <td style="text-align: center; padding: 0 20px;">
               <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #94a3b8;">
-                This email was sent to <strong>${email}</strong>. If you didn't request a password reset, please contact support immediately.
+                This email was sent to <strong>${email}</strong>. If you didn't request a password reset, please contact support.
               </p>
             </td>
           </tr>
@@ -178,12 +152,14 @@ export async function sendContactFormEmail({
   recipient,
   name,
   email,
+  phone,
   subject,
   message,
 }: {
   recipient: string;
   name: string;
   email: string;
+  phone: string;
   subject: string;
   message: string;
 }) {
@@ -195,79 +171,115 @@ export async function sendContactFormEmail({
 
     console.log("[SERVER] Sending contact form email to:", recipient);
 
+    const isWholesale =
+      subject.toLowerCase().includes("wholesale") ||
+      subject.toLowerCase().includes("export");
+
     const html = `
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nouveau message - Wake Up & Spark</title>
+  <title>New Contact - Seefood</title>
 </head>
 <body style="margin:0;padding:0;background:#f8fafc;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0f172a;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(37,99,235,0.12);">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(12,74,110,0.12);">
+          
+          <!-- Header -->
           <tr>
-            <td style="padding:32px 32px 48px 32px;background:linear-gradient(135deg,#0f172a,#1e3a8a 50%,#2563eb);color:#ffffff;text-align:left;">
+            <td style="padding:32px 32px 48px 32px;background:linear-gradient(135deg,#0c4a6e,#0369a1 50%,#0ea5e9);color:#ffffff;text-align:left;">
               <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#38bdf8,#3b82f6);display:flex;align-items:center;justify-content:center;">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M7,2V13H10V22L17,10H13L17,2H7Z"/></svg>
+                <div style="width:44px;height:44px;border-radius:12px;background:rgba(212,168,83,0.25);display:flex;align-items:center;justify-content:center;">
+                  <span style="font-size:24px;">🦐</span>
                 </div>
                 <div>
-                  <div style="font-size:13px;letter-spacing:0.6px;text-transform:uppercase;opacity:0.85;">Wake Up & Spark</div>
-                  <div style="font-size:22px;font-weight:700;">Nouveau message de contact</div>
+                  <div style="font-size:13px;letter-spacing:0.6px;text-transform:uppercase;opacity:0.85;">Seefood</div>
+                  <div style="font-size:22px;font-weight:700;">New Contact Submission</div>
                 </div>
               </div>
               <p style="margin:20px 0 0 0;font-size:15px;line-height:1.6;max-width:520px;opacity:0.9;">
-                Un membre de la communauté (élève, parent ou enseignant) souhaite entrer en contact. Nous cultivons une réponse bienveillante et confidentielle.
+                A customer has submitted the contact form on your website. Please review and respond promptly.
               </p>
+              ${isWholesale ? '<div style="margin-top:12px;display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(212,168,83,0.3);border:1px solid rgba(212,168,83,0.5);font-size:12px;font-weight:700;color:#fde68a;letter-spacing:0.5px;">⚡ WHOLESALE / EXPORT REQUEST</div>' : ""}
             </td>
           </tr>
 
+          <!-- Content -->
           <tr>
             <td style="padding:28px 32px 8px 32px;">
-              <p style="margin:0 0 6px 0;font-size:14px;color:#475569;">De</p>
-              <p style="margin:0 0 16px 0;font-size:16px;font-weight:700;color:#0f172a;">${name} · <span style="color:#2563eb;">${email}</span></p>
+              <!-- Customer info -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                <tr>
+                  <td style="padding:16px 20px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="50%" style="padding:4px 0;">
+                          <p style="margin:0 0 2px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;">Name</p>
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#0c4a6e;">${name}</p>
+                        </td>
+                        <td width="50%" style="padding:4px 0;">
+                          <p style="margin:0 0 2px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;">Phone</p>
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#0c4a6e;">${phone}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" style="padding:8px 0 0 0;">
+                          <p style="margin:0 0 2px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;">Email</p>
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#0369a1;">${email}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
-              <p style="margin:0 0 6px 0;font-size:14px;color:#475569;">Sujet</p>
-              <p style="margin:0 0 20px 0;font-size:16px;font-weight:600;color:#1e293b;">${subject}</p>
+              <!-- Subject -->
+              <p style="margin:0 0 6px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;">Subject</p>
+              <p style="margin:0 0 20px 0;font-size:16px;font-weight:600;color:#0c4a6e;">${subject}</p>
 
-              <div style="padding:18px 20px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;">
-                <p style="margin:0 0 10px 0;font-size:14px;color:#475569;">Message</p>
-                <p style="margin:0;font-size:15px;line-height:1.6;color:#0f172a;white-space:pre-line;">${message}</p>
+              <!-- Message -->
+              <div style="padding:20px;border:1px solid #e2e8f0;border-radius:14px;background:#f0f9ff;">
+                <p style="margin:0 0 10px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#0369a1;font-weight:600;">Message</p>
+                <p style="margin:0;font-size:15px;line-height:1.7;color:#0f172a;white-space:pre-line;">${message}</p>
               </div>
 
-              <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
-                <span style="padding:8px 12px;border-radius:999px;background:rgba(37,99,235,0.08);color:#1e3a8a;font-size:12px;font-weight:600;">Confidentiel</span>
-                <span style="padding:8px 12px;border-radius:999px;background:rgba(14,165,233,0.1);color:#0ea5e9;font-size:12px;font-weight:600;">Réponse sous 48h</span>
-                <span style="padding:8px 12px;border-radius:999px;background:rgba(59,130,246,0.12);color:#2563eb;font-size:12px;font-weight:600;">Écoute bienveillante</span>
+              <!-- Tags -->
+              <div style="margin-top:22px;">
+                <span style="display:inline-block;padding:8px 14px;border-radius:999px;background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;font-size:12px;font-weight:600;margin-right:8px;">📧 Reply via email</span>
+                ${isWholesale ? '<span style="display:inline-block;padding:8px 14px;border-radius:999px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:12px;font-weight:600;margin-right:8px;">🌍 Wholesale Request</span>' : ""}
+                <span style="display:inline-block;padding:8px 14px;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:12px;font-weight:600;">✓ Via seefood.com</span>
               </div>
             </td>
           </tr>
 
+          <!-- Action -->
           <tr>
-            <td style="padding:10px 32px 28px 32px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;color:#e2e8f0;border-radius:16px;padding:18px 20px;">
+            <td style="padding:24px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="font-size:13px;line-height:1.6;">
-                    <strong style="color:#f8fafc;">Pourquoi c’est important ?</strong><br />
-                    Chaque message peut concerner une situation sensible (émotionnelle, scolaire, familiale). Traitez-le avec priorité et bienveillance.
+                  <td style="text-align:center;">
+                    <a href="mailto:${email}?subject=Re: ${subject}" style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:14px 32px;border-radius:12px;box-shadow:0 4px 12px rgba(3,105,161,0.25);">
+                      Reply to ${name.split(" ")[0]}
+                    </a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
+          <!-- Footer -->
           <tr>
             <td style="padding:0 32px 32px 32px;text-align:center;font-size:12px;color:#94a3b8;">
-              Vous pouvez répondre directement à cet email, le champ « Répondre à » est déjà configuré.
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px 0;" />
+              <span style="font-size:16px;font-weight:700;color:#0c4a6e;">🦐 Seefood</span>
+              <p style="margin:8px 0 0 0;">Premium luxury seafood · seefood.com</p>
             </td>
           </tr>
         </table>
-        <p style="margin:16px 0 0 0;font-size:12px;color:#94a3b8;text-align:center;">
-          Wake Up & Spark · espace sûr pour élèves, parents et enseignants
-        </p>
       </td>
     </tr>
   </table>
@@ -276,9 +288,10 @@ export async function sendContactFormEmail({
     `;
 
     const emailResult = await resend.emails.send({
-      from: "Wake Up & Spark <onboarding@resend.dev>",
+      from: "Seefood <onboarding@resend.dev>",
       to: recipient,
-      subject: `[Wake Up & Spark] ${subject}`,
+      replyTo: email,
+      subject: `[Seefood] ${subject} — from ${name}`,
       html,
     });
 
