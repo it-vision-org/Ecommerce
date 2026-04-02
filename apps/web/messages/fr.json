@@ -338,189 +338,66 @@
   },
   "AboutPage": {
     "Hero": {
-      "Badge": "Lycée Secondaire Habib Thameur",
+      "Badge": "Seefood · Fruits de mer premium",
       "Title": "À propos de",
-      "Highlight": "Wake Up & Spark",
-      "Description": "Nous sommes un club d'élèves dédié au développement de l'intelligence émotionnelle, des valeurs morales et des liens humains au sein de notre communauté scolaire.",
-      "Stat1": {
-        "Value": "2022",
-        "Label": "Fondé en"
+      "Highlight": "Seefood",
+      "Description": "Nous sommes une marque de fruits de mer premium, axée sur le goût raffiné, la qualité fiable et des solutions flexibles pour particuliers, restaurants et clients grossistes.",
+      "Stat1": "4 saveurs de crevette panée",
+      "Stat2": "Particulier + Restaurant + Gros",
+      "Stat3": "Engagement qualité fraîcheur"
+    },
+    "Story": {
+      "Badge": "Qui sommes-nous",
+      "Title": "Des fruits de mer de luxe pour chaque table",
+      "Paragraph1": "Seefood a été créé pour proposer des produits de la mer premium avec un goût raffiné et une qualité constante. Notre gamme signature comprend la crevette panée, ainsi que des produits comme la crevette sautée et le calamar.",
+      "Paragraph2": "Des repas à domicile aux cuisines professionnelles et aux demandes d’export, nous mettons l’accent sur la fraîcheur, la sécurité alimentaire et un service fiable."
+    },
+    "Commitments": {
+      "Badge": "Notre promesse",
+      "Title": "Ce que vous pouvez toujours attendre de nous",
+      "Item1": "Ingrédients premium et normes qualité strictes",
+      "Item2": "Préparation et livraison fiables",
+      "Item3": "Approvisionnement flexible pour la demande locale et internationale"
+    },
+    "Offerings": {
+      "Badge": "Nos produits",
+      "Title": "Ce que nous proposons",
+      "Subtitle": "Une sélection de fruits de mer adaptée à différents besoins clients.",
+      "Item1": {
+        "Title": "Crevette Panée",
+        "Description": "Notre produit phare en 4 saveurs : pistache, amande, chapelure maïs et spicy."
       },
-      "Stat2": {
-        "Value": "3",
-        "Label": "Langues"
+      "Item2": {
+        "Title": "Crevette Sautée",
+        "Description": "Des options premium prêtes à valoriser le goût et la praticité en cuisine."
       },
-      "Stat3": {
-        "Value": "∞",
-        "Label": "Voix entendues"
+      "Item3": {
+        "Title": "Calamar",
+        "Description": "Des produits calamar soigneusement sélectionnés pour la maison, les restaurants et le gros."
       }
     },
-    "Vision": {
-      "Badge": "Notre Vision",
-      "Title": "Un Monde Où Chaque Voix Compte",
-      "Subtitle": "Nous croyons que les écoles peuvent être des espaces de croissance émotionnelle authentique, où élèves, enseignants et parents se connectent au-delà des notes.",
-      "Statement": "Construire une culture scolaire où l'intelligence émotionnelle, l'empathie et le courage moral sont aussi valorisés que la réussite académique.",
-      "SubStatement": "Lycée Secondaire Habib Thameur — Club Spark",
-      "Pillar1": {
-        "Title": "Conscience Émotionnelle",
-        "Description": "Aider les élèves à comprendre et exprimer leurs émotions de manière sûre et constructive."
+    "Audience": {
+      "Badge": "Nos clients",
+      "Title": "Pensé pour chaque type de client",
+      "Subtitle": "Une expérience simple pour les particuliers, évolutive pour les entreprises.",
+      "Individual": {
+        "Title": "Particuliers",
+        "Description": "Commande facile pour usage personnel avec des formats de boîtes pratiques et premium."
       },
-      "Pillar2": {
-        "Title": "Appartenance Communautaire",
-        "Description": "Créer un espace où chaque élève, enseignant et parent se sent écouté et valorisé."
+      "Restaurant": {
+        "Title": "Restaurants",
+        "Description": "Boîtes en plus grandes quantités et qualité constante pour les cuisines professionnelles."
       },
-      "Pillar3": {
-        "Title": "Développement du Caractère",
-        "Description": "Encourager les valeurs morales et le développement positif du caractère à travers des expériences partagées."
+      "Wholesale": {
+        "Title": "Grossiste & Export",
+        "Description": "Demandes grand volume via le formulaire de contact pour quantités et logistique sur mesure."
       }
     },
-    "Mission": {
-      "Badge": "Notre Mission",
-      "Title": "Ce Que Nous Faisons",
-      "Subtitle": "Notre mission est de sensibiliser à l'intelligence émotionnelle et de créer un espace anonyme et sûr pour une expression personnelle significative.",
-      "Point1": "Sensibiliser à l'intelligence émotionnelle et à son rôle dans la vie quotidienne.",
-      "Point2": "Offrir une plateforme anonyme aux élèves pour partager pensées, émotions et leçons morales.",
-      "Point3": "Favoriser des échanges positifs entre élèves, enseignants et parents à travers des histoires partagées.",
-      "Point4": "Promouvoir une culture d'empathie, de respect et de dialogue constructif dans notre communauté scolaire.",
-      "CardTitle": "Qui Nous Servons",
-      "CardDescription": "Notre plateforme est construite pour toute la communauté scolaire — des élèves gérant leurs émotions aux enseignants cherchant à se connecter et aux parents souhaitant soutenir leurs enfants.",
-      "AudienceLabel": "Notre communauté",
-      "Audience": {
-        "Students": "Élèves",
-        "Teachers": "Enseignants",
-        "Parents": "Parents"
-      }
-    },
-    "Values": {
-      "Badge": "Nos Valeurs",
-      "Title": "Les Principes Qui Nous Guident",
-      "Subtitle": "Chaque fonctionnalité que nous développons et chaque décision que nous prenons sont guidées par ces valeurs fondamentales.",
-      "Value1": {
-        "Title": "Confidentialité",
-        "Description": "Nous protégeons l'identité de chaque utilisateur qui choisit de partager anonymement. La confiance est le fondement de notre communauté."
-      },
-      "Value2": {
-        "Title": "Empathie",
-        "Description": "Nous agissons avec compassion et encourageons chaque interaction à être bienveillante, respectueuse et compréhensive."
-      },
-      "Value3": {
-        "Title": "Inclusion",
-        "Description": "Chaque élève, enseignant et parent a sa place ici. Nous célébrons la diversité des pensées, des cultures et des expériences."
-      },
-      "Value4": {
-        "Title": "Positivité",
-        "Description": "Nous cultivons un espace centré sur la croissance, l'encouragement et la conviction que les choses peuvent s'améliorer."
-      },
-      "Value5": {
-        "Title": "Éducation",
-        "Description": "Nous croyons en l'apprentissage continu — pas seulement académiquement, mais émotionnellement, moralement et socialement."
-      },
-      "Value6": {
-        "Title": "Authenticité",
-        "Description": "Nous encourageons l'expression sincère. Les vraies histoires et les pensées honnêtes suscitent un vrai changement."
-      }
-    },
-    "Founders": {
-      "Badge": "Membres Fondateurs",
-      "Title": "Ceux Qui Ont Tout Commencé",
-      "Subtitle": "Notre équipe fondatrice avait un rêve simple mais puissant : faire de notre école un lieu plus bienveillant et émotionnellement conscient.",
-      "Member1": {
-        "Name": "Fondateur 1",
-        "Role": "Fondateur & Président",
-        "Description": "Passionné par l'éducation émotionnelle et le bien-être des élèves, il a concrétisé la vision initiale."
-      },
-      "Member2": {
-        "Name": "Fondateur 2",
-        "Role": "Co-Fondateur & Vice-Président",
-        "Description": "Centré sur la construction communautaire et la sensibilisation, il a façonné l'identité inclusive du club."
-      },
-      "Member3": {
-        "Name": "Fondateur 3",
-        "Role": "Co-Fondateur & Secrétaire",
-        "Description": "Il a géré les communications et la structure, garantissant le bon fonctionnement du club dès le premier jour."
-      },
-      "NoteTitle": "Les fondateurs ont les privilèges Super Admin",
-      "NoteDescription": "Tous les membres fondateurs conservent un accès administratif complet à la plateforme. Leurs contributions au club sont reconnues de manière permanente.",
-      "Empty": "Aucun membre fondateur n'a encore été ajouté."
-    },
-    "Members": {
-      "Badge": "Membres 2025/2026",
-      "Title": "L'Équipe de Cette Année",
-      "Subtitle": "Découvrez les membres dévoués qui dirigent actuellement le club Wake Up & Spark pour l'année scolaire 2025/2026.",
-      "SchoolYear": "Année Scolaire {year}",
-      "SchoolYearNote": "Cette liste est gérée par le Super Admin et mise à jour chaque année scolaire.",
-      "Empty": "Aucun membre n'a encore été ajouté pour cette année scolaire."
-    }
-  },
-  "AchievementsPage": {
-    "Hero": {
-      "Badge": "Nos Réalisations",
-      "Title": "Jalons &",
-      "Highlight": "Moments de Fierté",
-      "Description": "Une collection des accomplissements, prix et étapes qui définissent le parcours du club Wake Up & Spark.",
-      "StatLabel": "Réalisations"
-    },
-    "Empty": {
-      "Title": "Aucune réalisation pour l'instant",
-      "Description": "Revenez bientôt — de grandes choses arrivent."
-    },
-    "Stats": {
-      "Badge": "En Chiffres",
-      "Title": "Notre Impact en un Coup d'Œil",
-      "Total": "Total des Réalisations",
-      "Categories": "Catégories",
-      "ThisYear": "Cette Année"
-    }
-  },
-  "EventsPage": {
-    "Hero": {
-      "Badge": "Événements du Club",
-      "Title": "Événements &",
-      "Highlight": "Rencontres",
-      "Description": "Restez informé de tout ce qui se passe chez Wake Up & Spark — des ateliers à venir aux moments passés.",
-      "StatUpcoming": "À venir",
-      "StatPast": "Passés"
-    },
-    "Empty": {
-      "Title": "Aucun événement pour l'instant",
-      "Description": "Revenez bientôt — quelque chose d'excitant est en préparation."
-    },
-    "Section": {
-      "Present": "En ce moment",
-      "Upcoming": "Événements à venir",
-      "Past": "Événements passés"
-    },
-    "Stats": {
-      "Badge": "Aperçu",
-      "Title": "Les événements en un coup d'œil",
-      "Present": "En direct",
-      "Upcoming": "À venir",
-      "Past": "Passés"
-    }
-  },
-  "MeetingsPage": {
-    "Hero": {
-      "Badge": "Réunions Communautaires",
-      "Title": "Vos",
-      "Highlight": "Réunions",
-      "Description": "Restez connecté avec votre communauté scolaire — rejoignez les réunions organisées pour vous par le club.",
-      "StatActive": "Actives",
-      "StatPast": "Passées"
-    },
-    "Empty": {
-      "Title": "Aucune réunion pour vous",
-      "Description": "Aucune réunion n'est prévue pour votre rôle pour le moment. Revenez bientôt."
-    },
-    "Section": {
-      "Ongoing": "En ce moment",
-      "Upcoming": "À venir",
-      "Past": "Réunions passées"
-    },
-    "Stats": {
-      "Badge": "Aperçu",
-      "Ongoing": "En direct",
-      "Upcoming": "À venir",
-      "Past": "Passées"
+    "CTA": {
+      "Title": "Découvrez Seefood dès aujourd’hui",
+      "Description": "Parcourez nos produits ou contactez notre équipe pour les demandes restaurant et grossiste.",
+      "ButtonProducts": "Voir les produits",
+      "ButtonContact": "Nous contacter"
     }
   }
 }
