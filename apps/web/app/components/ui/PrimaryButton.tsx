@@ -1,27 +1,36 @@
+import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { ReactNode } from "react";
 
-type BaseProps = {
+type CommonProps = {
   children: ReactNode;
   className?: string;
   disabled?: boolean;
   loading?: boolean;
   loadingText?: ReactNode;
   fullWidth?: boolean;
+  variant?: "primary" | "outline";
 };
 
-type ButtonProps = BaseProps & {
+type ButtonProps = CommonProps & {
   as?: "button";
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
 };
 
-type AnchorProps = BaseProps & {
+type AnchorProps = CommonProps & {
   as: "a";
+  href: string;
+  target?: string;
+  rel?: string;
+};
+
+type LinkProps = CommonProps & {
+  as: "link";
   href: string;
 };
 
-type PrimaryButtonProps = ButtonProps | AnchorProps;
+type PrimaryButtonProps = ButtonProps | AnchorProps | LinkProps;
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
   const {
@@ -31,24 +40,20 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
     loading = false,
     loadingText,
     fullWidth = false,
+    variant = "primary",
   } = props;
 
-  const baseClass = `
-    inline-flex items-center justify-center gap-2
-    px-6 py-3 rounded-xl
-    text-sm font-semibold text-white
-    bg-gradient-to-r from-[#2563eb] to-[#3b82f6]
-    shadow-lg shadow-[#2563eb]/25
-    transition-all duration-300
-    hover:scale-[1.02] hover:shadow-xl
-    disabled:opacity-60 disabled:hover:scale-100
-    ${fullWidth ? "w-full" : ""}
-    ${className}
-  `.trim();
+  const variantClass = variant === "outline" ? "btn-outline" : "btn-primary";
+  const widthClass = fullWidth ? "w-full" : "";
+  const disabledClass =
+    disabled || loading ? "pointer-events-none opacity-60" : "";
+
+  const baseClass =
+    `btn ${variantClass} ${widthClass} ${disabledClass} ${className}`.trim();
 
   const content = loading ? (
     <>
-      <Loader2 className="w-5 h-5 animate-spin" />
+      <Loader2 className="h-4 w-4 animate-spin" />
       {loadingText ?? children}
     </>
   ) : (
@@ -57,15 +62,34 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
 
   if (props.as === "a") {
     return (
-      <a href={props.href} className={baseClass}>
+      <a
+        href={props.href}
+        target={props.target}
+        rel={props.rel}
+        aria-disabled={disabled || loading}
+        className={baseClass}
+      >
         {content}
       </a>
+    );
+  }
+
+  if (props.as === "link") {
+    return (
+      <Link
+        href={props.href}
+        aria-disabled={disabled || loading}
+        className={baseClass}
+      >
+        {content}
+      </Link>
     );
   }
 
   return (
     <button
       type={props.type ?? "button"}
+      onClick={props.onClick}
       disabled={disabled || loading}
       className={baseClass}
     >
