@@ -399,5 +399,57 @@
       "ButtonProducts": "استعراض المنتجات",
       "ButtonContact": "تواصل معنا"
     }
+  },
+  "ProductsPage": {
+    "Hero": {
+      "Badge": "جودة عالية",
+      "Title": "منتجاتنا",
+      "Subtitle": "اختر من مجموعتنا من المأكولات البحرية الفاخرة"
+    },
+    "CustomerType": {
+      "Title": "أرغب في الشراء لـ",
+      "Individual": "الشراء لنفسي",
+      "Restaurant": "الشراء لمطعمي",
+      "LoggedInAs": "مسجل الدخول باسم"
+    },
+    "BoxSelection": {
+      "Title": "اختر حجم العلبة",
+      "Pieces": "قطعة",
+      "MaxTypes": "حد أقصى {count} أنواع"
+    },
+    "Progress": {
+      "Selected": "تم الاختيار",
+      "Remaining": "المتبقي",
+      "MaxTypesReached": "يمكنك اختيار {count} أنواع مختلفة كحد أقصى لكل علبة"
+    },
+    "Flavours": {
+      "Title": "اختر النكهات",
+      "NoProducts": "لا توجد منتجات متاحة"
+    },
+    "AddToCart": "أضف العلبة إلى السلة",
+    "Wholesale": {
+      "Title": "هل تحتاج كميات أكبر؟",
+      "Description": "تواصل معنا للحصول على أسعار الجملة وطلبات مخصصة",
+      "ContactUs": "تواصل معنا"
+    },
+    "LoginModal": {
+      "Title": "تسجيل دخول المطاعم",
+      "Subtitle": "قم بتسجيل الدخول للوصول إلى أسعار المطاعم",
+      "RestaurantNote": "حسابات المطاعم تحصل على أسعار خاصة بالكميات الكبيرة",
+      "EmailLabel": "البريد الإلكتروني",
+      "EmailPlaceholder": "أدخل بريدك الإلكتروني",
+      "PasswordLabel": "كلمة المرور",
+      "PasswordPlaceholder": "أدخل كلمة المرور",
+      "SignIn": "تسجيل الدخول",
+      "SigningIn": "جارٍ تسجيل الدخول...",
+      "Or": "أو",
+      "NoAccount": "ليس لديك حساب مطعم؟",
+      "SignUp": "إنشاء حساب مطعم"
+    },
+    "CartPreview": {
+      "Title": "سلتك",
+      "Total": "الإجمالي",
+      "Checkout": "إتمام الطلب"
+    }
   }
 }
