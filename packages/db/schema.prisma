@@ -85,23 +85,24 @@ model Category {
 }
 
 // ──────────────────────────────────────────────
-// Product
+// Product (Flavour)
 // ──────────────────────────────────────────────
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?  @db.Text
-  price       Decimal  @db.Decimal(10, 3)
-  unit        String   @default("kg")
-  stock       Int      @default(0)
-  images      String[]
-  isFeatured  Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?  @db.Text
+  priceIndividual Decimal  @db.Decimal(10, 3) // Price per piece for individuals
+  priceRestaurant Decimal  @db.Decimal(10, 3) // Price per piece for restaurants (bulk)
+  unit            String   @default("piece")
+  stock           Int      @default(0)
+  images          String[]
+  isFeatured      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
