@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import CategorySelector from "@/components/main/CategorySelector";
 import {
   ShoppingCart,
   X,
@@ -618,6 +619,9 @@ export default function ProductsPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<SerializedProductWithCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
   const [user, setUser] = useState<AuthUser | null>(null);
 
   const [customerType, setCustomerType] = useState<CustomerType>("individual");
@@ -646,19 +650,21 @@ export default function ProductsPage() {
     }
   }, [cart]);
 
-  // Fetch user and products on mount
+  // Fetch user, products and categories on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [result, currentUser] = await Promise.all([
-          getProducts({ isActive: true }),
+          getProducts({
+            isActive: true,
+            categoryId: selectedCategoryId || undefined,
+          }),
           getCurrentUser(),
         ]);
         setProducts(result.data || []);
         setUser(currentUser);
 
-        // Auto-select restaurant mode if user is restaurant
-        if (currentUser?.userType === "RESTAURANT") {
+        if (isLoading && currentUser?.userType === "RESTAURANT") {
           setCustomerType("restaurant");
         }
       } catch (error) {
@@ -669,7 +675,11 @@ export default function ProductsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedCategoryId]);
+
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+  };
 
   const handleLoginSuccess = async () => {
     // Refetch user after login
@@ -843,7 +853,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-white mb-4"
-            style={{color: "white"}}
+            style={{ color: "white" }}
           >
             {t("Hero.Title")}
           </motion.h1>
@@ -858,6 +868,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Customer Type Toggle */}
         <motion.div
@@ -1030,35 +1041,49 @@ export default function ProductsPage() {
               </span>
             </div>
 
-            {/* Flavour Products */}
-            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-              {t("Flavours.Title")}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  selectedCount={boxSelections[product.id] || 0}
-                  canAdd={canAddType(product.id)}
-                  maxAddable={remainingPieces}
-                  onAdd={() => handleAddPieces(product.id)}
-                  onRemove={() => handleRemovePieces(product.id)}
-                  onSetCount={(count) => handleSetCount(product.id, count)}
-                  isBoxSelected={selectedBox !== null}
-                  customerType={customerType}
-                />
-              ))}
-            </div>
-
-            {products.length === 0 && (
-              <div className="text-center py-12">
-                <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
-                <p className="text-[var(--text-secondary)]">
-                  {t("Flavours.NoProducts")}
-                </p>
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Category Selector - Left Side */}
+              <div className="lg:w-64 flex-shrink-0">
+                <div className="sticky top-4">
+                  <CategorySelector
+                    selectedCategoryId={selectedCategoryId}
+                    onCategoryChange={handleCategoryChange}
+                  />
+                </div>
               </div>
-            )}
+
+              {/* Products Grid - Right Side */}
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+                  {t("Flavours.Title")}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      selectedCount={boxSelections[product.id] || 0}
+                      canAdd={canAddType(product.id)}
+                      maxAddable={remainingPieces}
+                      onAdd={() => handleAddPieces(product.id)}
+                      onRemove={() => handleRemovePieces(product.id)}
+                      onSetCount={(count) => handleSetCount(product.id, count)}
+                      isBoxSelected={selectedBox !== null}
+                      customerType={customerType}
+                    />
+                  ))}
+                </div>
+
+                {products.length === 0 && (
+                  <div className="text-center py-12">
+                    <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
+                    <p className="text-[var(--text-secondary)]">
+                      {t("Flavours.NoProducts")}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Add to Cart Button */}
             {totalSelectedPieces === selectedBox && (
