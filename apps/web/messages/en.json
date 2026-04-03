@@ -399,5 +399,57 @@
       "ButtonProducts": "Explore products",
       "ButtonContact": "Contact us"
     }
+  },
+  "ProductsPage": {
+    "Hero": {
+      "Badge": "Premium Quality",
+      "Title": "Our Products",
+      "Subtitle": "Choose from our selection of premium seafood"
+    },
+    "CustomerType": {
+      "Title": "I want to purchase for",
+      "Individual": "Buy for Myself",
+      "Restaurant": "Buy for My Restaurant",
+      "LoggedInAs": "Logged in as"
+    },
+    "BoxSelection": {
+      "Title": "Select Box Size",
+      "Pieces": "pieces",
+      "MaxTypes": "Max {count} types"
+    },
+    "Progress": {
+      "Selected": "Selected",
+      "Remaining": "Remaining",
+      "MaxTypesReached": "You can only select up to {count} different types per box"
+    },
+    "Flavours": {
+      "Title": "Choose Your Flavours",
+      "NoProducts": "No products available"
+    },
+    "AddToCart": "Add Box to Cart",
+    "Wholesale": {
+      "Title": "Need Larger Quantities?",
+      "Description": "Contact us for wholesale pricing and custom orders",
+      "ContactUs": "Contact Us"
+    },
+    "LoginModal": {
+      "Title": "Restaurant Login",
+      "Subtitle": "Sign in to access restaurant pricing",
+      "RestaurantNote": "Restaurant accounts get access to bulk pricing",
+      "EmailLabel": "Email",
+      "EmailPlaceholder": "Enter your email",
+      "PasswordLabel": "Password",
+      "PasswordPlaceholder": "Enter your password",
+      "SignIn": "Sign In",
+      "SigningIn": "Signing in...",
+      "Or": "or",
+      "NoAccount": "Don't have a restaurant account?",
+      "SignUp": "Create Restaurant Account"
+    },
+    "CartPreview": {
+      "Title": "Your Cart",
+      "Total": "Total",
+      "Checkout": "Proceed to Checkout"
+    }
   }
 }

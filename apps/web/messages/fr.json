@@ -399,5 +399,57 @@
       "ButtonProducts": "Voir les produits",
       "ButtonContact": "Nous contacter"
     }
+  },
+  "ProductsPage": {
+    "Hero": {
+      "Badge": "Qualité Premium",
+      "Title": "Nos Produits",
+      "Subtitle": "Choisissez parmi notre sélection de fruits de mer premium"
+    },
+    "CustomerType": {
+      "Title": "Je souhaite acheter pour",
+      "Individual": "Acheter pour moi-même",
+      "Restaurant": "Acheter pour mon restaurant",
+      "LoggedInAs": "Connecté en tant que"
+    },
+    "BoxSelection": {
+      "Title": "Choisir la taille de la boîte",
+      "Pieces": "pièces",
+      "MaxTypes": "Max {count} types"
+    },
+    "Progress": {
+      "Selected": "Sélectionné",
+      "Remaining": "Restant",
+      "MaxTypesReached": "Vous ne pouvez sélectionner que {count} types différents par boîte"
+    },
+    "Flavours": {
+      "Title": "Choisissez vos saveurs",
+      "NoProducts": "Aucun produit disponible"
+    },
+    "AddToCart": "Ajouter la boîte au panier",
+    "Wholesale": {
+      "Title": "Besoin de grandes quantités ?",
+      "Description": "Contactez-nous pour les tarifs de gros et les commandes personnalisées",
+      "ContactUs": "Nous contacter"
+    },
+    "LoginModal": {
+      "Title": "Connexion Restaurant",
+      "Subtitle": "Connectez-vous pour accéder aux tarifs restaurant",
+      "RestaurantNote": "Les comptes restaurant bénéficient de tarifs de gros",
+      "EmailLabel": "E-mail",
+      "EmailPlaceholder": "Entrez votre e-mail",
+      "PasswordLabel": "Mot de passe",
+      "PasswordPlaceholder": "Entrez votre mot de passe",
+      "SignIn": "Se connecter",
+      "SigningIn": "Connexion en cours...",
+      "Or": "ou",
+      "NoAccount": "Vous n'avez pas de compte restaurant ?",
+      "SignUp": "Créer un compte restaurant"
+    },
+    "CartPreview": {
+      "Title": "Votre panier",
+      "Total": "Total",
+      "Checkout": "Passer à la caisse"
+    }
   }
 }

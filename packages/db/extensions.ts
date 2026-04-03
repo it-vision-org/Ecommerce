@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-const modelsWithIsDeleted = ["User", "Product", "Order", "Store"]; // Add models that have the isDeleted field
+const modelsWithIsDeleted = ["User"]; // Add models that have the isDeleted field
 
 export const softDeleteExtension = Prisma.defineExtension((client) => {
   return client.$extends({
