@@ -1,7 +1,75 @@
 {
   "HomePage": {
-    "Title": "Welcome to our website!",
-    "Description": "This is a simple starting page."
+    "Title": "Seefood",
+    "Description": "Premium Luxury Seafood",
+    "hero": {
+      "badge": "Premium Quality Seafood",
+      "title": "Discover the Finest",
+      "titleHighlight": "Luxury Seafood",
+      "description": "Indulge in our exquisite selection of premium breaded shrimp, handcrafted with pistachio, almond, corn breadcrumbs, and spicy flavors.",
+      "shopNow": "Shop Now",
+      "learnMore": "Learn More"
+    },
+    "customerType": {
+      "title": "How Can We Serve You?",
+      "description": "Whether you're treating yourself, running a restaurant, or looking for wholesale quantities, we have the perfect solution for you.",
+      "individual": {
+        "title": "For Myself",
+        "description": "Perfect boxes of 6, 8, or 12 pieces for personal enjoyment."
+      },
+      "restaurant": {
+        "title": "For My Restaurant",
+        "description": "Bulk orders of 300, 600, or 900 pieces at special pricing."
+      },
+      "wholesale": {
+        "title": "Wholesale / Export",
+        "description": "Large quantity orders for international distribution."
+      },
+      "shopNow": "Shop Now",
+      "viewPricing": "View Pricing",
+      "contactUs": "Contact Us"
+    },
+    "featured": {
+      "title": "Featured Products",
+      "description": "Our most popular selections, loved by customers",
+      "viewAll": "View All Products",
+      "noProducts": "No featured products available at the moment."
+    },
+    "product": {
+      "featured": "Featured",
+      "viewDetails": "View Details"
+    },
+    "categories": {
+      "title": "Explore Categories",
+      "description": "Browse our curated collection of premium seafood products",
+      "explore": "Explore Category"
+    },
+    "benefits": {
+      "title": "Why Choose Seefood?",
+      "description": "We're committed to delivering the finest seafood experience",
+      "quality": {
+        "title": "Premium Quality",
+        "description": "Only the freshest seafood, carefully selected and prepared."
+      },
+      "delivery": {
+        "title": "Fast Delivery",
+        "description": "Quick and reliable delivery to your doorstep."
+      },
+      "safe": {
+        "title": "Food Safety",
+        "description": "Strict hygiene standards and proper cold chain."
+      },
+      "service": {
+        "title": "Excellent Service",
+        "description": "Dedicated support for all your needs."
+      }
+    },
+    "cta": {
+      "title": "Ready to Taste Excellence?",
+      "description": "Explore our premium selection of luxury seafood and elevate your dining experience today.",
+      "browseProducts": "Browse Products",
+      "contactUs": "Contact Us"
+    }
   },
 
   "LoginPage": {

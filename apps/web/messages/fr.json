@@ -1,7 +1,75 @@
 {
   "HomePage": {
-    "Title": "Bienvenue sur notre site web!",
-    "Description": "Ceci est une page de démarrage simple."
+    "Title": "Seefood",
+    "Description": "Fruits de Mer de Luxe Premium",
+    "hero": {
+      "badge": "Fruits de Mer de Qualité Premium",
+      "title": "Découvrez les Meilleurs",
+      "titleHighlight": "Fruits de Mer de Luxe",
+      "description": "Savourez notre sélection exquise de crevettes panées premium, préparées avec pistache, amande, chapelure de maïs et saveurs épicées.",
+      "shopNow": "Acheter Maintenant",
+      "learnMore": "En Savoir Plus"
+    },
+    "customerType": {
+      "title": "Comment Pouvons-Nous Vous Servir?",
+      "description": "Que vous vous fassiez plaisir, que vous gérez un restaurant, ou que vous cherchez des quantités en gros, nous avons la solution parfaite pour vous.",
+      "individual": {
+        "title": "Pour Moi-Même",
+        "description": "Boîtes parfaites de 6, 8 ou 12 pièces pour un plaisir personnel."
+      },
+      "restaurant": {
+        "title": "Pour Mon Restaurant",
+        "description": "Commandes en gros de 300, 600 ou 900 pièces à prix spéciaux."
+      },
+      "wholesale": {
+        "title": "Grossiste / Export",
+        "description": "Commandes en grande quantité pour la distribution internationale."
+      },
+      "shopNow": "Acheter Maintenant",
+      "viewPricing": "Voir les Prix",
+      "contactUs": "Nous Contacter"
+    },
+    "featured": {
+      "title": "Produits Vedettes",
+      "description": "Nos sélections les plus populaires, appréciées par nos clients",
+      "viewAll": "Voir Tous les Produits",
+      "noProducts": "Aucun produit vedette disponible pour le moment."
+    },
+    "product": {
+      "featured": "Vedette",
+      "viewDetails": "Voir les Détails"
+    },
+    "categories": {
+      "title": "Explorer les Catégories",
+      "description": "Parcourez notre collection sélectionnée de produits de mer premium",
+      "explore": "Explorer la Catégorie"
+    },
+    "benefits": {
+      "title": "Pourquoi Choisir Seefood?",
+      "description": "Nous nous engageons à offrir la meilleure expérience de fruits de mer",
+      "quality": {
+        "title": "Qualité Premium",
+        "description": "Uniquement les fruits de mer les plus frais, soigneusement sélectionnés."
+      },
+      "delivery": {
+        "title": "Livraison Rapide",
+        "description": "Livraison rapide et fiable à votre porte."
+      },
+      "safe": {
+        "title": "Sécurité Alimentaire",
+        "description": "Normes d'hygiène strictes et chaîne du froid appropriée."
+      },
+      "service": {
+        "title": "Excellent Service",
+        "description": "Support dédié pour tous vos besoins."
+      }
+    },
+    "cta": {
+      "title": "Prêt à Goûter l'Excellence?",
+      "description": "Explorez notre sélection premium de fruits de mer de luxe et élevez votre expérience culinaire aujourd'hui.",
+      "browseProducts": "Parcourir les Produits",
+      "contactUs": "Nous Contacter"
+    }
   },
 
   "LoginPage": {
