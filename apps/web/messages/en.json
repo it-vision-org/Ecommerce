@@ -451,5 +451,160 @@
       "Total": "Total",
       "Checkout": "Proceed to Checkout"
     }
+  },
+  "CheckoutPage": {
+    "Title": "Checkout",
+    "Subtitle": "Complete your order",
+    "BackToProducts": "Back to Products",
+    "Steps": {
+      "Review": "Review",
+      "Shipping": "Shipping",
+      "Payment": "Payment"
+    },
+    "EmptyCart": {
+      "Title": "Your cart is empty",
+      "Description": "Add some delicious seafood to your cart",
+      "BrowseProducts": "Browse Products"
+    },
+    "OrderReview": {
+      "Title": "Order Review",
+      "BoxOf": "Box of {count} pieces",
+      "Continue": "Continue to Shipping"
+    },
+    "Shipping": {
+      "Title": "Shipping Information",
+      "Name": "Full Name",
+      "NamePlaceholder": "Enter your full name",
+      "Phone": "Phone Number",
+      "PhonePlaceholder": "+216 XX XXX XXX",
+      "Email": "Email Address",
+      "EmailPlaceholder": "your@email.com",
+      "Optional": "optional",
+      "Address": "Delivery Address",
+      "AddressPlaceholder": "Street address, city, postal code",
+      "Notes": "Delivery Notes",
+      "NotesPlaceholder": "Any special instructions for delivery"
+    },
+    "Payment": {
+      "Title": "Payment Method",
+      "CashOnDelivery": "Cash on Delivery",
+      "CashOnDeliveryDesc": "Pay when you receive your order",
+      "BankTransfer": "Bank Transfer",
+      "BankTransferDesc": "Transfer before delivery",
+      "InfoNote": "Your order will be confirmed via phone call within 24 hours"
+    },
+    "Summary": {
+      "Title": "Order Summary",
+      "BoxOf": "Box ({count} pcs)",
+      "Subtotal": "Subtotal",
+      "Shipping": "Shipping",
+      "Free": "Free",
+      "FreeShippingNote": "Free shipping on orders over 100 TND",
+      "Total": "Total",
+      "FastDelivery": "Fast delivery across Tunisia",
+      "FreshProducts": "Always fresh products",
+      "SecurePayment": "Secure payment"
+    },
+    "Errors": {
+      "NameRequired": "Name is required",
+      "PhoneRequired": "Phone number is required",
+      "PhoneInvalid": "Please enter a valid phone number",
+      "EmailInvalid": "Please enter a valid email address",
+      "AddressRequired": "Delivery address is required",
+      "FixErrors": "Please fix the errors in the form",
+      "EmptyCart": "Your cart is empty",
+      "OrderFailed": "Failed to place order. Please try again."
+    },
+    "Success": {
+      "OrderPlaced": "Order placed successfully!"
+    },
+    "Back": "Back",
+    "Continue": "Continue",
+    "PlaceOrder": "Place Order",
+    "Processing": "Processing..."
+  },
+  "OrdersPage": {
+    "Title": "My Orders",
+    "Subtitle": "Track and manage all your orders in one place",
+    "Badge": "Order History",
+    "Items": "items",
+    "TotalAmount": "Total",
+    "TotalOrders": "{count} Total Orders",
+    "ActiveOrders": "{count} Active",
+    "LoginRequired": {
+      "Title": "Login Required",
+      "Description": "Please log in to view your order history",
+      "LoginButton": "Log In",
+      "NoAccount": "Don't have an account?",
+      "SignUp": "Sign up"
+    },
+    "NoOrders": {
+      "Title": "No orders yet",
+      "Description": "Start shopping to see your orders here",
+      "BrowseProducts": "Browse Products"
+    },
+    "Status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PROCESSING": "Processing",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "OrderDetail": {
+      "Title": "Order",
+      "Status": "Status",
+      "DeliveryInfo": "Delivery Information",
+      "Items": "Items",
+      "Subtotal": "Subtotal",
+      "Shipping": "Shipping",
+      "Free": "Free",
+      "Total": "Total",
+      "Notes": "Order Notes",
+      "CashOnDelivery": "Cash on Delivery",
+      "BankTransfer": "Bank Transfer"
+    }
+  },
+  "OrderDetailPage": {
+    "Title": "Order",
+    "BackToOrders": "Back to Orders",
+    "OrderedOn": "Ordered on {date}",
+    "TrackOrder": "Track Your Order",
+    "DeliveryInfo": "Delivery Information",
+    "PaymentInfo": "Payment Information",
+    "OrderItems": "Order Items",
+    "OrderNotes": "Order Notes",
+    "Address": "Delivery Address",
+    "Phone": "Phone Number",
+    "Email": "Email",
+    "PaymentMethod": "Payment Method",
+    "CashOnDelivery": "Cash on Delivery",
+    "BankTransfer": "Bank Transfer",
+    "OrderDate": "Order Date",
+    "Subtotal": "Subtotal",
+    "Shipping": "Shipping",
+    "Free": "Free",
+    "Total": "Total",
+    "ViewAllOrders": "View All Orders",
+    "ContinueShopping": "Continue Shopping",
+    "Status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PROCESSING": "Processing",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "Success": {
+      "Title": "Order Placed Successfully!",
+      "Description": "Your order #{orderNumber} has been confirmed.",
+      "NextSteps": "We will contact you shortly to confirm your order details and delivery time."
+    },
+    "NotFound": {
+      "Title": "Order Not Found",
+      "Description": "We couldn't find the order you're looking for.",
+      "ViewOrders": "View My Orders",
+      "GoHome": "Go Home"
+    }
   }
 }

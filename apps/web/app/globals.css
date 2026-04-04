@@ -157,16 +157,12 @@ h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.25;
-  color: var(--text-primary);
 }
 
 a {
-  color: var(--primary);
+  cursor: pointer;
   text-decoration: none;
   transition: color var(--transition);
-}
-a:hover {
-  color: var(--primary-hover);
 }
 
 /* ══════════════════ Scrollbar ══════════════════ */

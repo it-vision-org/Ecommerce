@@ -18,6 +18,8 @@ export type AuthUser = {
   email: string;
   role: string;
   userType: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 };
 
 /**
@@ -50,6 +52,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         email: true,
         role: true,
         userType: true,
+        phoneNumber: true,
+        address: true,
       },
     });
 
@@ -63,6 +67,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       email: user.email,
       role: user.role,
       userType: user.userType,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
     };
   } catch (error) {
     console.error("Error getting current user:", error);
