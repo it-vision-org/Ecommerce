@@ -451,5 +451,160 @@
       "Total": "Total",
       "Checkout": "Passer à la caisse"
     }
+  },
+  "CheckoutPage": {
+    "Title": "Paiement",
+    "Subtitle": "Finalisez votre commande",
+    "BackToProducts": "Retour aux Produits",
+    "Steps": {
+      "Review": "Révision",
+      "Shipping": "Livraison",
+      "Payment": "Paiement"
+    },
+    "EmptyCart": {
+      "Title": "Votre panier est vide",
+      "Description": "Ajoutez de délicieux fruits de mer à votre panier",
+      "BrowseProducts": "Parcourir les Produits"
+    },
+    "OrderReview": {
+      "Title": "Révision de la Commande",
+      "BoxOf": "Boîte de {count} pièces",
+      "Continue": "Continuer vers la Livraison"
+    },
+    "Shipping": {
+      "Title": "Informations de Livraison",
+      "Name": "Nom Complet",
+      "NamePlaceholder": "Entrez votre nom complet",
+      "Phone": "Numéro de Téléphone",
+      "PhonePlaceholder": "+216 XX XXX XXX",
+      "Email": "Adresse Email",
+      "EmailPlaceholder": "votre@email.com",
+      "Optional": "optionnel",
+      "Address": "Adresse de Livraison",
+      "AddressPlaceholder": "Adresse, ville, code postal",
+      "Notes": "Notes de Livraison",
+      "NotesPlaceholder": "Instructions spéciales pour la livraison"
+    },
+    "Payment": {
+      "Title": "Mode de Paiement",
+      "CashOnDelivery": "Paiement à la Livraison",
+      "CashOnDeliveryDesc": "Payez à la réception de votre commande",
+      "BankTransfer": "Virement Bancaire",
+      "BankTransferDesc": "Transférez avant la livraison",
+      "InfoNote": "Votre commande sera confirmée par téléphone dans les 24 heures"
+    },
+    "Summary": {
+      "Title": "Résumé de la Commande",
+      "BoxOf": "Boîte ({count} pcs)",
+      "Subtotal": "Sous-total",
+      "Shipping": "Livraison",
+      "Free": "Gratuit",
+      "FreeShippingNote": "Livraison gratuite pour les commandes de plus de 100 TND",
+      "Total": "Total",
+      "FastDelivery": "Livraison rapide en Tunisie",
+      "FreshProducts": "Produits toujours frais",
+      "SecurePayment": "Paiement sécurisé"
+    },
+    "Errors": {
+      "NameRequired": "Le nom est requis",
+      "PhoneRequired": "Le numéro de téléphone est requis",
+      "PhoneInvalid": "Veuillez entrer un numéro de téléphone valide",
+      "EmailInvalid": "Veuillez entrer une adresse email valide",
+      "AddressRequired": "L'adresse de livraison est requise",
+      "FixErrors": "Veuillez corriger les erreurs dans le formulaire",
+      "EmptyCart": "Votre panier est vide",
+      "OrderFailed": "Échec de la commande. Veuillez réessayer."
+    },
+    "Success": {
+      "OrderPlaced": "Commande passée avec succès!"
+    },
+    "Back": "Retour",
+    "Continue": "Continuer",
+    "PlaceOrder": "Passer la Commande",
+    "Processing": "Traitement..."
+  },
+  "OrdersPage": {
+    "Title": "Mes commandes",
+    "Subtitle": "Suivez et gérez toutes vos commandes en un seul endroit",
+    "Badge": "Historique des commandes",
+    "Items": "articles",
+    "TotalAmount": "Total",
+    "TotalOrders": "{count} commandes au total",
+    "ActiveOrders": "{count} actives",
+    "LoginRequired": {
+      "Title": "Connexion requise",
+      "Description": "Veuillez vous connecter pour voir votre historique de commandes",
+      "LoginButton": "Se connecter",
+      "NoAccount": "Vous n\\u0027avez pas de compte ?",
+      "SignUp": "S\\u0027inscrire"
+    },
+    "NoOrders": {
+      "Title": "Aucune commande pour le moment",
+      "Description": "Commencez vos achats pour voir vos commandes ici",
+      "BrowseProducts": "Voir les produits"
+    },
+    "Status": {
+      "PENDING": "En attente",
+      "CONFIRMED": "Confirmée",
+      "PROCESSING": "En cours de traitement",
+      "SHIPPED": "Expédiée",
+      "DELIVERED": "Livrée",
+      "CANCELLED": "Annulée"
+    },
+    "OrderDetail": {
+      "Title": "Commande",
+      "Status": "Statut",
+      "DeliveryInfo": "Informations de livraison",
+      "Items": "Articles",
+      "Subtotal": "Sous-total",
+      "Shipping": "Livraison",
+      "Free": "Gratuite",
+      "Total": "Total",
+      "Notes": "Notes de commande",
+      "CashOnDelivery": "Paiement à la livraison",
+      "BankTransfer": "Virement bancaire"
+    }
+  },
+  "OrderDetailPage": {
+    "Title": "Commande",
+    "BackToOrders": "Retour aux Commandes",
+    "OrderedOn": "Commandé le {date}",
+    "TrackOrder": "Suivre Votre Commande",
+    "DeliveryInfo": "Informations de Livraison",
+    "PaymentInfo": "Informations de Paiement",
+    "OrderItems": "Articles de la Commande",
+    "OrderNotes": "Notes de Commande",
+    "Address": "Adresse de Livraison",
+    "Phone": "Numéro de Téléphone",
+    "Email": "Email",
+    "PaymentMethod": "Mode de Paiement",
+    "CashOnDelivery": "Paiement à la Livraison",
+    "BankTransfer": "Virement Bancaire",
+    "OrderDate": "Date de Commande",
+    "Subtotal": "Sous-total",
+    "Shipping": "Livraison",
+    "Free": "Gratuit",
+    "Total": "Total",
+    "ViewAllOrders": "Voir Toutes les Commandes",
+    "ContinueShopping": "Continuer les Achats",
+    "Status": {
+      "PENDING": "En attente",
+      "CONFIRMED": "Confirmée",
+      "PROCESSING": "En cours",
+      "SHIPPED": "Expédiée",
+      "DELIVERED": "Livrée",
+      "CANCELLED": "Annulée"
+    },
+    "Success": {
+      "Title": "Commande Passée avec Succès!",
+      "Description": "Votre commande #{orderNumber} a été confirmée.",
+      "NextSteps": "Nous vous contacterons sous peu pour confirmer les détails de votre commande et l'heure de livraison."
+    },
+    "NotFound": {
+      "Title": "Commande Non Trouvée",
+      "Description": "Nous n'avons pas trouvé la commande que vous recherchez.",
+      "ViewOrders": "Voir Mes Commandes",
+      "GoHome": "Accueil"
+    }
   }
 }

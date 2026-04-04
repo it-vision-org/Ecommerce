@@ -451,5 +451,160 @@
       "Total": "الإجمالي",
       "Checkout": "إتمام الطلب"
     }
+  },
+  "CheckoutPage": {
+    "Title": "الدفع",
+    "Subtitle": "أكمل طلبك",
+    "BackToProducts": "العودة إلى المنتجات",
+    "Steps": {
+      "Review": "المراجعة",
+      "Shipping": "الشحن",
+      "Payment": "الدفع"
+    },
+    "EmptyCart": {
+      "Title": "سلة التسوق فارغة",
+      "Description": "أضف بعض المأكولات البحرية اللذيذة إلى سلتك",
+      "BrowseProducts": "تصفح المنتجات"
+    },
+    "OrderReview": {
+      "Title": "مراجعة الطلب",
+      "BoxOf": "صندوق من {count} قطعة",
+      "Continue": "المتابعة إلى الشحن"
+    },
+    "Shipping": {
+      "Title": "معلومات الشحن",
+      "Name": "الاسم الكامل",
+      "NamePlaceholder": "أدخل اسمك الكامل",
+      "Phone": "رقم الهاتف",
+      "PhonePlaceholder": "+216 XX XXX XXX",
+      "Email": "البريد الإلكتروني",
+      "EmailPlaceholder": "بريدك@email.com",
+      "Optional": "اختياري",
+      "Address": "عنوان التسليم",
+      "AddressPlaceholder": "العنوان، المدينة، الرمز البريدي",
+      "Notes": "ملاحظات التسليم",
+      "NotesPlaceholder": "أي تعليمات خاصة للتسليم"
+    },
+    "Payment": {
+      "Title": "طريقة الدفع",
+      "CashOnDelivery": "الدفع عند الاستلام",
+      "CashOnDeliveryDesc": "ادفع عند استلام طلبك",
+      "BankTransfer": "تحويل بنكي",
+      "BankTransferDesc": "حول قبل التسليم",
+      "InfoNote": "سيتم تأكيد طلبك عبر مكالمة هاتفية خلال 24 ساعة"
+    },
+    "Summary": {
+      "Title": "ملخص الطلب",
+      "BoxOf": "صندوق ({count} قطعة)",
+      "Subtotal": "المجموع الفرعي",
+      "Shipping": "الشحن",
+      "Free": "مجاني",
+      "FreeShippingNote": "شحن مجاني للطلبات فوق 100 دينار",
+      "Total": "المجموع",
+      "FastDelivery": "توصيل سريع في جميع أنحاء تونس",
+      "FreshProducts": "منتجات طازجة دائمًا",
+      "SecurePayment": "دفع آمن"
+    },
+    "Errors": {
+      "NameRequired": "الاسم مطلوب",
+      "PhoneRequired": "رقم الهاتف مطلوب",
+      "PhoneInvalid": "يرجى إدخال رقم هاتف صالح",
+      "EmailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+      "AddressRequired": "عنوان التسليم مطلوب",
+      "FixErrors": "يرجى تصحيح الأخطاء في النموذج",
+      "EmptyCart": "سلة التسوق فارغة",
+      "OrderFailed": "فشل في تقديم الطلب. يرجى المحاولة مرة أخرى."
+    },
+    "Success": {
+      "OrderPlaced": "تم تقديم الطلب بنجاح!"
+    },
+    "Back": "رجوع",
+    "Continue": "متابعة",
+    "PlaceOrder": "تقديم الطلب",
+    "Processing": "جاري المعالجة..."
+  },
+  "OrdersPage": {
+    "Title": "طلباتي",
+    "Subtitle": "تتبع وإدارة جميع طلباتك في مكان واحد",
+    "Badge": "سجل الطلبات",
+    "Items": "عناصر",
+    "TotalAmount": "الإجمالي",
+    "TotalOrders": "{count} طلبات إجمالية",
+    "ActiveOrders": "{count} نشطة",
+    "LoginRequired": {
+      "Title": "تسجيل الدخول مطلوب",
+      "Description": "يرجى تسجيل الدخول لعرض سجل طلباتك",
+      "LoginButton": "تسجيل الدخول",
+      "NoAccount": "ليس لديك حساب؟",
+      "SignUp": "إنشاء حساب"
+    },
+    "NoOrders": {
+      "Title": "لا توجد طلبات بعد",
+      "Description": "ابدأ التسوق لرؤية طلباتك هنا",
+      "BrowseProducts": "تصفح المنتجات"
+    },
+    "Status": {
+      "PENDING": "قيد الانتظار",
+      "CONFIRMED": "تم التأكيد",
+      "PROCESSING": "قيد المعالجة",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "تم الإلغاء"
+    },
+    "OrderDetail": {
+      "Title": "طلب",
+      "Status": "الحالة",
+      "DeliveryInfo": "معلومات التوصيل",
+      "Items": "العناصر",
+      "Subtotal": "المجموع الفرعي",
+      "Shipping": "الشحن",
+      "Free": "مجاني",
+      "Total": "الإجمالي",
+      "Notes": "ملاحظات الطلب",
+      "CashOnDelivery": "الدفع عند الاستلام",
+      "BankTransfer": "تحويل بنكي"
+    }
+  },
+  "OrderDetailPage": {
+    "Title": "الطلب",
+    "BackToOrders": "العودة إلى الطلبات",
+    "OrderedOn": "تم الطلب في {date}",
+    "TrackOrder": "تتبع طلبك",
+    "DeliveryInfo": "معلومات التوصيل",
+    "PaymentInfo": "معلومات الدفع",
+    "OrderItems": "منتجات الطلب",
+    "OrderNotes": "ملاحظات الطلب",
+    "Address": "عنوان التوصيل",
+    "Phone": "رقم الهاتف",
+    "Email": "البريد الإلكتروني",
+    "PaymentMethod": "طريقة الدفع",
+    "CashOnDelivery": "الدفع عند الاستلام",
+    "BankTransfer": "تحويل بنكي",
+    "OrderDate": "تاريخ الطلب",
+    "Subtotal": "المجموع الفرعي",
+    "Shipping": "الشحن",
+    "Free": "مجاني",
+    "Total": "المجموع",
+    "ViewAllOrders": "عرض جميع الطلبات",
+    "ContinueShopping": "متابعة التسوق",
+    "Status": {
+      "PENDING": "قيد الانتظار",
+      "CONFIRMED": "مؤكد",
+      "PROCESSING": "قيد المعالجة",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "ملغى"
+    },
+    "Success": {
+      "Title": "تم تقديم الطلب بنجاح!",
+      "Description": "تم تأكيد طلبك #{orderNumber}.",
+      "NextSteps": "سنتواصل معك قريبًا لتأكيد تفاصيل طلبك وموعد التسليم."
+    },
+    "NotFound": {
+      "Title": "الطلب غير موجود",
+      "Description": "لم نتمكن من العثور على الطلب الذي تبحث عنه.",
+      "ViewOrders": "عرض طلباتي",
+      "GoHome": "الصفحة الرئيسية"
+    }
   }
 }
