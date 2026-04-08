@@ -1,13 +1,25 @@
 import "@/globals.css";
 import { Toaster } from "react-hot-toast";
+import NavMenu from "@/components/admin/NavMenu";
 
-export default function AuthLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="flex min-h-screen">
+      {/* Sidebar Navigation */}
+      <NavMenu />
+
+      {/* Main Content */}
+      <main
+        className="flex-1 p-8"
+        style={{ backgroundColor: "var(--bg)" }}
+      >
+        {children}
+      </main>
+
       <Toaster
         position="top-center"
         toastOptions={{
@@ -34,7 +46,6 @@ export default function AuthLayout({
           },
         }}
       />
-      {children}
-    </>
+    </div>
   );
 }
