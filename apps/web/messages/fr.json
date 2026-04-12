@@ -129,7 +129,6 @@
       "contactUs": "Nous Contacter"
     }
   },
-
   "LoginPage": {
     "LeftPanel": {
       "Title": "Bon Retour",
@@ -163,7 +162,6 @@
       "Error": "Une erreur s'est produite lors de la connexion"
     }
   },
-
   "SignupPage": {
     "LeftPanel": {
       "Title": "Rejoignez-\nnous",
@@ -224,7 +222,6 @@
       "Error": "Une erreur s'est produite lors de l'inscription"
     }
   },
-
   "ForgotPasswordPage": {
     "LeftPanel": {
       "Title": "Réinitialisez\nVotre Mot de Passe",
@@ -258,7 +255,6 @@
       "ErrorGeneral": "Une erreur s'est produite. Veuillez réessayer plus tard."
     }
   },
-
   "ResetPasswordPage": {
     "LeftPanel": {
       "TitleLine1": "Créer un",
@@ -293,7 +289,6 @@
       }
     }
   },
-
   "Navbar": {
     "NavItems": {
       "Home": "Accueil",
@@ -302,16 +297,15 @@
       "About": "À propos"
     },
     "Profile": "Profil",
+    "Dashboard": "Dashboard",
     "Orders": "Mes commandes",
     "MemberFallback": "Membre Seefood",
     "OpenMenu": "Ouvrir le menu",
     "CloseMenu": "Fermer le menu"
   },
-
   "AuthNavbar": {
     "Home": "Accueil"
   },
-
   "ContactPage": {
     "Hero": {
       "Badge": "Seefood · Fruits de mer premium",
