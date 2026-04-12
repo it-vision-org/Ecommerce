@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { Locale, useTranslations } from "next-intl";
-import { LoginButton } from "./LoginButton";
-import { LogoutButton } from "./LogoutButton";
-import { LanguageSelector } from "./LanguageSelector";
+import { LoginButton } from "@/components/ui/LoginButton";
+import { LogoutButton } from "@/components/ui/LogoutButton";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
 type User = {
   name?: string | null;
   email?: string | null;
   profileImage?: string | null;
+  role?: string | null;
 } | null;
 
 const NAV_ITEMS = [
@@ -94,18 +95,16 @@ export function AppHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
-        <Link
-          href="/"
-          className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-sky-300 hover:shadow-md"
-        >
-          <span className="flex size-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 text-sm font-bold">
-            🦐
-          </span>
-          <span className="text-sm font-bold tracking-wide">Seefood</span>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
+        <Link href="/">
+          <img
+            src="/images/logo.png"
+            alt="Seefood logo"
+            className="size-18 mix-blend-multiply dark:mix-blend-screen"
+          />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 md:flex py-3">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
@@ -159,17 +158,17 @@ export function AppHeader({
                 <div className="absolute right-0 top-[calc(100%+10px)] w-72 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-sky-100/40 ring-1 ring-slate-100/60">
                   <div className="flex items-center gap-3 bg-slate-50 px-4 py-3">
                     <div className="flex size-12 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
-                      {user.profileImage ? (
+                      {/* {user.profileImage ? (
                         <img
                           src={user.profileImage}
                           alt={user.name || user.email || t("MemberFallback")}
                           className="size-full object-cover"
                         />
-                      ) : (
-                        <span className="text-base font-semibold text-sky-700">
-                          {avatarInitial}
-                        </span>
-                      )}
+                      ) : ( */}
+                      <span className="text-base font-semibold text-sky-700">
+                        {avatarInitial}
+                      </span>
+                      {/* )} */}
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold text-slate-900">
@@ -182,13 +181,15 @@ export function AppHeader({
                   </div>
 
                   <div className="flex flex-col gap-1 px-2 py-2">
-                    <Link
-                      href="/profile"
-                      className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-sky-50 hover:text-sky-700"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {t("Profile")}
-                    </Link>
+                    {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
+                      <Link
+                        href="/dashboard"
+                        className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-sky-50 hover:text-sky-700"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {t("Dashboard")}
+                      </Link>
+                    )}
                     <Link
                       href="/orders"
                       className="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-sky-50 hover:text-sky-700"
