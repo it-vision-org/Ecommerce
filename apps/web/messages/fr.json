@@ -7,23 +7,60 @@
       "title": "Découvrez les Meilleurs",
       "titleHighlight": "Fruits de Mer de Luxe",
       "description": "Savourez notre sélection exquise de crevettes panées premium, préparées avec pistache, amande, chapelure de maïs et saveurs épicées.",
+      "subDescription": "Découvrez le mélange parfait de qualité, de goût et de luxe dans chaque bouchée de nos délices de fruits de mer soigneusement préparés.",
       "shopNow": "Acheter Maintenant",
-      "learnMore": "En Savoir Plus"
+      "learnMore": "En Savoir Plus",
+      "feature1": "100% Fruits de Mer Frais",
+      "feature2": "4 Variétés Premium",
+      "feature3": "Livraison Rapide",
+      "badgeLabel": "Qualité Premium",
+      "badgeValue": "100%"
+    },
+    "varieties": {
+      "badge": "Notre Collection Signature",
+      "title": "Quatre Variétés Exquises",
+      "description": "Chaque crevette panée est préparée artisanalement avec des ingrédients premium pour offrir une expérience gustative inoubliable.",
+      "pistache": {
+        "name": "Pistache",
+        "description": "Enrobage délicat de pistache pour une saveur raffinée et noix."
+      },
+      "amande": {
+        "name": "Amande",
+        "description": "Panure croustillante à l'amande avec un goût élégant et sophistiqué."
+      },
+      "chaplure": {
+        "name": "Chapelure de Maïs",
+        "description": "Enrobage doré de chapelure de maïs pour une texture classique et croustillante."
+      },
+      "spicy": {
+        "name": "Épicé",
+        "description": "Assaisonnement épicé audacieux pour ceux qui aiment le piquant et la saveur."
+      }
     },
     "customerType": {
+      "badge": "Solutions Sur Mesure",
       "title": "Comment Pouvons-Nous Vous Servir?",
       "description": "Que vous vous fassiez plaisir, que vous gérez un restaurant, ou que vous cherchez des quantités en gros, nous avons la solution parfaite pour vous.",
       "individual": {
-        "title": "Pour Moi-Même",
-        "description": "Boîtes parfaites de 6, 8 ou 12 pièces pour un plaisir personnel."
+        "title": "Pour Vous",
+        "description": "Boîtes parfaites de 6, 8 ou 12 pièces pour un plaisir personnel.",
+        "feature1": "Boîtes de 6, 8 ou 12 pièces",
+        "feature2": "Mélangez jusqu'à 2 variétés par boîte",
+        "feature3": "Aucun compte requis"
       },
       "restaurant": {
-        "title": "Pour Mon Restaurant",
-        "description": "Commandes en gros de 300, 600 ou 900 pièces à prix spéciaux."
+        "title": "Pour Restaurants",
+        "description": "Commandes en gros de 300, 600 ou 900 pièces à prix spéciaux.",
+        "feature1": "Quantités en gros: 300-900 pcs",
+        "feature2": "Tarifs spéciaux restaurants",
+        "feature3": "Compte requis"
       },
       "wholesale": {
-        "title": "Grossiste / Export",
-        "description": "Commandes en grande quantité pour la distribution internationale."
+        "title": "Pour Grossistes",
+        "description": "Commandes en grande quantité pour la distribution internationale.",
+        "feature1": "Commandes d'export en volume",
+        "feature2": "Devis personnalisés",
+        "feature3": "Expédition internationale"
       },
       "shopNow": "Acheter Maintenant",
       "viewPricing": "Voir les Prix",
@@ -33,7 +70,28 @@
       "title": "Produits Vedettes",
       "description": "Nos sélections les plus populaires, appréciées par nos clients",
       "viewAll": "Voir Tous les Produits",
-      "noProducts": "Aucun produit vedette disponible pour le moment."
+      "noProducts": "Aucun produit vedette disponible pour le moment.",
+      "contactUs": "Nous Contacter"
+    },
+    "whyUs": {
+      "badge": "Pourquoi Choisir Seefood",
+      "title": "L'Excellence dans Chaque Détail",
+      "description": "Nous sommes passionnés par la livraison de la meilleure expérience de fruits de mer, de l'approvisionnement à votre table. Notre engagement envers la qualité, la sécurité et la satisfaction client nous distingue.",
+      "customerCount": "1000+",
+      "happyCustomers": "Clients Satisfaits",
+      "quality": {
+        "title": "Qualité Premium",
+        "description": "Uniquement les crevettes royales les plus fraîches, sélectionnées à la main et préparées avec soin pour garantir un goût et une texture exceptionnels."
+      },
+      "delivery": {
+        "title": "Livraison Rapide",
+        "description": "Une livraison fiable avec chaîne du froid garantit que vos fruits de mer arrivent frais et parfaitement conservés à votre porte."
+      },
+      "safety": {
+        "title": "Sécurité Alimentaire",
+        "description": "Normes d'hygiène strictes et stockage au froid approprié tout au long du processus, de la préparation à la livraison."
+      },
+      "learnMore": "En Savoir Plus Sur Nous"
     },
     "product": {
       "featured": "Vedette",

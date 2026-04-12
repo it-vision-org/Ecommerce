@@ -7,23 +7,60 @@
       "title": "Discover the Finest",
       "titleHighlight": "Luxury Seafood",
       "description": "Indulge in our exquisite selection of premium breaded shrimp, handcrafted with pistachio, almond, corn breadcrumbs, and spicy flavors.",
+      "subDescription": "Experience the perfect blend of quality, taste, and luxury in every bite of our carefully crafted seafood delicacies.",
       "shopNow": "Shop Now",
-      "learnMore": "Learn More"
+      "learnMore": "Learn More",
+      "feature1": "100% Fresh Seafood",
+      "feature2": "4 Premium Varieties",
+      "feature3": "Fast Delivery",
+      "badgeLabel": "Premium Quality",
+      "badgeValue": "100%"
+    },
+    "varieties": {
+      "badge": "Our Signature Collection",
+      "title": "Four Exquisite Varieties",
+      "description": "Each breaded shrimp is handcrafted with premium ingredients to deliver an unforgettable taste experience.",
+      "pistache": {
+        "name": "Pistachio",
+        "description": "Delicate pistachio coating for a refined, nutty flavor."
+      },
+      "amande": {
+        "name": "Almond",
+        "description": "Crunchy almond breading with an elegant, sophisticated taste."
+      },
+      "chaplure": {
+        "name": "Corn Breadcrumb",
+        "description": "Golden corn breadcrumb coating for a classic, crispy texture."
+      },
+      "spicy": {
+        "name": "Spicy",
+        "description": "Bold spicy seasoning for those who love heat and flavor."
+      }
     },
     "customerType": {
+      "badge": "Tailored Solutions",
       "title": "How Can We Serve You?",
       "description": "Whether you're treating yourself, running a restaurant, or looking for wholesale quantities, we have the perfect solution for you.",
       "individual": {
-        "title": "For Myself",
-        "description": "Perfect boxes of 6, 8, or 12 pieces for personal enjoyment."
+        "title": "For You",
+        "description": "Perfect boxes of 6, 8, or 12 pieces for personal enjoyment.",
+        "feature1": "Boxes of 6, 8, or 12 pieces",
+        "feature2": "Mix up to 2 varieties per box",
+        "feature3": "No account required"
       },
       "restaurant": {
-        "title": "For My Restaurant",
-        "description": "Bulk orders of 300, 600, or 900 pieces at special pricing."
+        "title": "For Restaurants",
+        "description": "Bulk orders of 300, 600, or 900 pieces at special pricing.",
+        "feature1": "Bulk quantities: 300-900 pcs",
+        "feature2": "Special restaurant pricing",
+        "feature3": "Account required"
       },
       "wholesale": {
-        "title": "Wholesale / Export",
-        "description": "Large quantity orders for international distribution."
+        "title": "For Wholesale",
+        "description": "Large quantity orders for international distribution.",
+        "feature1": "High-volume export orders",
+        "feature2": "Custom quotes",
+        "feature3": "International shipping"
       },
       "shopNow": "Shop Now",
       "viewPricing": "View Pricing",
@@ -33,7 +70,28 @@
       "title": "Featured Products",
       "description": "Our most popular selections, loved by customers",
       "viewAll": "View All Products",
-      "noProducts": "No featured products available at the moment."
+      "noProducts": "No featured products available at the moment.",
+      "contactUs": "Contact Us"
+    },
+    "whyUs": {
+      "badge": "Why Choose Seefood",
+      "title": "Excellence in Every Detail",
+      "description": "We're passionate about delivering the finest seafood experience, from sourcing to your table. Our commitment to quality, safety, and customer satisfaction sets us apart.",
+      "customerCount": "1000+",
+      "happyCustomers": "Happy Customers",
+      "quality": {
+        "title": "Premium Quality",
+        "description": "Only the freshest royal shrimp, hand-selected and prepared with care to ensure exceptional taste and texture."
+      },
+      "delivery": {
+        "title": "Fast Delivery",
+        "description": "Reliable cold-chain delivery ensures your seafood arrives fresh and perfectly preserved at your doorstep."
+      },
+      "safety": {
+        "title": "Food Safety",
+        "description": "Strict hygiene standards and proper cold storage throughout the entire process, from preparation to delivery."
+      },
+      "learnMore": "Learn More About Us"
     },
     "product": {
       "featured": "Featured",
@@ -71,7 +129,6 @@
       "contactUs": "Contact Us"
     }
   },
-
   "LoginPage": {
     "LeftPanel": {
       "Title": "Welcome Back",
@@ -105,7 +162,6 @@
       "Error": "An error occurred during login"
     }
   },
-
   "SignupPage": {
     "LeftPanel": {
       "Title": "Join Us\nToday",
@@ -166,7 +222,6 @@
       "Error": "An error occurred during registration"
     }
   },
-
   "ForgotPasswordPage": {
     "LeftPanel": {
       "Title": "Reset Your\nPassword",
@@ -200,7 +255,6 @@
       "ErrorGeneral": "An error occurred. Please try again later."
     }
   },
-
   "ResetPasswordPage": {
     "LeftPanel": {
       "TitleLine1": "Create New",
@@ -235,7 +289,6 @@
       }
     }
   },
-
   "Navbar": {
     "NavItems": {
       "Home": "Home",
@@ -249,11 +302,9 @@
     "OpenMenu": "Open menu",
     "CloseMenu": "Close menu"
   },
-
   "AuthNavbar": {
     "Home": "Home"
   },
-
   "ContactPage": {
     "Hero": {
       "Badge": "Seefood · Premium Seafood",
