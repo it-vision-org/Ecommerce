@@ -1,19 +1,78 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ReactElement } from "react";
 import { Locale, useLocale } from "next-intl";
+
+// SVG Flag Components
+function FlagUK() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="28" height="14">
+      <clipPath id="uk-clip">
+        <path d="M0,0 v30 h60 v-30 z" />
+      </clipPath>
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+    </svg>
+  );
+}
+
+function FlagFR() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" width="28" height="19">
+      <rect width="1" height="2" fill="#002395" />
+      <rect x="1" width="1" height="2" fill="#fff" />
+      <rect x="2" width="1" height="2" fill="#ED2939" />
+    </svg>
+  );
+}
+
+function FlagTN() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="28" height="19">
+      {/* Red background */}
+      <rect width="900" height="600" fill="#E70013" />
+
+      {/* White circle */}
+      <circle cx="450" cy="300" r="145" fill="#fff" />
+
+      {/* Red crescent — two red circles to form crescent shape */}
+      <circle cx="435" cy="300" r="95" fill="#E70013" />
+      <circle cx="480" cy="300" r="78" fill="#fff" />
+
+      {/* Red 5-pointed star — moved up */}
+      <polygon
+        points="
+          510,248
+          521,280
+          555,280
+          528,299
+          538,331
+          510,312
+          482,331
+          492,299
+          465,280
+          499,280
+        "
+        fill="#E70013"
+      />
+    </svg>
+  );
+}
 
 type Language = {
   code: Locale;
   name: string;
   nativeName: string;
-  flag: string; // emoji flag
+  FlagComponent: () => ReactElement;
 };
 
 const LANGUAGES: Language[] = [
-  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧" },
-  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
-  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇹🇳" },
+  { code: "en", name: "English", nativeName: "English", FlagComponent: FlagUK },
+  { code: "fr", name: "French", nativeName: "Français", FlagComponent: FlagFR },
+  { code: "ar", name: "Arabic", nativeName: "العربية", FlagComponent: FlagTN },
 ];
 
 type Props = {
@@ -29,7 +88,6 @@ export function LanguageSelector({ changeLocaleAction }: Props) {
   const [selectedLang, setSelectedLang] = useState<Language>(initialLang);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -56,16 +114,15 @@ export function LanguageSelector({ changeLocaleAction }: Props) {
         aria-label="Select language"
         aria-expanded={isOpen}
       >
-        <span className="text-xl leading-none transition-transform group-hover:scale-110">
-          {selectedLang.flag}
+        <span className="overflow-hidden rounded-sm shadow-sm transition-transform group-hover:scale-110">
+          <selectedLang.FlagComponent />
         </span>
         <span className="font-bold uppercase tracking-wide">
           {selectedLang.code}
         </span>
         <svg
-          className={`h-4 w-4 text-primary-600 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 text-primary-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+            }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -91,29 +148,20 @@ export function LanguageSelector({ changeLocaleAction }: Props) {
                 <button
                   key={language.code}
                   onClick={() => handleLanguageSelect(language)}
-                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all duration-150 ${
-                    isSelected
-                      ? "bg-gradient-to-r from-primary-100 to-accent-100"
-                      : "hover:bg-primary-50"
-                  }`}
+                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all duration-150 ${isSelected
+                    ? "bg-gradient-to-r from-primary-100 to-accent-100"
+                    : "hover:bg-primary-50"
+                    }`}
                 >
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-100 to-accent-100 text-2xl shadow-sm">
-                    {language.flag}
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-100 to-accent-100 shadow-sm overflow-hidden">
+                    <language.FlagComponent />
                   </span>
 
                   <div className="flex-1">
-                    <p
-                      className={`text-sm font-semibold ${
-                        isSelected ? "text-primary-800" : "text-neutral-800"
-                      }`}
-                    >
+                    <p className={`text-sm font-semibold ${isSelected ? "text-primary-800" : "text-neutral-800"}`}>
                       {language.name}
                     </p>
-                    <p
-                      className={`text-xs ${
-                        isSelected ? "text-primary-600" : "text-neutral-500"
-                      } ${language.code === "ar" ? "text-right" : ""}`}
-                    >
+                    <p className={`text-xs ${isSelected ? "text-primary-600" : "text-neutral-500"} ${language.code === "ar" ? "text-right" : ""}`}>
                       {language.nativeName}
                     </p>
                   </div>
