@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import CategorySelector from "@/components/main/CategorySelector";
 import PageHero from "@/components/main/PageHero";
+import { LoginForm } from "@/components/auth/LoginForm";
 import {
   ShoppingCart,
   X,
@@ -168,38 +169,6 @@ function LoginModal({
   onLoginSuccess: () => void;
 }) {
   const t = useTranslations("ProductsPage.LoginModal");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Call success handler which will refetch user and refresh
-      onLoginSuccess();
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <motion.div
@@ -233,99 +202,18 @@ function LoginModal({
           </button>
         </div>
 
-        <div className="flex items-center gap-3 p-4 bg-[var(--primary-light)] rounded-lg mb-6">
-          <Building2 className="w-6 h-6 text-[var(--primary)]" />
-          <p className="text-sm text-[var(--primary)]">{t("RestaurantNote")}</p>
-        </div>
-
-        {error && (
-          <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              {t("EmailLabel")}
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("EmailPlaceholder")}
-                className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-xl bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              {t("PasswordLabel")}
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("PasswordPlaceholder")}
-                className="w-full pl-10 pr-12 py-3 border border-[var(--border)] rounded-xl bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-            }}
-          >
-            {isLoading ? t("SigningIn") : t("SignIn")}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-[var(--border)]" />
-          <span className="text-sm text-[var(--text-muted)]">{t("Or")}</span>
-          <div className="flex-1 h-px bg-[var(--border)]" />
-        </div>
-
-        <div className="text-center">
-          <p className="text-sm text-[var(--text-secondary)] mb-2">
-            {t("NoAccount")}
-          </p>
-          <Link
-            href="/auth/signup?type=restaurant"
-            className="text-[var(--primary)] font-medium hover:underline"
-          >
-            {t("SignUp")}
-          </Link>
-        </div>
+        <LoginForm
+          onSuccess={onLoginSuccess}
+          showSignupLink={true}
+          signupLinkHref="/auth/signup?type=restaurant"
+          translationKey="ProductsPage.LoginModal"
+          showRestaurantNote={true}
+          restaurantNoteText={t("RestaurantNote")}
+        />
       </motion.div>
     </motion.div>
   );
 }
-
 // ── Editable Quantity Input ───────────────────────────────────────────────────
 function EditableQuantity({
   value,
