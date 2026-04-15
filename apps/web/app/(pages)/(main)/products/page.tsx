@@ -708,7 +708,6 @@ export default function ProductsPage() {
     };
 
     setCart((prev) => [...prev, newItem]);
-    setSelectedBox(null);
     setBoxSelections({});
   };
 
