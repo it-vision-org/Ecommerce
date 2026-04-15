@@ -564,7 +564,10 @@
       "SigningIn": "جارٍ تسجيل الدخول...",
       "Or": "أو",
       "NoAccount": "ليس لديك حساب مطعم؟",
-      "SignUp": "إنشاء حساب مطعم"
+      "SignUp": "إنشاء حساب مطعم",
+      "ForgotPassword": "هل نسيت كلمة المرور؟",
+      "SubmitButton": "تسجيل الدخول",
+      "SubmittingButton": "جارٍ تسجيل الدخول..."
     },
     "CartPreview": {
       "Title": "سلتك",

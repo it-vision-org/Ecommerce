@@ -564,7 +564,10 @@
       "SigningIn": "Signing in...",
       "Or": "or",
       "NoAccount": "Don't have a restaurant account?",
-      "SignUp": "Create Restaurant Account"
+      "SignUp": "Create Restaurant Account",
+      "ForgotPassword": "Forgot password?",
+      "SubmitButton": "Sign In",
+      "SubmittingButton": "Signing in..."
     },
     "CartPreview": {
       "Title": "Your Cart",

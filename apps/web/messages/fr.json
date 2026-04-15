@@ -564,7 +564,10 @@
       "SigningIn": "Connexion en cours...",
       "Or": "ou",
       "NoAccount": "Vous n'avez pas de compte restaurant ?",
-      "SignUp": "Créer un compte restaurant"
+      "SignUp": "Créer un compte restaurant",
+      "ForgotPassword": "Mot de passe oublié ?",
+      "SubmitButton": "Se connecter",
+      "SubmittingButton": "Connexion en cours..."
     },
     "CartPreview": {
       "Title": "Votre panier",
