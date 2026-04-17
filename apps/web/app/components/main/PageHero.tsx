@@ -1,5 +1,7 @@
+"use client";
+
 import { ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 interface StatPill {
   value: string | number;
   label: string;
