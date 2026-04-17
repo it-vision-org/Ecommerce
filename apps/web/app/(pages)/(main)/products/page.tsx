@@ -5,7 +5,7 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import CategorySelector from "@/components/main/CategorySelector";
 import PageHero from "@/components/main/PageHero";
@@ -16,6 +16,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   Package,
   ShoppingCart,
   Trash2,
@@ -27,9 +28,11 @@ import {
   SerializedProductWithCategory,
 } from "@/actions/productActions";
 import { AuthUser, getCurrentUser } from "@/actions/authActions";
+import { getCategoryBySlug } from "@/actions/categoriesAction";
 
 type CustomerType = "individual" | "restaurant";
 const CART_STORAGE_KEY = "seefood_cart";
+const MAX_FLAVOURS = 2;
 
 type BoxConfig = {
   pieces: number;
@@ -93,7 +96,6 @@ function ProductImageCarousel({ images }: { images: string[] }) {
         className="object-cover"
       />
 
-      {/* Navigation Arrows */}
       <button
         onClick={goPrev}
         className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors z-10"
@@ -109,7 +111,6 @@ function ProductImageCarousel({ images }: { images: string[] }) {
         <ChevronRight className="w-4 h-4" />
       </button>
 
-      {/* Dots Indicator */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
         {images.map((_, i) => (
           <button
@@ -128,34 +129,23 @@ function ProductImageCarousel({ images }: { images: string[] }) {
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
-function ProductsSkeleton() {
+// ── Products Grid Skeleton (section-level) ─────────────────────────────────────
+function ProductsGridSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <div className="bg-gradient-to-br from-[var(--primary-700)] via-[var(--primary-600)] to-[var(--accent-500)] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-8 bg-white/20 rounded w-64 mx-auto mb-4 animate-pulse" />
-          <div className="h-6 bg-white/10 rounded w-96 mx-auto animate-pulse" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)] animate-pulse"
+        >
+          <div className="relative aspect-square bg-[var(--bg-muted)]" />
+          <div className="p-4">
+            <div className="h-5 bg-[var(--bg-muted)] rounded w-2/3 mb-2" />
+            <div className="h-4 bg-[var(--bg-muted)] rounded w-full mb-3" />
+            <div className="h-5 bg-[var(--bg-muted)] rounded w-1/2" />
+          </div>
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-center gap-4 mb-8">
-          <div className="h-14 w-48 bg-[var(--bg-muted)] rounded-xl animate-pulse" />
-          <div className="h-14 w-48 bg-[var(--bg-muted)] rounded-xl animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-[var(--bg-card)] rounded-xl p-4 animate-pulse"
-            >
-              <div className="aspect-square bg-[var(--bg-muted)] rounded-lg mb-4" />
-              <div className="h-5 bg-[var(--bg-muted)] rounded w-3/4 mb-2" />
-              <div className="h-4 bg-[var(--bg-muted)] rounded w-1/2" />
-            </div>
-          ))}
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -221,17 +211,17 @@ function ProductCard({
   product,
   isSelected,
   assignedCount,
+  showAssignedCount,
   onToggle,
   selectionDisabled,
-  isBoxSelected,
   customerType,
 }: {
   product: SerializedProductWithCategory;
   isSelected: boolean;
   assignedCount: number;
+  showAssignedCount: boolean;
   onToggle: () => void;
   selectionDisabled: boolean;
-  isBoxSelected: boolean;
   customerType: CustomerType;
 }) {
   const price =
@@ -241,40 +231,46 @@ function ProductCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={() => {
-        if (!isBoxSelected) return;
         if (selectionDisabled) return;
         onToggle();
       }}
       title={
-        !isBoxSelected
-          ? "Select a box size first"
-          : selectionDisabled
-            ? "You already selected the maximum number of flavours"
-            : "Click to select / unselect"
+        selectionDisabled
+          ? "You already selected the maximum number of flavours"
+          : "Click to select / unselect"
       }
-      className={`bg-[var(--bg-card)] rounded-xl overflow-hidden border transition-all ${isSelected
+      className={`bg-[var(--bg-card)] rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelected
         ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20"
         : "border-[var(--border)]"
-        } ${isBoxSelected ? "cursor-pointer" : "cursor-default"} ${selectionDisabled ? "opacity-60" : ""
-        }`}
+        } ${selectionDisabled ? "opacity-60" : ""}`}
     >
-      {/* Product Image with Carousel */}
       <div className="relative aspect-square bg-[var(--bg-muted)]">
         <ProductImageCarousel images={product.images || []} />
 
-        {/* Selected badge */}
+        <div className="absolute top-3 left-3 z-20">
+          <Link
+            href={`/products/${product.slug}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-full bg-black/45 hover:bg-black/60 text-white backdrop-blur transition-colors"
+            aria-label="View details"
+            title="View details"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Details
+          </Link>
+        </div>
+
         {isSelected && (
           <div className="absolute top-3 right-3 bg-[var(--primary)] text-white min-w-8 h-8 px-2 rounded-full flex items-center justify-center font-bold text-sm z-20 gap-1">
             <Check className="w-4 h-4" />
-            <span>{assignedCount}</span>
+            {showAssignedCount && assignedCount > 0 && <span>{assignedCount}</span>}
           </div>
         )}
       </div>
 
-      {/* Product Info */}
       <div className="p-4">
         <h3 className="font-semibold text-[var(--text-primary)] mb-1">
           {product.name}
@@ -290,20 +286,20 @@ function ProductCard({
           {price.toFixed(3)} TND / piece
         </div>
 
-        {isBoxSelected && (
-          <div className="mt-3">
-            <div
-              className={`text-xs font-medium ${isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
-                }`}
-            >
-              {isSelected
+        <div className="mt-3">
+          <div
+            className={`text-xs font-medium ${isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+              }`}
+          >
+            {isSelected
+              ? showAssignedCount && assignedCount > 0
                 ? `Selected • ${assignedCount} pieces`
-                : selectionDisabled
-                  ? "Max flavours selected"
-                  : "Click to select"}
-            </div>
+                : "Selected"
+              : selectionDisabled
+                ? "Max flavours selected"
+                : "Click to select"}
           </div>
-        )}
+        </div>
       </div>
     </motion.div>
   );
@@ -433,90 +429,180 @@ function CartPreview({
 export default function ProductsPage() {
   const t = useTranslations("ProductsPage");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const categorySlug = searchParams.get("category");
+  const typeParam = searchParams.get("type");
+
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [products, setProducts] = useState<SerializedProductWithCategory[]>([]);
+
+  const [userLoading, setUserLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
+
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
-  const [user, setUser] = useState<AuthUser | null>(null);
 
   const [customerType, setCustomerType] = useState<CustomerType>("individual");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      return savedCart ? JSON.parse(savedCart) : [];
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
-      return [];
-    }
-  });
+  // IMPORTANT: start empty to match server + client initial HTML (fix hydration)
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
-
-  // New: only store which flavours are selected (max 2)
   const [selectedFlavours, setSelectedFlavours] = useState<string[]>([]);
+  const canAddToCart = selectedFlavours.length > 0 && selectedBox !== null;
 
-  // Persist cart to localStorage whenever it changes
+  const [urlCategoryResolved, setUrlCategoryResolved] = useState(true);
+
+  // Load cart from localStorage ONLY after mount (fix hydration)
   useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      setCart(savedCart ? JSON.parse(savedCart) : []);
+    } catch (error) {
+      console.error("Error loading cart from localStorage:", error);
+      setCart([]);
+    } finally {
+      setCartLoaded(true);
+    }
+  }, []);
+
+  // Persist cart AFTER it has been loaded (prevents overwriting storage with [])
+  useEffect(() => {
+    if (!cartLoaded) return;
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
     } catch (error) {
       console.error("Error saving cart to localStorage:", error);
     }
-  }, [cart]);
+  }, [cart, cartLoaded]);
 
-  // Fetch user, products and categories on mount
   useEffect(() => {
-    const fetchData = async () => {
+    let cancelled = false;
+
+    const fetchUser = async () => {
       try {
-        const [result, currentUser] = await Promise.all([
-          getProducts({
-            isActive: true,
-            categoryId: selectedCategoryId || undefined,
-          }),
-          getCurrentUser(),
-        ]);
-
-        setProducts(result.data || []);
+        setUserLoading(true);
+        const currentUser = await getCurrentUser();
+        if (cancelled) return;
         setUser(currentUser);
-
-        if (currentUser?.userType === "RESTAURANT") {
-          setCustomerType("restaurant");
-        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching current user:", error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setUserLoading(false);
       }
     };
 
-    fetchData();
-  }, [selectedCategoryId]);
-
-  const handleCategoryChange = (categoryId: string | null) => {
-    setSelectedCategoryId(categoryId);
-  };
-
-  const handleLoginSuccess = async () => {
-    const currentUser = await getCurrentUser();
-    setUser(currentUser);
-
-    setShowLoginModal(false);
-
-    if (currentUser?.userType === "RESTAURANT") {
-      setCustomerType("restaurant");
-      setSelectedBox(null);
-      setSelectedFlavours([]);
-    }
-
-    router.refresh();
-  };
+    fetchUser();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isRestaurantUser = user?.userType === "RESTAURANT";
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const applyCategoryFromUrl = async () => {
+      if (!categorySlug) {
+        setUrlCategoryResolved(true);
+        return;
+      }
+
+      try {
+        setUrlCategoryResolved(false);
+        const result = await getCategoryBySlug(categorySlug);
+        if (cancelled) return;
+
+        if (result.success && result.data?.id) {
+          setSelectedCategoryId(result.data.id);
+        } else {
+          setSelectedCategoryId(null);
+        }
+      } catch (error) {
+        console.error("Error applying category from URL:", error);
+        if (!cancelled) setSelectedCategoryId(null);
+      } finally {
+        if (!cancelled) setUrlCategoryResolved(true);
+      }
+    };
+
+    applyCategoryFromUrl();
+    return () => {
+      cancelled = true;
+    };
+  }, [categorySlug]);
+
+  useEffect(() => {
+    if (userLoading) return;
+
+    if (typeParam === "restaurant") {
+      if (isRestaurantUser) {
+        setCustomerType("restaurant");
+      } else {
+        setCustomerType("individual");
+        setShowLoginModal(true);
+      }
+      return;
+    }
+
+    if (typeParam === "individual") {
+      setCustomerType("individual");
+      return;
+    }
+
+    if (isRestaurantUser) setCustomerType("restaurant");
+  }, [typeParam, userLoading, isRestaurantUser]);
+
+  useEffect(() => {
+    if (!urlCategoryResolved) return;
+
+    let cancelled = false;
+
+    const fetchProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setProductsError(null);
+
+        const result = await getProducts({
+          isActive: true,
+          categoryId: selectedCategoryId || undefined,
+        });
+
+        if (cancelled) return;
+
+        if (!result.success) {
+          setProductsError(result.error || "Failed to load products");
+          setProducts([]);
+          return;
+        }
+
+        setProducts(result.data || []);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        if (!cancelled) {
+          setProductsError("Failed to load products");
+          setProducts([]);
+        }
+      } finally {
+        if (!cancelled) setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCategoryId, urlCategoryResolved]);
+
+  useEffect(() => {
+    if (selectedFlavours.length === 0) setSelectedBox(null);
+  }, [selectedFlavours.length]);
 
   const boxes =
     customerType === "individual" ? INDIVIDUAL_BOXES : RESTAURANT_BOXES;
@@ -528,9 +614,6 @@ export default function ProductsPage() {
 
   const selectedTypesCount = selectedFlavours.length;
 
-  // Auto-assign quantities:
-  // - 1 flavour => box size
-  // - 2 flavours => half/half
   const autoCounts = useMemo(() => {
     if (selectedBox === null) return {} as Record<string, number>;
     if (selectedFlavours.length === 0) return {} as Record<string, number>;
@@ -541,19 +624,39 @@ export default function ProductsPage() {
 
     const [a, b] = selectedFlavours;
     const half = Math.floor(selectedBox / 2);
-    const remainder = selectedBox - half * 2; // in case box size ever becomes odd
+    const remainder = selectedBox - half * 2;
     return {
       [a]: half + remainder,
       [b]: half,
     };
   }, [selectedBox, selectedFlavours]);
 
-  const toggleFlavour = (productId: string) => {
-    if (!currentBoxConfig) return;
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    setSelectedFlavours([]);
+    setSelectedBox(null);
+  };
 
+  const handleLoginSuccess = async () => {
+    const currentUser = await getCurrentUser();
+    setUser(currentUser);
+
+    setShowLoginModal(false);
+
+    if (currentUser?.userType === "RESTAURANT") {
+      setCustomerType("restaurant");
+    }
+
+    setSelectedBox(null);
+    setSelectedFlavours([]);
+
+    router.refresh();
+  };
+
+  const toggleFlavour = (productId: string) => {
     setSelectedFlavours((prev) => {
       if (prev.includes(productId)) return prev.filter((id) => id !== productId);
-      if (prev.length >= currentBoxConfig.maxTypes) return prev; // max 2
+      if (prev.length >= MAX_FLAVOURS) return prev;
       return [...prev, productId];
     });
   };
@@ -563,6 +666,7 @@ export default function ProductsPage() {
       setShowLoginModal(true);
       return;
     }
+
     setCustomerType(type);
     setSelectedBox(null);
     setSelectedFlavours([]);
@@ -570,7 +674,6 @@ export default function ProductsPage() {
 
   const handleBoxSelect = (pieces: number) => {
     setSelectedBox(pieces);
-    setSelectedFlavours([]);
   };
 
   const handleAddToCart = () => {
@@ -586,7 +689,6 @@ export default function ProductsPage() {
       };
     });
 
-    // Keep existing pricing strategy: price is based on the first selected flavour
     const baseProduct = products.find((p) => p.id === selections[0]?.productId);
     const unitPrice = baseProduct
       ? customerType === "restaurant"
@@ -609,25 +711,28 @@ export default function ProductsPage() {
     };
 
     setCart((prev) => [...prev, newItem]);
+    setSelectedBox(null);
     setSelectedFlavours([]);
   };
 
-  if (isLoading) return <ProductsSkeleton />;
+  const selectedFlavourNames = useMemo(() => {
+    return selectedFlavours
+      .map((id) => products.find((p) => p.id === id)?.name)
+      .filter(Boolean) as string[];
+  }, [selectedFlavours, products]);
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      {/* Hero */}
       <PageHero
         badge={t("Hero.Badge")}
         title={t("Hero.Title")}
         description={t("Hero.Subtitle")}
       />
 
-      {/* Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Customer Type Toggle */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-4 mb-8"
         >
@@ -701,92 +806,60 @@ export default function ProductsPage() {
           )}
         </motion.div>
 
-        {/* Box Size Selection */}
+        {/* Step 1: Flavours */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 text-center">
-            {t("BoxSelection.Title")}
-          </h3>
+          {selectedTypesCount >= MAX_FLAVOURS && (
+            <div className="bg-[var(--warning-light)] border border-[var(--warning)] rounded-xl p-4 mb-6 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-[var(--warning)]" />
+              <p className="text-sm text-[var(--warning)]">
+                {t("Progress.MaxTypesReached", { count: MAX_FLAVOURS })}
+              </p>
+            </div>
+          )}
 
-          <div className="flex flex-wrap justify-center gap-4">
-            {boxes.map((box) => (
-              <button
-                key={box.pieces}
-                onClick={() => handleBoxSelect(box.pieces)}
-                className={`px-6 py-4 rounded-xl border-2 transition-all ${selectedBox === box.pieces
-                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                  : "border-[var(--border)] hover:border-[var(--primary)]/50 bg-[var(--bg-card)]"
-                  }`}
-              >
-                <div
-                  className={`text-2xl font-bold ${selectedBox === box.pieces
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-primary)]"
-                    }`}
-                >
-                  {box.pieces}
-                </div>
-                <div className="text-sm text-[var(--text-secondary)]">
-                  {t("BoxSelection.Pieces")}
-                </div>
-                <div className="text-xs text-[var(--text-muted)] mt-1">
-                  {t("BoxSelection.MaxTypes", { count: box.maxTypes })}
-                </div>
-              </button>
-            ))}
-          </div>
-        </motion.div>
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-64 flex-shrink-0">
+              <div className="sticky top-4">
+                <CategorySelector
+                  selectedCategoryId={selectedCategoryId}
+                  onCategoryChange={handleCategoryChange}
+                />
+              </div>
+            </div>
 
-        {/* Products Grid - Shows when box is selected */}
-        {selectedBox !== null && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            {/* Type Limit Info */}
-            {selectedTypesCount >= (currentBoxConfig?.maxTypes || 2) && (
-              <div className="bg-[var(--warning-light)] border border-[var(--warning)] rounded-xl p-4 mb-6 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-[var(--warning)]" />
-                <p className="text-sm text-[var(--warning)]">
-                  {t("Progress.MaxTypesReached", {
-                    count: currentBoxConfig?.maxTypes || 2,
-                  })}
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                {t("Flavours.Title")}
+              </h3>
+
+              {selectedFlavourNames.length > 0 && (
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                  Selected:{" "}
+                  <span className="font-semibold text-[var(--text-primary)]">
+                    {selectedFlavourNames.join(" + ")}
+                  </span>
                 </p>
-              </div>
-            )}
+              )}
 
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Category Selector - Left Side */}
-              <div className="lg:w-64 flex-shrink-0">
-                <div className="sticky top-4">
-                  <CategorySelector
-                    selectedCategoryId={selectedCategoryId}
-                    onCategoryChange={handleCategoryChange}
-                  />
+              {productsError && (
+                <div className="bg-[var(--danger-light)] border border-[var(--danger)] rounded-xl p-4 mb-6 text-[var(--danger)]">
+                  {productsError}
                 </div>
-              </div>
+              )}
 
-              {/* Products Grid - Right Side */}
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-                  {t("Flavours.Title")}
-                </h3>
-
+              {productsLoading ? (
+                <ProductsGridSkeleton />
+              ) : products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => {
                     const isSelected = selectedFlavours.includes(product.id);
                     const assignedCount = autoCounts[product.id] || 0;
-                    const maxTypes = currentBoxConfig?.maxTypes ?? 2;
-
                     const selectionDisabled =
-                      selectedBox !== null &&
-                      !isSelected &&
-                      selectedFlavours.length >= maxTypes;
+                      !isSelected && selectedFlavours.length >= MAX_FLAVOURS;
 
                     return (
                       <ProductCard
@@ -794,55 +867,101 @@ export default function ProductsPage() {
                         product={product}
                         isSelected={isSelected}
                         assignedCount={assignedCount}
+                        showAssignedCount={selectedBox !== null}
                         onToggle={() => toggleFlavour(product.id)}
                         selectionDisabled={selectionDisabled}
-                        isBoxSelected={selectedBox !== null}
                         customerType={customerType}
                       />
                     );
                   })}
                 </div>
-
-                {products.length === 0 && (
-                  <div className="text-center py-12">
-                    <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
-                    <p className="text-[var(--text-secondary)]">
-                      {t("Flavours.NoProducts")}
-                    </p>
-                  </div>
-                )}
-
-                {/* Add to Cart Button (available as soon as at least 1 flavour is selected) */}
-                {currentBoxConfig && selectedFlavours.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-8 text-center"
-                  >
-                    <button
-                      onClick={handleAddToCart}
-                      className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all hover:scale-105"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-                      }}
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      {t("AddToCart")}
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </motion.div>
-                )}
-              </div>
+              ) : (
+                <div className="text-center py-12 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl">
+                  <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
+                  <p className="text-[var(--text-secondary)]">
+                    {t("Flavours.NoProducts")}
+                  </p>
+                </div>
+              )}
             </div>
+          </div>
+        </motion.div>
+
+        {/* Step 2: Box size (after selecting flavours) */}
+        {selectedFlavours.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 text-center">
+              {t("BoxSelection.Title")}
+            </h3>
+
+            <div className="flex flex-wrap justify-center gap-4">
+              {boxes.map((box) => (
+                <button
+                  key={box.pieces}
+                  onClick={() => handleBoxSelect(box.pieces)}
+                  className={`px-6 py-4 rounded-xl border-2 transition-all ${selectedBox === box.pieces
+                    ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                    : "border-[var(--border)] hover:border-[var(--primary)]/50 bg-[var(--bg-card)]"
+                    }`}
+                >
+                  <div
+                    className={`text-2xl font-bold ${selectedBox === box.pieces
+                      ? "text-[var(--primary)]"
+                      : "text-[var(--text-primary)]"
+                      }`}
+                  >
+                    {box.pieces}
+                  </div>
+                  <div className="text-sm text-[var(--text-secondary)]">
+                    {t("BoxSelection.Pieces")}
+                  </div>
+                  <div className="text-xs text-[var(--text-muted)] mt-1">
+                    {t("BoxSelection.MaxTypes", { count: box.maxTypes })}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 3: Add to cart */}
+        {selectedFlavours.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 text-center"
+          >
+            <button
+              onClick={canAddToCart ? handleAddToCart : undefined}
+              disabled={!canAddToCart}
+              className={`inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all
+    ${canAddToCart
+                  ? "hover:scale-105 cursor-pointer opacity-100"
+                  : "opacity-60 cursor-not-allowed hover:scale-100 pointer-events-none"
+                }
+  `}
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+              }}
+              title={!canAddToCart ? "Choose a box size first" : undefined}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {t("AddToCart")}
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </motion.div>
         )}
 
         {/* Wholesale CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.1 }}
           className="bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-hover)] rounded-2xl p-8 text-center text-white mt-12"
         >
           <h3 className="text-2xl font-bold mb-3" style={{ color: "white" }}>
@@ -860,7 +979,6 @@ export default function ProductsPage() {
         </motion.div>
       </section>
 
-      {/* Login Modal */}
       <AnimatePresence>
         {showLoginModal && (
           <LoginModal
@@ -870,8 +988,8 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
 
-      {/* Cart Preview */}
-      {cart.length > 0 && (
+      {/* IMPORTANT: render cart UI only after cart is loaded to avoid hydration issues */}
+      {cartLoaded && cart.length > 0 && (
         <CartPreview
           cart={cart}
           onRemove={(index) =>
