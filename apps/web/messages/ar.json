@@ -575,6 +575,18 @@
       "Checkout": "إتمام الطلب"
     }
   },
+  "ProductDetailPage": {
+    "BackToProducts": "العودة إلى المنتجات",
+    "CategoryFallback": "منتج",
+    "ExploreCategory": "استكشف الفئة",
+    "NoDescription": "لا يوجد وصف.",
+    "IndividualPrice": "سعر الفرد",
+    "RestaurantPrice": "سعر المطعم",
+    "PerUnit": "لكل {unit}",
+    "UnitFallback": "وحدة",
+    "RestaurantNote": "تسعير المطاعم يتطلب حساب مطعم (سجّل الدخول من صفحة المنتجات).",
+    "SimilarProducts": "منتجات مشابهة"
+  },
   "CheckoutPage": {
     "Title": "الدفع",
     "Subtitle": "أكمل طلبك",

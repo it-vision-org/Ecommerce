@@ -575,6 +575,18 @@
       "Checkout": "Proceed to Checkout"
     }
   },
+  "ProductDetailPage": {
+    "BackToProducts": "Back to products",
+    "CategoryFallback": "Product",
+    "ExploreCategory": "Explore Category",
+    "NoDescription": "No description provided.",
+    "IndividualPrice": "Individual price",
+    "RestaurantPrice": "Restaurant price",
+    "PerUnit": "per {unit}",
+    "UnitFallback": "unit",
+    "RestaurantNote": "Restaurant pricing requires a restaurant account (log in from the products page).",
+    "SimilarProducts": "Similar Products"
+  },
   "CheckoutPage": {
     "Title": "Checkout",
     "Subtitle": "Complete your order",

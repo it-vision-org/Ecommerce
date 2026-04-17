@@ -575,6 +575,18 @@
       "Checkout": "Passer à la caisse"
     }
   },
+  "ProductDetailPage": {
+    "BackToProducts": "Retour aux produits",
+    "CategoryFallback": "Produit",
+    "ExploreCategory": "Explorer la Catégorie",
+    "NoDescription": "Aucune description fournie.",
+    "IndividualPrice": "Prix individuel",
+    "RestaurantPrice": "Prix restaurant",
+    "PerUnit": "par {unit}",
+    "UnitFallback": "unité",
+    "RestaurantNote": "Le tarif restaurant nécessite un compte restaurant (connectez-vous depuis la page produits).",
+    "SimilarProducts": "Produits similaires"
+  },
   "CheckoutPage": {
     "Title": "Paiement",
     "Subtitle": "Finalisez votre commande",
