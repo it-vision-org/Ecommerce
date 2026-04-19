@@ -160,32 +160,50 @@ function ImageCarousel({
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+// ── Table Row Skeleton ────────────────────────────────────────────────────────
 
-function LoadingSkeleton() {
+function TableRowSkeleton() {
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="h-8 w-48 bg-[var(--bg-muted)] rounded animate-pulse" />
-        <div className="h-10 w-36 bg-[var(--bg-muted)] rounded animate-pulse" />
+    <div className="p-4 flex items-center gap-4">
+      <div className="w-5 h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
+      <div className="w-12 h-12 bg-[var(--bg-muted)] rounded-lg animate-pulse" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-1/3 bg-[var(--bg-muted)] rounded animate-pulse" />
+        <div className="h-3 w-1/4 bg-[var(--bg-muted)] rounded animate-pulse" />
       </div>
-      <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)]">
-        <div className="p-4 border-b border-[var(--border)]">
-          <div className="h-10 w-64 bg-[var(--bg-muted)] rounded animate-pulse" />
+      <div className="w-24 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
+      <div className="w-20 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
+      <div className="w-20 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
+      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
+      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
+      <div className="w-8 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
+      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
+    </div>
+  );
+}
+
+// ── Table Skeleton ────────────────────────────────────────────────────────────
+
+function TableSkeleton() {
+  return (
+    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
+        <div className="p-4 flex items-center gap-4">
+          <div className="w-5 h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-20 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-24 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-24 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-12 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
         </div>
-        <div className="divide-y divide-[var(--border)]">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="p-4 flex items-center gap-4">
-              <div className="w-5 h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
-              <div className="w-16 h-16 bg-[var(--bg-muted)] rounded animate-pulse" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-1/3 bg-[var(--bg-muted)] rounded animate-pulse" />
-                <div className="h-3 w-1/4 bg-[var(--bg-muted)] rounded animate-pulse" />
-              </div>
-              <div className="h-8 w-20 bg-[var(--bg-muted)] rounded animate-pulse" />
-            </div>
-          ))}
-        </div>
+      </div>
+      <div className="divide-y divide-[var(--border)]">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <TableRowSkeleton key={i} />
+        ))}
       </div>
     </div>
   );
@@ -922,11 +940,12 @@ export default function AdminProductsPage() {
     });
   };
 
-  if (isLoading) return <LoadingSkeleton />;
+  // Determine if we should show the table skeleton
+  const showTableSkeleton = isLoading && products.length === 0;
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+      {/* Header - Always visible immediately */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -949,13 +968,14 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
+      {/* Error Message - Only shows when there's an error */}
       {loadError && (
         <div className="bg-[var(--danger-light)] border border-[var(--danger)] text-[var(--danger)] rounded-xl p-4">
           {loadError}
         </div>
       )}
 
-      {/* Info Banner */}
+      {/* Info Banner - Always visible (static content) */}
       <div className="bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-xl p-4 flex items-start gap-3">
         <Package className="w-5 h-5 text-[var(--primary)] mt-0.5" />
         <div>
@@ -971,7 +991,7 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Toolbar */}
+      {/* Toolbar - Always visible (search and delete button) */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
@@ -994,267 +1014,271 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      {/* Products Table */}
-      <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
-              <th className="p-4 text-left">
-                <input
-                  type="checkbox"
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  className="w-4 h-4 rounded"
-                />
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Flavour
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Category
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Individual Price
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Restaurant Price
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Stock
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Status
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                Featured
-              </th>
-              <th className="p-4 text-right text-sm font-medium text-[var(--text-secondary)]">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-[var(--border)]">
-            {filteredProducts.map((product) => (
-              <tr
-                key={product.id}
-                className={`hover:bg-[var(--bg-muted)]/50 transition-colors ${selectedIdSet.has(product.id) ? "bg-[var(--primary-light)]/30" : ""
-                  }`}
-              >
-                <td className="p-4">
+      {/* Products Table - Shows skeleton while loading, real content when ready */}
+      {showTableSkeleton ? (
+        <TableSkeleton />
+      ) : (
+        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
+                <th className="p-4 text-left">
                   <input
                     type="checkbox"
-                    checked={selectedIdSet.has(product.id)}
-                    onChange={() => handleSelectOne(product.id)}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
                     className="w-4 h-4 rounded"
                   />
-                </td>
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Flavour
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Category
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Individual Price
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Restaurant Price
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Stock
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Status
+                </th>
+                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
+                  Featured
+                </th>
+                <th className="p-4 text-right text-sm font-medium text-[var(--text-secondary)]">
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--bg-muted)] overflow-hidden flex-shrink-0">
-                      {product.images?.[0] ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          width={48}
-                          height={48}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-6 h-6 text-[var(--text-muted)]" />
-                        </div>
-                      )}
-                    </div>
+            <tbody className="divide-y divide-[var(--border)]">
+              {filteredProducts.map((product) => (
+                <tr
+                  key={product.id}
+                  className={`hover:bg-[var(--bg-muted)]/50 transition-colors ${selectedIdSet.has(product.id) ? "bg-[var(--primary-light)]/30" : ""
+                    }`}
+                >
+                  <td className="p-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIdSet.has(product.id)}
+                      onChange={() => handleSelectOne(product.id)}
+                      className="w-4 h-4 rounded"
+                    />
+                  </td>
 
-                    <div>
-                      <div className="font-medium text-[var(--text-primary)]">
-                        {product.name}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {product.slug}
-                        {product.images.length > 1 && (
-                          <span className="ml-2 text-[var(--primary)]">
-                            +{product.images.length - 1} images
-                          </span>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-[var(--bg-muted)] overflow-hidden flex-shrink-0">
+                        {product.images?.[0] ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            width={48}
+                            height={48}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Package className="w-6 h-6 text-[var(--text-muted)]" />
+                          </div>
                         )}
                       </div>
+
+                      <div>
+                        <div className="font-medium text-[var(--text-primary)]">
+                          {product.name}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)]">
+                          {product.slug}
+                          {product.images.length > 1 && (
+                            <span className="ml-2 text-[var(--primary)]">
+                              +{product.images.length - 1} images
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td className="p-4">
-                  <select
-                    value={product.categoryId || ""}
-                    onChange={(e) =>
-                      handleUpdateField(product.id, "categoryId", e.target.value)
-                    }
-                    disabled={isPending}
-                    className="px-2 py-1 text-xs font-medium bg-[var(--bg-muted)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded-full text-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] cursor-pointer"
-                  >
-                    <option value="">No Category (General)</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-
-                <td className="p-4">
-                  <input
-                    type="number"
-                    defaultValue={product.priceIndividual}
-                    onFocus={(e) => {
-                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                    }}
-                    onBlur={(e) => {
-                      const newValue = parseFloat(e.currentTarget.value) || 0;
-                      const originalValue = parseFloat(
-                        e.currentTarget.dataset.originalValue || "0",
-                      );
-                      if (newValue !== originalValue) {
-                        handleUpdateField(product.id, "priceIndividual", newValue);
+                  <td className="p-4">
+                    <select
+                      value={product.categoryId || ""}
+                      onChange={(e) =>
+                        handleUpdateField(product.id, "categoryId", e.target.value)
                       }
-                    }}
-                    step="0.001"
-                    min="0"
-                    disabled={isPending}
-                    className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded bg-transparent text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-                  />
-                  <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
-                </td>
+                      disabled={isPending}
+                      className="px-2 py-1 text-xs font-medium bg-[var(--bg-muted)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded-full text-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] cursor-pointer"
+                    >
+                      <option value="">No Category (General)</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
 
-                <td className="p-4">
-                  <input
-                    type="number"
-                    defaultValue={product.priceRestaurant}
-                    onFocus={(e) => {
-                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                    }}
-                    onBlur={(e) => {
-                      const newValue = parseFloat(e.currentTarget.value) || 0;
-                      const originalValue = parseFloat(
-                        e.currentTarget.dataset.originalValue || "0",
-                      );
-                      if (newValue !== originalValue) {
-                        handleUpdateField(product.id, "priceRestaurant", newValue);
-                      }
-                    }}
-                    step="0.001"
-                    min="0"
-                    disabled={isPending}
-                    className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--success)] rounded bg-transparent text-[var(--success)] focus:outline-none focus:ring-1 focus:ring-[var(--success)]"
-                  />
-                  <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
-                </td>
-
-                <td className="p-4">
-                  <input
-                    type="number"
-                    defaultValue={product.stock}
-                    onFocus={(e) => {
-                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                    }}
-                    onBlur={(e) => {
-                      const newValue = parseInt(e.currentTarget.value, 10) || 0;
-                      const originalValue = parseInt(
-                        e.currentTarget.dataset.originalValue || "0",
-                        10,
-                      );
-                      if (newValue !== originalValue) {
-                        handleUpdateField(product.id, "stock", newValue);
-                      }
-                    }}
-                    min="0"
-                    disabled={isPending}
-                    className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
-                        ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
-                        : product.stock > 0
-                          ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
-                          : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
-                      }`}
-                  />
-                  <span className="text-xs text-[var(--text-muted)] ml-1">
-                    {product.unit}
-                  </span>
-                </td>
-
-                <td className="p-4">
-                  <button
-                    onClick={() => handleToggleStatus(product.id)}
-                    disabled={isPending}
-                    className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
-                        ? "bg-[var(--success-light)] text-[var(--success)]"
-                        : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                      }`}
-                  >
-                    {product.isActive ? (
-                      <>
-                        <Eye className="w-3 h-3" />
-                        Active
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="w-3 h-3" />
-                        Inactive
-                      </>
-                    )}
-                  </button>
-                </td>
-
-                <td className="p-4">
-                  <button
-                    onClick={() => handleToggleFeatured(product.id)}
-                    disabled={isPending}
-                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
-                        ? "bg-[var(--warning-light)] text-[var(--warning)]"
-                        : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                      }`}
-                  >
-                    <Star
-                      className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`}
-                    />
-                  </button>
-                </td>
-
-                <td className="p-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingProduct(product);
-                        setShowModal(true);
+                  <td className="p-4">
+                    <input
+                      type="number"
+                      defaultValue={product.priceIndividual}
+                      onFocus={(e) => {
+                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
                       }}
-                      className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                      title="Edit flavour"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(product.id)}
-                      className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
-                      title="Delete flavour"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      onBlur={(e) => {
+                        const newValue = parseFloat(e.currentTarget.value) || 0;
+                        const originalValue = parseFloat(
+                          e.currentTarget.dataset.originalValue || "0",
+                        );
+                        if (newValue !== originalValue) {
+                          handleUpdateField(product.id, "priceIndividual", newValue);
+                        }
+                      }}
+                      step="0.001"
+                      min="0"
+                      disabled={isPending}
+                      className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded bg-transparent text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                    />
+                    <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
+                  </td>
 
-        {filteredProducts.length === 0 && (
-          <div className="p-12 text-center">
-            <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-            <p className="text-[var(--text-secondary)]">No flavours found</p>
-            <p className="text-sm text-[var(--text-muted)] mt-1">
-              Add your first flavour to get started
-            </p>
-          </div>
-        )}
-      </div>
+                  <td className="p-4">
+                    <input
+                      type="number"
+                      defaultValue={product.priceRestaurant}
+                      onFocus={(e) => {
+                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
+                      }}
+                      onBlur={(e) => {
+                        const newValue = parseFloat(e.currentTarget.value) || 0;
+                        const originalValue = parseFloat(
+                          e.currentTarget.dataset.originalValue || "0",
+                        );
+                        if (newValue !== originalValue) {
+                          handleUpdateField(product.id, "priceRestaurant", newValue);
+                        }
+                      }}
+                      step="0.001"
+                      min="0"
+                      disabled={isPending}
+                      className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--success)] rounded bg-transparent text-[var(--success)] focus:outline-none focus:ring-1 focus:ring-[var(--success)]"
+                    />
+                    <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
+                  </td>
+
+                  <td className="p-4">
+                    <input
+                      type="number"
+                      defaultValue={product.stock}
+                      onFocus={(e) => {
+                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
+                      }}
+                      onBlur={(e) => {
+                        const newValue = parseInt(e.currentTarget.value, 10) || 0;
+                        const originalValue = parseInt(
+                          e.currentTarget.dataset.originalValue || "0",
+                          10,
+                        );
+                        if (newValue !== originalValue) {
+                          handleUpdateField(product.id, "stock", newValue);
+                        }
+                      }}
+                      min="0"
+                      disabled={isPending}
+                      className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
+                          ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
+                          : product.stock > 0
+                            ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
+                            : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
+                        }`}
+                    />
+                    <span className="text-xs text-[var(--text-muted)] ml-1">
+                      {product.unit}
+                    </span>
+                  </td>
+
+                  <td className="p-4">
+                    <button
+                      onClick={() => handleToggleStatus(product.id)}
+                      disabled={isPending}
+                      className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
+                          ? "bg-[var(--success-light)] text-[var(--success)]"
+                          : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                        }`}
+                    >
+                      {product.isActive ? (
+                        <>
+                          <Eye className="w-3 h-3" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3 h-3" />
+                          Inactive
+                        </>
+                      )}
+                    </button>
+                  </td>
+
+                  <td className="p-4">
+                    <button
+                      onClick={() => handleToggleFeatured(product.id)}
+                      disabled={isPending}
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
+                          ? "bg-[var(--warning-light)] text-[var(--warning)]"
+                          : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                        }`}
+                    >
+                      <Star
+                        className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`}
+                      />
+                    </button>
+                  </td>
+
+                  <td className="p-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setShowModal(true);
+                        }}
+                        className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                        title="Edit flavour"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(product.id)}
+                        className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
+                        title="Delete flavour"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {filteredProducts.length === 0 && !isLoading && (
+            <div className="p-12 text-center">
+              <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
+              <p className="text-[var(--text-secondary)]">No flavours found</p>
+              <p className="text-sm text-[var(--text-muted)] mt-1">
+                Add your first flavour to get started
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Product Modal */}
       <AnimatePresence>
