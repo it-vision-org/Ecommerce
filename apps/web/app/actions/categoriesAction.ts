@@ -1,47 +1,51 @@
 "use server";
 
-import { db } from "@monkeyprint/db";
+import { db, Prisma } from "@monkeyprint/db";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@monkeyprint/db";
+import type {
+  CreateCategoryInput,
+  GetCategoriesOptions,
+  SerializedCategory,
+  UpdateCategoryInput,
+} from "@/types";
 
-// Types
-export type SerializedCategory = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  image: string | null;
-  order: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+export type {
+  CreateCategoryInput,
+  GetCategoriesOptions,
+  SerializedCategory,
+  UpdateCategoryInput,
+} from "@/types";
 
-export type CreateCategoryInput = {
-  name: string;
-  slug?: string;
-  description?: string;
-  image?: string;
-  order?: number;
-  isActive?: boolean;
-};
+const CATEGORY_REVALIDATION_PATHS = [
+  "/products",
+  "/dashboard/products",
+  "/dashboard/categories",
+] as const;
 
-export type UpdateCategoryInput = Partial<CreateCategoryInput> & {
-  id: string;
-};
+type CategoryRecord = Prisma.CategoryGetPayload<{}>;
 
-// Helper function to serialize category
-function serializeCategory(category: any): SerializedCategory {
+function revalidateCategoryPaths() {
+  for (const path of CATEGORY_REVALIDATION_PATHS) {
+    revalidatePath(path);
+  }
+}
+
+function serializeCategory(category: CategoryRecord): SerializedCategory {
   return {
-    ...category,
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description,
+    image: category.image,
+    order: category.order,
+    isActive: category.isActive,
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt.toISOString(),
   };
 }
 
-// Generate slug from name
-function generateSlug(name: string): string {
-  return name
+function generateSlug(rawValue: string): string {
+  return rawValue
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, "")
@@ -49,38 +53,39 @@ function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+function sanitizeLimit(value: number | undefined, fallback = 50, max = 200): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  return Math.min(Math.max(Math.trunc(value), 1), max);
+}
+
+function sanitizeOffset(value: number | undefined): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0;
+  return Math.max(Math.trunc(value), 0);
+}
+
 // ──────────────────────────────────────────────
 // GET Categories
 // ──────────────────────────────────────────────
 
-export async function getCategories(options?: {
-  isActive?: boolean;
-  search?: string;
-  limit?: number;
-  offset?: number;
-  sortBy?: "name" | "order" | "createdAt";
-  sortOrder?: "asc" | "desc";
-}) {
+export async function getCategories(options: GetCategoriesOptions = {}) {
   try {
-    const {
-      isActive,
-      search,
-      limit = 50,
-      offset = 0,
-      sortBy = "order",
-      sortOrder = "asc",
-    } = options || {};
+    const limit = sanitizeLimit(options.limit, 50, 500);
+    const offset = sanitizeOffset(options.offset);
+    const searchTerm = options.search?.trim();
+
+    const sortBy = options.sortBy ?? "order";
+    const sortOrder = options.sortOrder ?? "asc";
 
     const where: Prisma.CategoryWhereInput = {};
 
-    if (typeof isActive === "boolean") {
-      where.isActive = isActive;
+    if (typeof options.isActive === "boolean") {
+      where.isActive = options.isActive;
     }
 
-    if (search) {
+    if (searchTerm) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { description: { contains: searchTerm, mode: "insensitive" } },
       ];
     }
 
@@ -94,15 +99,13 @@ export async function getCategories(options?: {
       db.category.count({ where }),
     ]);
 
-    const serializedCategories = categories.map(serializeCategory);
-
-    return { success: true, data: serializedCategories, total };
+    return { success: true, data: categories.map(serializeCategory), total };
   } catch (error) {
     console.error("Error fetching categories:", error);
     return {
       success: false,
       error: "Failed to fetch categories",
-      data: [],
+      data: [] as SerializedCategory[],
       total: 0,
     };
   }
@@ -110,8 +113,13 @@ export async function getCategories(options?: {
 
 export async function getCategoryBySlug(slug: string) {
   try {
+    const normalizedSlug = generateSlug(slug);
+    if (!normalizedSlug) {
+      return { success: false, error: "Category slug is invalid" };
+    }
+
     const category = await db.category.findUnique({
-      where: { slug },
+      where: { slug: normalizedSlug },
     });
 
     if (!category) {
@@ -120,7 +128,7 @@ export async function getCategoryBySlug(slug: string) {
 
     return { success: true, data: serializeCategory(category) };
   } catch (error) {
-    console.error("Error fetching category:", error);
+    console.error("Error fetching category by slug:", error);
     return { success: false, error: "Failed to fetch category" };
   }
 }
@@ -137,7 +145,7 @@ export async function getCategoryById(id: string) {
 
     return { success: true, data: serializeCategory(category) };
   } catch (error) {
-    console.error("Error fetching category:", error);
+    console.error("Error fetching category by id:", error);
     return { success: false, error: "Failed to fetch category" };
   }
 }
@@ -148,11 +156,19 @@ export async function getCategoryById(id: string) {
 
 export async function createCategory(input: CreateCategoryInput) {
   try {
-    const slug = input.slug || generateSlug(input.name);
+    const normalizedName = input.name.trim();
+    if (!normalizedName) {
+      return { success: false, error: "Category name is required" };
+    }
 
-    // Check if category with this slug already exists
+    const slug = generateSlug(input.slug ?? normalizedName);
+    if (!slug) {
+      return { success: false, error: "Category slug is invalid" };
+    }
+
     const existingCategory = await db.category.findUnique({
       where: { slug },
+      select: { id: true },
     });
 
     if (existingCategory) {
@@ -164,17 +180,19 @@ export async function createCategory(input: CreateCategoryInput) {
 
     const category = await db.category.create({
       data: {
-        name: input.name,
+        name: normalizedName,
         slug,
-        description: input.description || null,
-        image: input.image || null,
-        order: input.order || 0,
+        description: input.description?.trim() || null,
+        image: input.image?.trim() || null,
+        order:
+          typeof input.order === "number" && Number.isFinite(input.order)
+            ? Math.max(0, Math.trunc(input.order))
+            : 0,
         isActive: input.isActive ?? true,
       },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/categories");
+    revalidateCategoryPaths();
 
     return { success: true, data: serializeCategory(category) };
   } catch (error) {
@@ -191,13 +209,35 @@ export async function updateCategory(input: UpdateCategoryInput) {
   try {
     const { id, ...data } = input;
 
-    // Check for slug conflicts (excluding current category)
-    if (data.slug) {
+    const updateData: Prisma.CategoryUpdateInput = {};
+
+    if (data.name !== undefined) {
+      const normalizedName = data.name.trim();
+      if (!normalizedName) {
+        return { success: false, error: "Category name cannot be empty" };
+      }
+      updateData.name = normalizedName;
+    }
+
+    const slugSource =
+      data.slug !== undefined
+        ? data.slug
+        : data.name !== undefined
+          ? data.name
+          : undefined;
+
+    if (slugSource !== undefined) {
+      const nextSlug = generateSlug(slugSource);
+      if (!nextSlug) {
+        return { success: false, error: "Category slug is invalid" };
+      }
+
       const existingCategory = await db.category.findFirst({
         where: {
-          slug: data.slug,
+          slug: nextSlug,
           NOT: { id },
         },
+        select: { id: true },
       });
 
       if (existingCategory) {
@@ -206,31 +246,34 @@ export async function updateCategory(input: UpdateCategoryInput) {
           error: "A category with this slug already exists",
         };
       }
+
+      updateData.slug = nextSlug;
     }
 
-    const updateData: Prisma.CategoryUpdateInput = {};
-
-    if (data.name !== undefined) {
-      updateData.name = data.name;
-      // Auto-generate slug if name changes and no custom slug provided
-      if (!data.slug) {
-        updateData.slug = generateSlug(data.name);
-      }
+    if (data.description !== undefined) {
+      updateData.description = data.description?.trim() || null;
     }
-    if (data.slug !== undefined) updateData.slug = data.slug;
-    if (data.description !== undefined)
-      updateData.description = data.description;
-    if (data.image !== undefined) updateData.image = data.image;
-    if (data.order !== undefined) updateData.order = data.order;
-    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+
+    if (data.image !== undefined) {
+      updateData.image = data.image?.trim() || null;
+    }
+
+    if (data.order !== undefined) {
+      updateData.order = Number.isFinite(data.order)
+        ? Math.max(0, Math.trunc(data.order))
+        : 0;
+    }
+
+    if (data.isActive !== undefined) {
+      updateData.isActive = data.isActive;
+    }
 
     const category = await db.category.update({
       where: { id },
       data: updateData,
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/categories");
+    revalidateCategoryPaths();
 
     return { success: true, data: serializeCategory(category) };
   } catch (error) {
@@ -245,7 +288,6 @@ export async function updateCategory(input: UpdateCategoryInput) {
 
 export async function deleteCategory(id: string) {
   try {
-    // Check if category has products
     const productCount = await db.product.count({
       where: { categoryId: id },
     });
@@ -261,8 +303,7 @@ export async function deleteCategory(id: string) {
       where: { id },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/categories");
+    revalidateCategoryPaths();
 
     return { success: true, message: "Category deleted successfully" };
   } catch (error) {
@@ -273,18 +314,30 @@ export async function deleteCategory(id: string) {
 
 export async function deleteCategories(ids: string[]) {
   try {
+    const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+
+    if (uniqueIds.length === 0) {
+      return {
+        success: true,
+        message: "No categories selected",
+        deleted: 0,
+        deactivated: 0,
+      };
+    }
+
     const categoriesWithProducts = await db.product.groupBy({
       by: ["categoryId"],
-      where: { categoryId: { in: ids } },
+      where: { categoryId: { in: uniqueIds } },
     });
 
     const categoryIdsWithProducts = new Set(
-      categoriesWithProducts.map((p) => p.categoryId).filter(Boolean),
+      categoriesWithProducts.map((category) => category.categoryId),
     );
-    const categoriesToDelete = ids.filter(
+
+    const categoriesToDelete = uniqueIds.filter(
       (id) => !categoryIdsWithProducts.has(id),
     );
-    const categoriesToDeactivate = ids.filter((id) =>
+    const categoriesToDeactivate = uniqueIds.filter((id) =>
       categoryIdsWithProducts.has(id),
     );
 
@@ -301,8 +354,7 @@ export async function deleteCategories(ids: string[]) {
       });
     }
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/categories");
+    revalidateCategoryPaths();
 
     return {
       success: true,
@@ -336,8 +388,7 @@ export async function toggleCategoryStatus(id: string) {
       data: { isActive: !category.isActive },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/categories");
+    revalidateCategoryPaths();
 
     return { success: true, data: serializeCategory(updated) };
   } catch (error) {
