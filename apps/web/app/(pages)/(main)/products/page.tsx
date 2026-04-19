@@ -9,6 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import CategorySelector from "@/components/main/CategorySelector";
 import PageHero from "@/components/main/PageHero";
+import CartPreview from "@/components/main/CartPreview";
+import BoxSizeSelector from "@/components/main/BoxSizeSelector";
 import { LoginForm } from "@/components/auth/LoginForm";
 import {
   AlertCircle,
@@ -19,47 +21,20 @@ import {
   ExternalLink,
   Package,
   ShoppingCart,
-  Trash2,
   User,
   X,
 } from "lucide-react";
-import {
-  getProducts,
-  SerializedProductWithCategory,
-} from "@/actions/productActions";
+import { getProducts } from "@/actions/productActions";
 import { AuthUser, getCurrentUser } from "@/actions/authActions";
 import { getCategoryBySlug } from "@/actions/categoriesAction";
-
-type CustomerType = "individual" | "restaurant";
-const CART_STORAGE_KEY = "seefood_cart";
-const MAX_FLAVOURS = 2;
-
-type BoxConfig = {
-  pieces: number;
-  maxTypes: number;
-};
-
-const INDIVIDUAL_BOXES: BoxConfig[] = [
-  { pieces: 6, maxTypes: 2 },
-  { pieces: 8, maxTypes: 2 },
-  { pieces: 12, maxTypes: 2 },
-];
-
-const RESTAURANT_BOXES: BoxConfig[] = [
-  { pieces: 300, maxTypes: 2 },
-  { pieces: 600, maxTypes: 2 },
-  { pieces: 900, maxTypes: 2 },
-];
-
-type CartItem = {
-  productId: string;
-  productName: string;
-  boxSize: number;
-  quantity: number;
-  selections: { productId: string; productName: string; count: number }[];
-  unitPrice: number;
-  totalPrice: number;
-};
+import { usePersistentCart } from "@/lib/usePersistentCart";
+import {
+  MAX_FLAVOURS,
+  buildMixedSelectionCartItem,
+  getBoxesForCustomerType,
+  splitBoxCountEvenly,
+} from "@/lib/cart";
+import type { CustomerType, SerializedProductWithCategory } from "@/types";
 
 // ── Image Carousel ────────────────────────────────────────────────────────────
 function ProductImageCarousel({ images }: { images: string[] }) {
@@ -305,129 +280,12 @@ function ProductCard({
   );
 }
 
-// ── Cart Preview ──────────────────────────────────────────────────────────────
-function CartPreview({
-  cart,
-  onRemove,
-}: {
-  cart: CartItem[];
-  onRemove: (index: number) => void;
-}) {
-  const t = useTranslations("ProductsPage.CartPreview");
-  const [isOpen, setIsOpen] = useState(false);
-
-  const totalItems = cart.length;
-  const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
-
-  return (
-    <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-[var(--primary)] text-white p-4 rounded-full shadow-lg hover:bg-[var(--primary-hover)] transition-all"
-        aria-label="Open cart"
-      >
-        <ShoppingCart className="w-6 h-6" />
-        {totalItems > 0 && (
-          <span className="absolute -top-2 -right-2 bg-[var(--danger)] text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
-            {totalItems}
-          </span>
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-40 bg-black/30"
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-[var(--bg-card)] z-50 shadow-xl flex flex-col"
-            >
-              <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-                <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                  {t("Title")} ({totalItems})
-                </h2>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full hover:bg-[var(--bg-muted)]"
-                  aria-label="Close cart"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {cart.map((item, index) => (
-                  <div
-                    key={index}
-                    className="bg-[var(--bg-muted)] rounded-xl p-4"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="font-medium text-[var(--text-primary)]">
-                          Box of {item.boxSize} pieces
-                        </div>
-                        <div className="text-sm text-[var(--text-secondary)]">
-                          {item.selections
-                            .map((s) => `${s.productName} (${s.count})`)
-                            .join(" + ")}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => onRemove(index)}
-                        className="p-1 text-[var(--text-muted)] hover:text-[var(--danger)]"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="text-right font-bold text-[var(--primary)]">
-                      {item.totalPrice.toFixed(3)} TND
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {cart.length > 0 && (
-                <div className="p-6 border-t border-[var(--border)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[var(--text-secondary)]">
-                      {t("Total")}
-                    </span>
-                    <span className="text-xl font-bold text-[var(--text-primary)]">
-                      {totalPrice.toFixed(3)} TND
-                    </span>
-                  </div>
-                  <Link
-                    href="/checkout"
-                    className="w-full py-3 rounded-xl font-semibold text-white text-center block transition-all"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-                    }}
-                  >
-                    {t("Checkout")}
-                  </Link>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ProductsPage() {
   const t = useTranslations("ProductsPage");
+  const tCart = useTranslations("ProductsPage.CartPreview");
+  const tOrderReview = useTranslations("CheckoutPage.OrderReview");
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -448,38 +306,13 @@ export default function ProductsPage() {
   const [customerType, setCustomerType] = useState<CustomerType>("individual");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // IMPORTANT: start empty to match server + client initial HTML (fix hydration)
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [cartLoaded, setCartLoaded] = useState(false);
+  const { cart, setCart, cartLoaded } = usePersistentCart();
 
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
   const [selectedFlavours, setSelectedFlavours] = useState<string[]>([]);
   const canAddToCart = selectedFlavours.length > 0 && selectedBox !== null;
 
   const [urlCategoryResolved, setUrlCategoryResolved] = useState(true);
-
-  // Load cart from localStorage ONLY after mount (fix hydration)
-  useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      setCart(savedCart ? JSON.parse(savedCart) : []);
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
-      setCart([]);
-    } finally {
-      setCartLoaded(true);
-    }
-  }, []);
-
-  // Persist cart AFTER it has been loaded (prevents overwriting storage with [])
-  useEffect(() => {
-    if (!cartLoaded) return;
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-    } catch (error) {
-      console.error("Error saving cart to localStorage:", error);
-    }
-  }, [cart, cartLoaded]);
 
   useEffect(() => {
     let cancelled = false;
@@ -604,32 +437,35 @@ export default function ProductsPage() {
     if (selectedFlavours.length === 0) setSelectedBox(null);
   }, [selectedFlavours.length]);
 
-  const boxes =
-    customerType === "individual" ? INDIVIDUAL_BOXES : RESTAURANT_BOXES;
+  const boxes = useMemo(
+    () => getBoxesForCustomerType(isRestaurantUser, customerType),
+    [customerType, isRestaurantUser],
+  );
 
   const currentBoxConfig = useMemo(() => {
     if (selectedBox === null) return null;
-    return boxes.find((b) => b.pieces === selectedBox) ?? null;
+    return boxes.find((box) => box.pieces === selectedBox) ?? null;
   }, [selectedBox, boxes]);
 
   const selectedTypesCount = selectedFlavours.length;
 
-  const autoCounts = useMemo(() => {
-    if (selectedBox === null) return {} as Record<string, number>;
-    if (selectedFlavours.length === 0) return {} as Record<string, number>;
+  const autoCounts = useMemo(
+    () => splitBoxCountEvenly(selectedBox, selectedFlavours),
+    [selectedBox, selectedFlavours],
+  );
 
-    if (selectedFlavours.length === 1) {
-      return { [selectedFlavours[0]]: selectedBox };
+  const selectedFlavourSet = useMemo(
+    () => new Set(selectedFlavours),
+    [selectedFlavours],
+  );
+
+  const productNameLookup = useMemo(() => {
+    const lookup: Record<string, { id: string; name: string }> = {};
+    for (const product of products) {
+      lookup[product.id] = { id: product.id, name: product.name };
     }
-
-    const [a, b] = selectedFlavours;
-    const half = Math.floor(selectedBox / 2);
-    const remainder = selectedBox - half * 2;
-    return {
-      [a]: half + remainder,
-      [b]: half,
-    };
-  }, [selectedBox, selectedFlavours]);
+    return lookup;
+  }, [products]);
 
   const handleCategoryChange = (categoryId: string | null) => {
     setSelectedCategoryId(categoryId);
@@ -672,43 +508,25 @@ export default function ProductsPage() {
     setSelectedFlavours([]);
   };
 
-  const handleBoxSelect = (pieces: number) => {
-    setSelectedBox(pieces);
-  };
-
   const handleAddToCart = () => {
     if (!currentBoxConfig) return;
     if (selectedFlavours.length === 0) return;
 
-    const selections = selectedFlavours.map((productId) => {
-      const product = products.find((p) => p.id === productId);
-      return {
-        productId,
-        productName: product?.name || "",
-        count: autoCounts[productId] || 0,
-      };
-    });
+    const baseProduct = products.find((product) => product.id === selectedFlavours[0]);
 
-    const baseProduct = products.find((p) => p.id === selections[0]?.productId);
     const unitPrice = baseProduct
       ? customerType === "restaurant"
         ? baseProduct.priceRestaurant
         : baseProduct.priceIndividual
       : 0;
 
-    const totalPrice = unitPrice * currentBoxConfig.pieces;
-
-    const newItem: CartItem = {
-      productId: selections.map((s) => s.productId).join("-"),
-      productName: selections
-        .map((s) => `${s.productName} (${s.count})`)
-        .join(" + "),
+    const newItem = buildMixedSelectionCartItem({
+      selectedProductIds: selectedFlavours,
+      productsById: productNameLookup,
       boxSize: currentBoxConfig.pieces,
-      quantity: 1,
-      selections,
       unitPrice,
-      totalPrice,
-    };
+      assignedCounts: autoCounts,
+    });
 
     setCart((prev) => [...prev, newItem]);
     setSelectedBox(null);
@@ -717,9 +535,9 @@ export default function ProductsPage() {
 
   const selectedFlavourNames = useMemo(() => {
     return selectedFlavours
-      .map((id) => products.find((p) => p.id === id)?.name)
-      .filter(Boolean) as string[];
-  }, [selectedFlavours, products]);
+      .map((id) => productNameLookup[id]?.name)
+      .filter((name): name is string => Boolean(name));
+  }, [selectedFlavours, productNameLookup]);
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
@@ -856,7 +674,7 @@ export default function ProductsPage() {
               ) : products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => {
-                    const isSelected = selectedFlavours.includes(product.id);
+                    const isSelected = selectedFlavourSet.has(product.id);
                     const assignedCount = autoCounts[product.id] || 0;
                     const selectionDisabled =
                       !isSelected && selectedFlavours.length >= MAX_FLAVOURS;
@@ -898,33 +716,13 @@ export default function ProductsPage() {
               {t("BoxSelection.Title")}
             </h3>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              {boxes.map((box) => (
-                <button
-                  key={box.pieces}
-                  onClick={() => handleBoxSelect(box.pieces)}
-                  className={`px-6 py-4 rounded-xl border-2 transition-all ${selectedBox === box.pieces
-                    ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                    : "border-[var(--border)] hover:border-[var(--primary)]/50 bg-[var(--bg-card)]"
-                    }`}
-                >
-                  <div
-                    className={`text-2xl font-bold ${selectedBox === box.pieces
-                      ? "text-[var(--primary)]"
-                      : "text-[var(--text-primary)]"
-                      }`}
-                  >
-                    {box.pieces}
-                  </div>
-                  <div className="text-sm text-[var(--text-secondary)]">
-                    {t("BoxSelection.Pieces")}
-                  </div>
-                  <div className="text-xs text-[var(--text-muted)] mt-1">
-                    {t("BoxSelection.MaxTypes", { count: box.maxTypes })}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <BoxSizeSelector
+              boxes={boxes}
+              selectedBox={selectedBox}
+              onSelect={setSelectedBox}
+              piecesLabel={t("BoxSelection.Pieces")}
+              maxTypesLabel={(count) => t("BoxSelection.MaxTypes", { count })}
+            />
           </motion.div>
         )}
 
@@ -939,11 +737,11 @@ export default function ProductsPage() {
               onClick={canAddToCart ? handleAddToCart : undefined}
               disabled={!canAddToCart}
               className={`inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all
-    ${canAddToCart
+                ${canAddToCart
                   ? "hover:scale-105 cursor-pointer opacity-100"
                   : "opacity-60 cursor-not-allowed hover:scale-100 pointer-events-none"
                 }
-  `}
+              `}
               style={{
                 background:
                   "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
@@ -988,13 +786,16 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
 
-      {/* IMPORTANT: render cart UI only after cart is loaded to avoid hydration issues */}
       {cartLoaded && cart.length > 0 && (
         <CartPreview
           cart={cart}
           onRemove={(index) =>
             setCart((prev) => prev.filter((_, i) => i !== index))
           }
+          title={tCart("Title")}
+          totalLabel={tCart("Total")}
+          checkoutLabel={tCart("Checkout")}
+          boxLabel={(count) => tOrderReview("BoxOf", { count })}
         />
       )}
     </div>
