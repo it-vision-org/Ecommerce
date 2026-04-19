@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useMemo, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
@@ -22,20 +22,63 @@ import {
   ImageIcon,
 } from "lucide-react";
 import {
-  SerializedProductWithCategory,
   getProducts,
-  getCategories,
   createProduct,
   updateProduct,
   deleteProduct,
   deleteProducts,
   toggleProductStatus,
   toggleProductFeatured,
-  createCategory,
 } from "@/actions/productActions";
-import { Category } from "@monkeyprint/db";
+import { getCategories, createCategory } from "@/actions/categoriesAction";
+import type {
+  CreateCategoryInput,
+  CreateProductInput,
+  SerializedCategory,
+  SerializedProductWithCategory,
+  UpdateProductInput,
+} from "@/types";
 import toast from "react-hot-toast";
 import Uploader from "@/components/admin/Uploader";
+
+type InlineEditableField =
+  | "priceIndividual"
+  | "priceRestaurant"
+  | "stock"
+  | "categoryId";
+
+type ProductFormState = {
+  name: string;
+  slug: string;
+  description: string;
+  priceIndividual: number;
+  priceRestaurant: number;
+  unit: string;
+  stock: number;
+  categoryId: string;
+  isFeatured: boolean;
+  isActive: boolean;
+  images: string[];
+};
+
+function buildInitialProductForm(
+  product: SerializedProductWithCategory | null,
+  categories: SerializedCategory[],
+): ProductFormState {
+  return {
+    name: product?.name || "",
+    slug: product?.slug || "",
+    description: product?.description || "",
+    priceIndividual: product?.priceIndividual ?? 0,
+    priceRestaurant: product?.priceRestaurant ?? 0,
+    unit: product?.unit || "piece",
+    stock: product?.stock ?? 0,
+    categoryId: product?.categoryId || categories[0]?.id || "",
+    isFeatured: product?.isFeatured || false,
+    isActive: product?.isActive ?? true,
+    images: product?.images || [],
+  };
+}
 
 // ── Image Carousel ────────────────────────────────────────────────────────────
 
@@ -50,9 +93,9 @@ function ImageCarousel({
 
   if (images.length === 0) return null;
 
-  const goNext = () => setCurrentIndex((i) => (i + 1) % images.length);
+  const goNext = () => setCurrentIndex((index) => (index + 1) % images.length);
   const goPrev = () =>
-    setCurrentIndex((i) => (i - 1 + images.length) % images.length);
+    setCurrentIndex((index) => (index - 1 + images.length) % images.length);
 
   return (
     <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-[var(--bg-muted)]">
@@ -63,13 +106,13 @@ function ImageCarousel({
         className="object-cover"
       />
 
-      {/* Navigation Arrows */}
       {images.length > 1 && (
         <>
           <button
             type="button"
             onClick={goPrev}
             className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+            aria-label="Previous image"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -77,13 +120,13 @@ function ImageCarousel({
             type="button"
             onClick={goNext}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+            aria-label="Next image"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </>
       )}
 
-      {/* Dots Indicator */}
       {images.length > 1 && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
           {images.map((_, i) => (
@@ -91,26 +134,25 @@ function ImageCarousel({
               key={i}
               type="button"
               onClick={() => setCurrentIndex(i)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === currentIndex ? "bg-white" : "bg-white/50"
-              }`}
+              className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? "bg-white" : "bg-white/50"
+                }`}
+              aria-label={`Go to image ${i + 1}`}
             />
           ))}
         </div>
       )}
 
-      {/* Remove Button */}
       {onRemove && (
         <button
           type="button"
           onClick={() => onRemove(currentIndex)}
           className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+          aria-label="Remove image"
         >
           <X className="w-3 h-3" />
         </button>
       )}
 
-      {/* Image Counter */}
       <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
         {currentIndex + 1} / {images.length}
       </div>
@@ -157,7 +199,7 @@ function CreateCategoryModal({
   isPending,
 }: {
   onClose: () => void;
-  onSave: (data: { name: string; description?: string }) => void;
+  onSave: (data: Pick<CreateCategoryInput, "name" | "description">) => void;
   isPending: boolean;
 }) {
   const [name, setName] = useState("");
@@ -165,8 +207,14 @@ function CreateCategoryModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    onSave({ name: name.trim(), description: description.trim() || undefined });
+
+    const normalizedName = name.trim();
+    if (!normalizedName) return;
+
+    onSave({
+      name: normalizedName,
+      description: description.trim() || undefined,
+    });
   };
 
   return (
@@ -191,6 +239,7 @@ function CreateCategoryModal({
           <button
             onClick={onClose}
             className="p-2 hover:bg-[var(--bg-muted)] rounded-full"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -264,27 +313,16 @@ function ProductModal({
   isPending,
 }: {
   product: SerializedProductWithCategory | null;
-  categories: Category[];
+  categories: SerializedCategory[];
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: CreateProductInput) => void;
   onCreateCategory: () => void;
   isPending: boolean;
 }) {
-  const [form, setForm] = useState({
-    name: product?.name || "",
-    slug: product?.slug || "",
-    description: product?.description || "",
-    priceIndividual: product ? product.priceIndividual : 0,
-    priceRestaurant: product ? product.priceRestaurant : 0,
-    unit: product?.unit || "piece",
-    stock: product?.stock || 0,
-    categoryId: product?.categoryId || (categories[0]?.id ?? ""),
-    isFeatured: product?.isFeatured || false,
-    isActive: product?.isActive ?? true,
-    images: product?.images || [],
-  });
+  const [form, setForm] = useState<ProductFormState>(
+    buildInitialProductForm(product, categories),
+  );
 
-  // Update categoryId if categories change (after creating a new one)
   useEffect(() => {
     if (!form.categoryId && categories.length > 0) {
       setForm((prev) => ({ ...prev, categoryId: categories[0].id }));
@@ -293,15 +331,29 @@ function ProductModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      ...form,
+
+    const payload: CreateProductInput = {
+      name: form.name.trim(),
+      slug: form.slug.trim(),
+      description: form.description.trim() || undefined,
+      priceIndividual: form.priceIndividual,
+      priceRestaurant: form.priceRestaurant,
+      unit: form.unit.trim() || "piece",
+      stock: Math.max(0, Math.trunc(form.stock)),
       categoryId: form.categoryId || undefined,
-    });
+      isFeatured: form.isFeatured,
+      isActive: form.isActive,
+      images: form.images.filter((image) => image.trim().length > 0),
+    };
+
+    if (!payload.name || !payload.slug) return;
+    onSave(payload);
   };
 
   const generateSlug = () => {
     const slug = form.name
       .toLowerCase()
+      .trim()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
     setForm((prev) => ({ ...prev, slug }));
@@ -341,6 +393,7 @@ function ProductModal({
           <button
             onClick={onClose}
             className="p-2 hover:bg-[var(--bg-muted)] rounded-full"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -357,13 +410,9 @@ function ProductModal({
                 Flavour Images
               </label>
               <div className="grid grid-cols-2 gap-4">
-                {/* Image Preview / Carousel */}
                 <div className="col-span-1">
                   {form.images.length > 0 ? (
-                    <ImageCarousel
-                      images={form.images}
-                      onRemove={handleRemoveImage}
-                    />
+                    <ImageCarousel images={form.images} onRemove={handleRemoveImage} />
                   ) : (
                     <div className="aspect-square rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--text-muted)]">
                       <ImageIcon className="w-12 h-12 mb-2" />
@@ -372,7 +421,6 @@ function ProductModal({
                   )}
                 </div>
 
-                {/* Upload Button & Thumbnails */}
                 <div className="col-span-1 space-y-3">
                   <Uploader
                     handleUploadComplete={handleImageUpload}
@@ -380,7 +428,6 @@ function ProductModal({
                     maxFileCount={5}
                   />
 
-                  {/* Thumbnails Grid */}
                   {form.images.length > 0 && (
                     <div className="grid grid-cols-3 gap-2">
                       {form.images.map((img, i) => (
@@ -407,8 +454,7 @@ function ProductModal({
                   )}
 
                   <p className="text-xs text-[var(--text-muted)]">
-                    Upload up to 5 images. First image will be the main display
-                    image.
+                    Upload up to 5 images. First image will be the main display image.
                   </p>
                 </div>
               </div>
@@ -546,7 +592,7 @@ function ProductModal({
                   onChange={(e) =>
                     setForm((prev) => ({
                       ...prev,
-                      stock: parseInt(e.target.value) || 0,
+                      stock: parseInt(e.target.value, 10) || 0,
                     }))
                   }
                   placeholder="0"
@@ -598,25 +644,18 @@ function ProductModal({
                   }
                   className="w-4 h-4 rounded"
                 />
-                <span className="text-sm text-[var(--text-primary)]">
-                  Active
-                </span>
+                <span className="text-sm text-[var(--text-primary)]">Active</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.isFeatured}
                   onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      isFeatured: e.target.checked,
-                    }))
+                    setForm((prev) => ({ ...prev, isFeatured: e.target.checked }))
                   }
                   className="w-4 h-4 rounded"
                 />
-                <span className="text-sm text-[var(--text-primary)]">
-                  Featured
-                </span>
+                <span className="text-sm text-[var(--text-primary)]">Featured</span>
               </label>
             </div>
           </div>
@@ -625,11 +664,7 @@ function ProductModal({
             <button type="button" onClick={onClose} className="btn btn-ghost">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="btn btn-primary"
-            >
+            <button type="submit" disabled={isPending} className="btn btn-primary">
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -652,55 +687,110 @@ function ProductModal({
 
 export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [products, setProducts] = useState<SerializedProductWithCategory[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<SerializedCategory[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
 
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingProduct, setEditingProduct] =
     useState<SerializedProductWithCategory | null>(null);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<string | string[] | null>(
-    null,
-  );
+  const [deleteTarget, setDeleteTarget] = useState<string | string[] | null>(null);
+
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    Promise.all([getProducts({ isActive: undefined }), getCategories()]).then(
-      ([productsResult, categoriesResult]) => {
-        setProducts(productsResult.data || []);
-        setCategories(categoriesResult.data || []);
-        setTotalProducts(productsResult.total);
-        setIsLoading(false);
-      },
-    );
+  const fetchData = useCallback(async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      const [productsResult, categoriesResult] = await Promise.all([
+        getProducts({
+          isActive: undefined,
+          limit: 500,
+          sortBy: "order",
+          sortOrder: "asc",
+        }),
+        getCategories({
+          sortBy: "order",
+          sortOrder: "asc",
+          limit: 500,
+        }),
+      ]);
+
+      if (!productsResult.success) {
+        throw new Error(productsResult.error || "Failed to fetch products");
+      }
+
+      if (!categoriesResult.success) {
+        throw new Error(categoriesResult.error || "Failed to fetch categories");
+      }
+
+      setProducts(productsResult.data || []);
+      setCategories(categoriesResult.data || []);
+      setTotalProducts(productsResult.total ?? productsResult.data?.length ?? 0);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load dashboard data";
+      setLoadError(message);
+    } finally {
+      if (showLoader) setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredProducts = useMemo(() => {
     if (!search.trim()) return products;
+
     const term = search.toLowerCase();
     return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(term) ||
-        p.slug.toLowerCase().includes(term) ||
-        p.category?.name.toLowerCase().includes(term),
+      (product) =>
+        product.name.toLowerCase().includes(term) ||
+        product.slug.toLowerCase().includes(term) ||
+        product.category?.name.toLowerCase().includes(term),
     );
   }, [products, search]);
 
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  const filteredIds = useMemo(
+    () => filteredProducts.map((product) => product.id),
+    [filteredProducts],
+  );
+
+  const filteredIdSet = useMemo(() => new Set(filteredIds), [filteredIds]);
+
   const isAllSelected =
     filteredProducts.length > 0 &&
-    selectedIds.length === filteredProducts.length;
+    filteredProducts.every((product) => selectedIdSet.has(product.id));
 
   const handleSelectAll = () => {
-    setSelectedIds(isAllSelected ? [] : filteredProducts.map((p) => p.id));
+    setSelectedIds((prev) => {
+      if (filteredProducts.length === 0) return prev;
+
+      if (isAllSelected) {
+        return prev.filter((id) => !filteredIdSet.has(id));
+      }
+
+      const next = new Set(prev);
+      for (const id of filteredIds) next.add(id);
+      return Array.from(next);
+    });
   };
 
   const handleSelectOne = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -709,8 +799,9 @@ export default function AdminProductsPage() {
     setShowDeleteConfirm(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
+
     startTransition(async () => {
       const result = Array.isArray(deleteTarget)
         ? await deleteProducts(deleteTarget)
@@ -718,12 +809,8 @@ export default function AdminProductsPage() {
 
       if (result.success) {
         toast.success(result.message || "Deleted successfully");
-        setProducts((prev) =>
-          Array.isArray(deleteTarget)
-            ? prev.filter((p) => !deleteTarget.includes(p.id))
-            : prev.filter((p) => p.id !== deleteTarget),
-        );
         setSelectedIds([]);
+        await fetchData(false);
       } else {
         toast.error(result.error || "Failed to delete");
       }
@@ -736,11 +823,10 @@ export default function AdminProductsPage() {
   const handleToggleStatus = (id: string) => {
     startTransition(async () => {
       const result = await toggleProductStatus(id);
+
       if (result.success && result.data) {
         setProducts((prev) =>
-          prev.map((p) =>
-            p.id === id ? { ...p, isActive: result.data!.isActive } : p,
-          ),
+          prev.map((product) => (product.id === id ? result.data! : product)),
         );
         toast.success("Status updated");
       } else {
@@ -752,11 +838,10 @@ export default function AdminProductsPage() {
   const handleToggleFeatured = (id: string) => {
     startTransition(async () => {
       const result = await toggleProductFeatured(id);
+
       if (result.success && result.data) {
         setProducts((prev) =>
-          prev.map((p) =>
-            p.id === id ? { ...p, isFeatured: result.data!.isFeatured } : p,
-          ),
+          prev.map((product) => (product.id === id ? result.data! : product)),
         );
         toast.success("Featured status updated");
       } else {
@@ -767,18 +852,28 @@ export default function AdminProductsPage() {
 
   const handleUpdateField = (
     id: string,
-    field: "priceIndividual" | "priceRestaurant" | "stock" | "categoryId",
+    field: InlineEditableField,
     value: number | string,
   ) => {
     startTransition(async () => {
-      const result = await updateProduct({
-        id,
-        [field]: value,
-      });
+      const payload: UpdateProductInput = { id };
+
+      if (field === "priceIndividual") {
+        payload.priceIndividual = value as number;
+      } else if (field === "priceRestaurant") {
+        payload.priceRestaurant = value as number;
+      } else if (field === "stock") {
+        payload.stock = value as number;
+      } else if (field === "categoryId") {
+        const nextCategoryId = (value as string).trim();
+        payload.categoryId = nextCategoryId || undefined;
+      }
+
+      const result = await updateProduct(payload);
 
       if (result.success && result.data) {
         setProducts((prev) =>
-          prev.map((p) => (p.id === id ? result.data! : p)),
+          prev.map((product) => (product.id === id ? result.data! : product)),
         );
         toast.success("Updated successfully");
       } else {
@@ -787,40 +882,38 @@ export default function AdminProductsPage() {
     });
   };
 
-  const handleSaveProduct = (data: any) => {
+  const handleSaveProduct = (data: CreateProductInput) => {
     startTransition(async () => {
       const result = editingProduct
         ? await updateProduct({ id: editingProduct.id, ...data })
         : await createProduct(data);
 
-      if (result.success && result.data) {
-        if (editingProduct) {
-          setProducts((prev) =>
-            prev.map((p) => (p.id === editingProduct.id ? result.data! : p)),
-          );
-          toast.success("Flavour updated");
-        } else {
-          setProducts((prev) => [result.data!, ...prev]);
-          setTotalProducts((n) => n + 1);
-          toast.success("Flavour created");
-        }
+      if (result.success) {
+        toast.success(editingProduct ? "Flavour updated" : "Flavour created");
         setShowModal(false);
         setEditingProduct(null);
+        await fetchData(false);
       } else {
         toast.error(result.error || "Failed to save flavour");
       }
     });
   };
 
-  const handleCreateCategory = (data: {
-    name: string;
-    description?: string;
-  }) => {
+  const handleCreateCategory = (data: Pick<CreateCategoryInput, "name" | "description">) => {
     startTransition(async () => {
-      const result = await createCategory(data);
+      const payload: CreateCategoryInput = {
+        name: data.name,
+        description: data.description,
+      };
+
+      const result = await createCategory(payload);
 
       if (result.success && result.data) {
-        setCategories((prev) => [...prev, result.data!]);
+        setCategories((prev) =>
+          [...prev, result.data!].sort(
+            (a, b) => a.order - b.order || a.name.localeCompare(b.name),
+          ),
+        );
         toast.success(`Category "${result.data.name}" created`);
         setShowCategoryModal(false);
       } else {
@@ -840,8 +933,8 @@ export default function AdminProductsPage() {
             Flavours / Products
           </h1>
           <p className="text-sm text-[var(--text-secondary)]">
-            {totalProducts} total flavours • These are the flavour options
-            customers can choose when building their boxes
+            {totalProducts} total flavours • These are the flavour options customers
+            can choose when building their boxes
           </p>
         </div>
         <button
@@ -856,6 +949,12 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
+      {loadError && (
+        <div className="bg-[var(--danger-light)] border border-[var(--danger)] text-[var(--danger)] rounded-xl p-4">
+          {loadError}
+        </div>
+      )}
+
       {/* Info Banner */}
       <div className="bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-xl p-4 flex items-start gap-3">
         <Package className="w-5 h-5 text-[var(--primary)] mt-0.5" />
@@ -864,10 +963,10 @@ export default function AdminProductsPage() {
             How Pricing Works
           </p>
           <p className="text-sm text-[var(--primary)]/80 mt-1">
-            Each flavour has two prices: <strong>Individual Price</strong> for
-            small boxes (6, 8, 12 pieces) and <strong>Restaurant Price</strong>{" "}
-            for bulk orders (300, 600, 900 pieces). Restaurant prices should be
-            lower to reflect bulk discounts.
+            Each flavour has two prices: <strong>Individual Price</strong> for small
+            boxes (6, 8, 12 pieces) and <strong>Restaurant Price</strong> for bulk
+            orders (300, 600, 900 pieces). Restaurant prices should be lower to
+            reflect bulk discounts.
           </p>
         </div>
       </div>
@@ -934,24 +1033,23 @@ export default function AdminProductsPage() {
               </th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-[var(--border)]">
             {filteredProducts.map((product) => (
               <tr
                 key={product.id}
-                className={`hover:bg-[var(--bg-muted)]/50 transition-colors ${
-                  selectedIds.includes(product.id)
-                    ? "bg-[var(--primary-light)]/30"
-                    : ""
-                }`}
+                className={`hover:bg-[var(--bg-muted)]/50 transition-colors ${selectedIdSet.has(product.id) ? "bg-[var(--primary-light)]/30" : ""
+                  }`}
               >
                 <td className="p-4">
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(product.id)}
+                    checked={selectedIdSet.has(product.id)}
                     onChange={() => handleSelectOne(product.id)}
                     className="w-4 h-4 rounded"
                   />
                 </td>
+
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-[var(--bg-muted)] overflow-hidden flex-shrink-0">
@@ -969,6 +1067,7 @@ export default function AdminProductsPage() {
                         </div>
                       )}
                     </div>
+
                     <div>
                       <div className="font-medium text-[var(--text-primary)]">
                         {product.name}
@@ -984,19 +1083,17 @@ export default function AdminProductsPage() {
                     </div>
                   </div>
                 </td>
+
                 <td className="p-4">
                   <select
                     value={product.categoryId || ""}
                     onChange={(e) =>
-                      handleUpdateField(
-                        product.id,
-                        "categoryId",
-                        e.target.value,
-                      )
+                      handleUpdateField(product.id, "categoryId", e.target.value)
                     }
                     disabled={isPending}
                     className="px-2 py-1 text-xs font-medium bg-[var(--bg-muted)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded-full text-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] cursor-pointer"
                   >
+                    <option value="">No Category (General)</option>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.name}
@@ -1004,24 +1101,21 @@ export default function AdminProductsPage() {
                     ))}
                   </select>
                 </td>
+
                 <td className="p-4">
                   <input
                     type="number"
                     defaultValue={product.priceIndividual}
-                    onFocus={(e) =>
-                      (e.target.dataset.originalValue = e.target.value)
-                    }
+                    onFocus={(e) => {
+                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
+                    }}
                     onBlur={(e) => {
-                      const newValue = parseFloat(e.target.value) || 0;
+                      const newValue = parseFloat(e.currentTarget.value) || 0;
                       const originalValue = parseFloat(
-                        e.target.dataset.originalValue || "0",
+                        e.currentTarget.dataset.originalValue || "0",
                       );
                       if (newValue !== originalValue) {
-                        handleUpdateField(
-                          product.id,
-                          "priceIndividual",
-                          newValue,
-                        );
+                        handleUpdateField(product.id, "priceIndividual", newValue);
                       }
                     }}
                     step="0.001"
@@ -1029,28 +1123,23 @@ export default function AdminProductsPage() {
                     disabled={isPending}
                     className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded bg-transparent text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
                   />
-                  <span className="text-xs text-[var(--text-muted)] ml-1">
-                    TND
-                  </span>
+                  <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
                 </td>
+
                 <td className="p-4">
                   <input
                     type="number"
                     defaultValue={product.priceRestaurant}
-                    onFocus={(e) =>
-                      (e.target.dataset.originalValue = e.target.value)
-                    }
+                    onFocus={(e) => {
+                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
+                    }}
                     onBlur={(e) => {
-                      const newValue = parseFloat(e.target.value) || 0;
+                      const newValue = parseFloat(e.currentTarget.value) || 0;
                       const originalValue = parseFloat(
-                        e.target.dataset.originalValue || "0",
+                        e.currentTarget.dataset.originalValue || "0",
                       );
                       if (newValue !== originalValue) {
-                        handleUpdateField(
-                          product.id,
-                          "priceRestaurant",
-                          newValue,
-                        );
+                        handleUpdateField(product.id, "priceRestaurant", newValue);
                       }
                     }}
                     step="0.001"
@@ -1058,21 +1147,21 @@ export default function AdminProductsPage() {
                     disabled={isPending}
                     className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--success)] rounded bg-transparent text-[var(--success)] focus:outline-none focus:ring-1 focus:ring-[var(--success)]"
                   />
-                  <span className="text-xs text-[var(--text-muted)] ml-1">
-                    TND
-                  </span>
+                  <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
                 </td>
+
                 <td className="p-4">
                   <input
                     type="number"
                     defaultValue={product.stock}
-                    onFocus={(e) =>
-                      (e.target.dataset.originalValue = e.target.value)
-                    }
+                    onFocus={(e) => {
+                      e.currentTarget.dataset.originalValue = e.currentTarget.value;
+                    }}
                     onBlur={(e) => {
-                      const newValue = parseInt(e.target.value) || 0;
+                      const newValue = parseInt(e.currentTarget.value, 10) || 0;
                       const originalValue = parseInt(
-                        e.target.dataset.originalValue || "0",
+                        e.currentTarget.dataset.originalValue || "0",
+                        10,
                       );
                       if (newValue !== originalValue) {
                         handleUpdateField(product.id, "stock", newValue);
@@ -1080,27 +1169,26 @@ export default function AdminProductsPage() {
                     }}
                     min="0"
                     disabled={isPending}
-                    className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${
-                      product.stock > 10
+                    className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
                         ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
                         : product.stock > 0
                           ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
                           : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
-                    }`}
+                      }`}
                   />
                   <span className="text-xs text-[var(--text-muted)] ml-1">
                     {product.unit}
                   </span>
                 </td>
+
                 <td className="p-4">
                   <button
                     onClick={() => handleToggleStatus(product.id)}
                     disabled={isPending}
-                    className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${
-                      product.isActive
+                    className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
                         ? "bg-[var(--success-light)] text-[var(--success)]"
                         : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                    }`}
+                      }`}
                   >
                     {product.isActive ? (
                       <>
@@ -1115,21 +1203,22 @@ export default function AdminProductsPage() {
                     )}
                   </button>
                 </td>
+
                 <td className="p-4">
                   <button
                     onClick={() => handleToggleFeatured(product.id)}
                     disabled={isPending}
-                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                      product.isFeatured
+                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
                         ? "bg-[var(--warning-light)] text-[var(--warning)]"
                         : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                    }`}
+                      }`}
                   >
                     <Star
                       className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`}
                     />
                   </button>
                 </td>
+
                 <td className="p-4">
                   <div className="flex items-center justify-end gap-2">
                     <button
@@ -1138,12 +1227,14 @@ export default function AdminProductsPage() {
                         setShowModal(true);
                       }}
                       className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                      title="Edit flavour"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(product.id)}
                       className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
+                      title="Delete flavour"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1215,21 +1306,18 @@ export default function AdminProductsPage() {
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)]">
                     Delete Flavour
-                    {Array.isArray(deleteTarget) && deleteTarget.length > 1
-                      ? "s"
-                      : ""}
+                    {Array.isArray(deleteTarget) && deleteTarget.length > 1 ? "s" : ""}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     {Array.isArray(deleteTarget)
-                      ? `${deleteTarget.length} flavours will be deleted`
-                      : "This flavour will be deleted"}
+                      ? `${deleteTarget.length} flavours will be processed`
+                      : "This flavour will be processed"}
                   </p>
                 </div>
               </div>
 
               <p className="text-sm text-[var(--text-secondary)] mb-6">
-                Flavours with existing orders will be deactivated instead of
-                deleted.
+                Flavours with existing orders will be deactivated instead of deleted.
               </p>
 
               <div className="flex justify-end gap-3">
@@ -1247,11 +1335,7 @@ export default function AdminProductsPage() {
                   disabled={isPending}
                   className="btn bg-[var(--danger)] text-white hover:bg-[var(--danger)]/90"
                 >
-                  {isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Delete"
-                  )}
+                  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
                 </button>
               </div>
             </motion.div>
