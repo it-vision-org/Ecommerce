@@ -1,69 +1,45 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import CategorySelector from "@/components/main/CategorySelector";
+import PageHero from "@/components/main/PageHero";
+import CartPreview from "@/components/main/CartPreview";
+import BoxSizeSelector from "@/components/main/BoxSizeSelector";
+import { LoginForm } from "@/components/auth/LoginForm";
 import {
-  ShoppingCart,
-  X,
-  Building2,
-  User,
-  Lock,
-  Eye,
-  EyeOff,
   AlertCircle,
-  Plus,
-  Minus,
+  Building2,
   Check,
-  Package,
-  Trash2,
-  ChevronRight,
   ChevronLeft,
-  Sparkles,
+  ChevronRight,
+  ExternalLink,
+  Package,
+  ShoppingCart,
+  User,
+  X,
 } from "lucide-react";
+import { getProducts } from "@/actions/productActions";
+import { AuthUser, getCurrentUser } from "@/actions/authActions";
+import { getCategoryBySlug } from "@/actions/categoriesAction";
+import { usePersistentCart } from "@/lib/usePersistentCart";
 import {
-  SerializedProductWithCategory,
-  getProducts,
-} from "@/actions/productActions";
-import { getCurrentUser, AuthUser } from "@/actions/authActions";
-
-type CustomerType = "individual" | "restaurant";
-const CART_STORAGE_KEY = "seefood_cart";
-
-type BoxConfig = {
-  pieces: number;
-  maxTypes: number;
-};
-
-const INDIVIDUAL_BOXES: BoxConfig[] = [
-  { pieces: 6, maxTypes: 2 },
-  { pieces: 8, maxTypes: 2 },
-  { pieces: 12, maxTypes: 2 },
-];
-
-const RESTAURANT_BOXES: BoxConfig[] = [
-  { pieces: 300, maxTypes: 2 },
-  { pieces: 600, maxTypes: 2 },
-  { pieces: 900, maxTypes: 2 },
-];
-
-type CartItem = {
-  productId: string;
-  productName: string;
-  boxSize: number;
-  quantity: number;
-  selections: { productId: string; productName: string; count: number }[];
-  unitPrice: number;
-  totalPrice: number;
-};
+  MAX_FLAVOURS,
+  buildMixedSelectionCartItem,
+  getBoxesForCustomerType,
+  splitBoxCountEvenly,
+} from "@/lib/cart";
+import type { CustomerType, SerializedProductWithCategory } from "@/types";
 
 // ── Image Carousel ────────────────────────────────────────────────────────────
 function ProductImageCarousel({ images }: { images: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+
   if (images.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -71,20 +47,21 @@ function ProductImageCarousel({ images }: { images: string[] }) {
       </div>
     );
   }
+
   if (images.length === 1) {
-    return (
-      <Image src={images[0]} alt="Product" fill className="object-cover" />
-    );
+    return <Image src={images[0]} alt="Product" fill className="object-cover" />;
   }
-  const goNext = (e: React.MouseEvent) => {
+
+  const goNext = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setCurrentIndex((i) => (i + 1) % images.length);
   };
 
-  const goPrev = (e: React.MouseEvent) => {
+  const goPrev = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setCurrentIndex((i) => (i - 1 + images.length) % images.length);
   };
+
   return (
     <>
       <Image
@@ -93,20 +70,22 @@ function ProductImageCarousel({ images }: { images: string[] }) {
         fill
         className="object-cover"
       />
-      {/* Navigation Arrows */}
+
       <button
         onClick={goPrev}
         className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors z-10"
+        aria-label="Previous image"
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
       <button
         onClick={goNext}
         className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors z-10"
+        aria-label="Next image"
       >
         <ChevronRight className="w-4 h-4" />
       </button>
-      {/* Dots Indicator */}
+
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
         {images.map((_, i) => (
           <button
@@ -115,9 +94,9 @@ function ProductImageCarousel({ images }: { images: string[] }) {
               e.stopPropagation();
               setCurrentIndex(i);
             }}
-            className={`w-2 h-2 rounded-full transition-colors ${
-              i === currentIndex ? "bg-white" : "bg-white/50"
-            }`}
+            className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? "bg-white" : "bg-white/50"
+              }`}
+            aria-label={`Go to image ${i + 1}`}
           />
         ))}
       </div>
@@ -125,41 +104,28 @@ function ProductImageCarousel({ images }: { images: string[] }) {
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
-
-function ProductsSkeleton() {
+// ── Products Grid Skeleton (section-level) ─────────────────────────────────────
+function ProductsGridSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <div className="bg-gradient-to-br from-[var(--primary-700)] via-[var(--primary-600)] to-[var(--accent-500)] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-8 bg-white/20 rounded w-64 mx-auto mb-4 animate-pulse" />
-          <div className="h-6 bg-white/10 rounded w-96 mx-auto animate-pulse" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)] animate-pulse"
+        >
+          <div className="relative aspect-square bg-[var(--bg-muted)]" />
+          <div className="p-4">
+            <div className="h-5 bg-[var(--bg-muted)] rounded w-2/3 mb-2" />
+            <div className="h-4 bg-[var(--bg-muted)] rounded w-full mb-3" />
+            <div className="h-5 bg-[var(--bg-muted)] rounded w-1/2" />
+          </div>
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-center gap-4 mb-8">
-          <div className="h-14 w-48 bg-[var(--bg-muted)] rounded-xl animate-pulse" />
-          <div className="h-14 w-48 bg-[var(--bg-muted)] rounded-xl animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-[var(--bg-card)] rounded-xl p-4 animate-pulse"
-            >
-              <div className="aspect-square bg-[var(--bg-muted)] rounded-lg mb-4" />
-              <div className="h-5 bg-[var(--bg-muted)] rounded w-3/4 mb-2" />
-              <div className="h-4 bg-[var(--bg-muted)] rounded w-1/2" />
-            </div>
-          ))}
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
-
 function LoginModal({
   onClose,
   onLoginSuccess,
@@ -168,38 +134,6 @@ function LoginModal({
   onLoginSuccess: () => void;
 }) {
   const t = useTranslations("ProductsPage.LoginModal");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Call success handler which will refetch user and refresh
-      onLoginSuccess();
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <motion.div
@@ -228,508 +162,339 @@ function LoginModal({
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-[var(--bg-muted)] transition-colors"
+            aria-label="Close"
           >
             <X className="w-5 h-5 text-[var(--text-muted)]" />
           </button>
         </div>
 
-        <div className="flex items-center gap-3 p-4 bg-[var(--primary-light)] rounded-lg mb-6">
-          <Building2 className="w-6 h-6 text-[var(--primary)]" />
-          <p className="text-sm text-[var(--primary)]">{t("RestaurantNote")}</p>
-        </div>
-
-        {error && (
-          <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              {t("EmailLabel")}
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("EmailPlaceholder")}
-                className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-xl bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              {t("PasswordLabel")}
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("PasswordPlaceholder")}
-                className="w-full pl-10 pr-12 py-3 border border-[var(--border)] rounded-xl bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-            }}
-          >
-            {isLoading ? t("SigningIn") : t("SignIn")}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-[var(--border)]" />
-          <span className="text-sm text-[var(--text-muted)]">{t("Or")}</span>
-          <div className="flex-1 h-px bg-[var(--border)]" />
-        </div>
-
-        <div className="text-center">
-          <p className="text-sm text-[var(--text-secondary)] mb-2">
-            {t("NoAccount")}
-          </p>
-          <Link
-            href="/auth/signup?type=restaurant"
-            className="text-[var(--primary)] font-medium hover:underline"
-          >
-            {t("SignUp")}
-          </Link>
-        </div>
+        <LoginForm
+          onSuccess={onLoginSuccess}
+          showSignupLink={true}
+          signupLinkHref="/auth/signup?type=restaurant"
+          translationKey="ProductsPage.LoginModal"
+          showRestaurantNote={true}
+          restaurantNoteText={t("RestaurantNote")}
+        />
       </motion.div>
     </motion.div>
   );
 }
 
-// ── Editable Quantity Input ───────────────────────────────────────────────────
-function EditableQuantity({
-  value,
-  onChange,
-  max,
-  disabled,
-}: {
-  value: number;
-  onChange: (newValue: number) => void;
-  max: number;
-  disabled?: boolean;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(value.toString());
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    setInputValue(value.toString());
-  }, [value]);
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-  const handleBlur = () => {
-    setIsEditing(false);
-    const parsed = parseInt(inputValue, 10);
-    if (!isNaN(parsed) && parsed >= 0 && parsed <= max) {
-      onChange(parsed);
-    } else {
-      setInputValue(value.toString());
-    }
-  };
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleBlur();
-    } else if (e.key === "Escape") {
-      setIsEditing(false);
-      setInputValue(value.toString());
-    }
-  };
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        min={0}
-        max={max}
-        disabled={disabled}
-        className="w-16 text-center font-semibold text-[var(--text-primary)] bg-[var(--bg)] border border-[var(--primary)] rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-      />
-    );
-  }
-  return (
-    <button
-      onClick={() => !disabled && setIsEditing(true)}
-      disabled={disabled}
-      className="flex-1 text-center font-semibold text-[var(--text-primary)] py-1 px-2 rounded-lg hover:bg-[var(--bg-muted)] transition-colors cursor-text disabled:cursor-not-allowed"
-      title="Click to edit quantity"
-    >
-      {value}
-    </button>
-  );
-}
-
 // ── Product Card ──────────────────────────────────────────────────────────────
-
 function ProductCard({
   product,
-  selectedCount,
-  canAdd,
-  maxAddable,
-  onAdd,
-  onRemove,
-  onSetCount,
-  isBoxSelected,
+  isSelected,
+  assignedCount,
+  showAssignedCount,
+  onToggle,
+  selectionDisabled,
   customerType,
 }: {
   product: SerializedProductWithCategory;
-  selectedCount: number;
-  canAdd: boolean;
-  maxAddable: number;
-  onAdd: () => void;
-  onRemove: () => void;
-  onSetCount: (count: number) => void;
-  isBoxSelected: boolean;
+  isSelected: boolean;
+  assignedCount: number;
+  showAssignedCount: boolean;
+  onToggle: () => void;
+  selectionDisabled: boolean;
   customerType: CustomerType;
 }) {
   const price =
     customerType === "restaurant"
       ? product.priceRestaurant
       : product.priceIndividual;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-[var(--bg-card)] rounded-xl overflow-hidden border transition-all ${
-        selectedCount > 0
-          ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20"
-          : "border-[var(--border)]"
-      }`}
+      onClick={() => {
+        if (selectionDisabled) return;
+        onToggle();
+      }}
+      title={
+        selectionDisabled
+          ? "You already selected the maximum number of flavours"
+          : "Click to select / unselect"
+      }
+      className={`bg-[var(--bg-card)] rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelected
+        ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20"
+        : "border-[var(--border)]"
+        } ${selectionDisabled ? "opacity-60" : ""}`}
     >
-      {/* Product Image with Carousel */}
       <div className="relative aspect-square bg-[var(--bg-muted)]">
         <ProductImageCarousel images={product.images || []} />
-        {selectedCount > 0 && (
-          <div className="absolute top-3 right-3 bg-[var(--primary)] text-white min-w-8 h-8 px-2 rounded-full flex items-center justify-center font-bold text-sm z-20">
-            {selectedCount}
+
+        <div className="absolute top-3 left-3 z-20">
+          <Link
+            href={`/products/${product.slug}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-full bg-black/45 hover:bg-black/60 text-white backdrop-blur transition-colors"
+            aria-label="View details"
+            title="View details"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Details
+          </Link>
+        </div>
+
+        {isSelected && (
+          <div className="absolute top-3 right-3 bg-[var(--primary)] text-white min-w-8 h-8 px-2 rounded-full flex items-center justify-center font-bold text-sm z-20 gap-1">
+            <Check className="w-4 h-4" />
+            {showAssignedCount && assignedCount > 0 && <span>{assignedCount}</span>}
           </div>
         )}
       </div>
 
-      {/* Product Info */}
       <div className="p-4">
         <h3 className="font-semibold text-[var(--text-primary)] mb-1">
           {product.name}
         </h3>
+
         {product.description && (
           <p className="text-sm text-[var(--text-secondary)] mb-3 line-clamp-2">
             {product.description}
           </p>
         )}
-        <div className="text-[var(--primary)] font-bold mb-3">
+
+        <div className="text-[var(--primary)] font-bold">
           {price.toFixed(3)} TND / piece
         </div>
 
-        {/* Quantity Controls */}
-        {isBoxSelected && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onRemove}
-              disabled={selectedCount === 0}
-              className="p-2 rounded-lg bg-[var(--bg-muted)] text-[var(--text-primary)] hover:bg-[var(--danger-light)] hover:text-[var(--danger)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-            <EditableQuantity
-              value={selectedCount}
-              onChange={onSetCount}
-              max={selectedCount + maxAddable}
-              disabled={!canAdd && selectedCount === 0}
-            />
-            <button
-              onClick={onAdd}
-              disabled={!canAdd}
-              className="p-2 rounded-lg bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+        <div className="mt-3">
+          <div
+            className={`text-xs font-medium ${isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+              }`}
+          >
+            {isSelected
+              ? showAssignedCount && assignedCount > 0
+                ? `Selected • ${assignedCount} pieces`
+                : "Selected"
+              : selectionDisabled
+                ? "Max flavours selected"
+                : "Click to select"}
           </div>
-        )}
+        </div>
       </div>
     </motion.div>
   );
 }
 
-// ── Cart Preview ──────────────────────────────────────────────────────────────
-
-function CartPreview({
-  cart,
-  onRemove,
-}: {
-  cart: CartItem[];
-  onRemove: (index: number) => void;
-}) {
-  const t = useTranslations("ProductsPage.CartPreview");
-  const [isOpen, setIsOpen] = useState(false);
-
-  const totalItems = cart.length;
-  const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
-
-  return (
-    <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-[var(--primary)] text-white p-4 rounded-full shadow-lg hover:bg-[var(--primary-hover)] transition-all"
-      >
-        <ShoppingCart className="w-6 h-6" />
-        {totalItems > 0 && (
-          <span className="absolute -top-2 -right-2 bg-[var(--danger)] text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
-            {totalItems}
-          </span>
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-40 bg-black/30"
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-[var(--bg-card)] z-50 shadow-xl flex flex-col"
-            >
-              <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-                <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                  {t("Title")} ({totalItems})
-                </h2>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full hover:bg-[var(--bg-muted)]"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {cart.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ShoppingCart className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-                    <p className="text-[var(--text-secondary)]">{t("Empty")}</p>
-                  </div>
-                ) : (
-                  cart.map((item, index) => (
-                    <div
-                      key={index}
-                      className="bg-[var(--bg-muted)] rounded-xl p-4"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <div className="font-medium text-[var(--text-primary)]">
-                            Box of {item.boxSize} pieces
-                          </div>
-                          <div className="text-sm text-[var(--text-secondary)]">
-                            {item.selections
-                              .map((s) => `${s.productName} (${s.count})`)
-                              .join(" + ")}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => onRemove(index)}
-                          className="p-1 text-[var(--text-muted)] hover:text-[var(--danger)]"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="text-right font-bold text-[var(--primary)]">
-                        {item.totalPrice.toFixed(3)} TND
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {cart.length > 0 && (
-                <div className="p-6 border-t border-[var(--border)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[var(--text-secondary)]">
-                      {t("Total")}
-                    </span>
-                    <span className="text-xl font-bold text-[var(--text-primary)]">
-                      {totalPrice.toFixed(3)} TND
-                    </span>
-                  </div>
-                  <Link
-                    href="/checkout"
-                    className="w-full py-3 rounded-xl font-semibold text-white text-center block transition-all"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-                    }}
-                  >
-                    {t("Checkout")}
-                  </Link>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
-
 export default function ProductsPage() {
   const t = useTranslations("ProductsPage");
-  const router = useRouter();
+  const tCart = useTranslations("ProductsPage.CartPreview");
+  const tOrderReview = useTranslations("CheckoutPage.OrderReview");
 
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const categorySlug = searchParams.get("category");
+  const typeParam = searchParams.get("type");
+
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [products, setProducts] = useState<SerializedProductWithCategory[]>([]);
+
+  const [userLoading, setUserLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
+
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
-  const [user, setUser] = useState<AuthUser | null>(null);
 
   const [customerType, setCustomerType] = useState<CustomerType>("individual");
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      return savedCart ? JSON.parse(savedCart) : [];
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
-      return [];
-    }
-  });
+
+  const { cart, setCart, cartLoaded } = usePersistentCart();
+
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
-  const [boxSelections, setBoxSelections] = useState<Record<string, number>>(
-    {},
-  );
+  const [selectedFlavours, setSelectedFlavours] = useState<string[]>([]);
+  const canAddToCart = selectedFlavours.length > 0 && selectedBox !== null;
 
-  // Persist cart to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-    } catch (error) {
-      console.error("Error saving cart to localStorage:", error);
-    }
-  }, [cart]);
+  const [urlCategoryResolved, setUrlCategoryResolved] = useState(true);
 
-  // Fetch user, products and categories on mount
   useEffect(() => {
-    const fetchData = async () => {
+    let cancelled = false;
+
+    const fetchUser = async () => {
       try {
-        const [result, currentUser] = await Promise.all([
-          getProducts({
-            isActive: true,
-            categoryId: selectedCategoryId || undefined,
-          }),
-          getCurrentUser(),
-        ]);
-        setProducts(result.data || []);
+        setUserLoading(true);
+        const currentUser = await getCurrentUser();
+        if (cancelled) return;
         setUser(currentUser);
-
-        if (isLoading && currentUser?.userType === "RESTAURANT") {
-          setCustomerType("restaurant");
-        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching current user:", error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setUserLoading(false);
       }
     };
 
-    fetchData();
-  }, [selectedCategoryId]);
-
-  const handleCategoryChange = (categoryId: string | null) => {
-    setSelectedCategoryId(categoryId);
-  };
-
-  const handleLoginSuccess = async () => {
-    // Refetch user after login
-    const currentUser = await getCurrentUser();
-    setUser(currentUser);
-
-    // Close modal
-    setShowLoginModal(false);
-
-    // If user is restaurant, switch to restaurant mode
-    if (currentUser?.userType === "RESTAURANT") {
-      setCustomerType("restaurant");
-      setSelectedBox(null);
-      setBoxSelections({});
-    }
-
-    // Refresh the page to update the navbar
-    router.refresh();
-  };
+    fetchUser();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isRestaurantUser = user?.userType === "RESTAURANT";
 
-  const boxes =
-    customerType === "individual" ? INDIVIDUAL_BOXES : RESTAURANT_BOXES;
+  useEffect(() => {
+    let cancelled = false;
+
+    const applyCategoryFromUrl = async () => {
+      if (!categorySlug) {
+        setUrlCategoryResolved(true);
+        return;
+      }
+
+      try {
+        setUrlCategoryResolved(false);
+        const result = await getCategoryBySlug(categorySlug);
+        if (cancelled) return;
+
+        if (result.success && result.data?.id) {
+          setSelectedCategoryId(result.data.id);
+        } else {
+          setSelectedCategoryId(null);
+        }
+      } catch (error) {
+        console.error("Error applying category from URL:", error);
+        if (!cancelled) setSelectedCategoryId(null);
+      } finally {
+        if (!cancelled) setUrlCategoryResolved(true);
+      }
+    };
+
+    applyCategoryFromUrl();
+    return () => {
+      cancelled = true;
+    };
+  }, [categorySlug]);
+
+  useEffect(() => {
+    if (userLoading) return;
+
+    if (typeParam === "restaurant") {
+      if (isRestaurantUser) {
+        setCustomerType("restaurant");
+      } else {
+        setCustomerType("individual");
+        setShowLoginModal(true);
+      }
+      return;
+    }
+
+    if (typeParam === "individual") {
+      setCustomerType("individual");
+      return;
+    }
+
+    if (isRestaurantUser) setCustomerType("restaurant");
+  }, [typeParam, userLoading, isRestaurantUser]);
+
+  useEffect(() => {
+    if (!urlCategoryResolved) return;
+
+    let cancelled = false;
+
+    const fetchProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setProductsError(null);
+
+        const result = await getProducts({
+          isActive: true,
+          categoryId: selectedCategoryId || undefined,
+        });
+
+        if (cancelled) return;
+
+        if (!result.success) {
+          setProductsError(result.error || "Failed to load products");
+          setProducts([]);
+          return;
+        }
+
+        setProducts(result.data || []);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        if (!cancelled) {
+          setProductsError("Failed to load products");
+          setProducts([]);
+        }
+      } finally {
+        if (!cancelled) setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCategoryId, urlCategoryResolved]);
+
+  useEffect(() => {
+    if (selectedFlavours.length === 0) setSelectedBox(null);
+  }, [selectedFlavours.length]);
+
+  const boxes = useMemo(
+    () => getBoxesForCustomerType(isRestaurantUser, customerType),
+    [customerType, isRestaurantUser],
+  );
 
   const currentBoxConfig = useMemo(() => {
     if (selectedBox === null) return null;
-    return boxes.find((b) => b.pieces === selectedBox);
+    return boxes.find((box) => box.pieces === selectedBox) ?? null;
   }, [selectedBox, boxes]);
 
-  const totalSelectedPieces = useMemo(
-    () => Object.values(boxSelections).reduce((sum, count) => sum + count, 0),
-    [boxSelections],
+  const selectedTypesCount = selectedFlavours.length;
+
+  const autoCounts = useMemo(
+    () => splitBoxCountEvenly(selectedBox, selectedFlavours),
+    [selectedBox, selectedFlavours],
   );
 
-  const selectedTypesCount = useMemo(
-    () => Object.values(boxSelections).filter((count) => count > 0).length,
-    [boxSelections],
+  const selectedFlavourSet = useMemo(
+    () => new Set(selectedFlavours),
+    [selectedFlavours],
   );
 
-  const remainingPieces = currentBoxConfig
-    ? currentBoxConfig.pieces - totalSelectedPieces
-    : 0;
+  const productNameLookup = useMemo(() => {
+    const lookup: Record<string, { id: string; name: string }> = {};
+    for (const product of products) {
+      lookup[product.id] = { id: product.id, name: product.name };
+    }
+    return lookup;
+  }, [products]);
 
-  const canAddType = (productId: string) => {
-    if (!currentBoxConfig) return false;
-    if (remainingPieces <= 0) return false;
-    const currentCount = boxSelections[productId] || 0;
-    if (currentCount > 0) return true;
-    return selectedTypesCount < currentBoxConfig.maxTypes;
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    setSelectedFlavours([]);
+    setSelectedBox(null);
+  };
+
+  const handleLoginSuccess = async () => {
+    const currentUser = await getCurrentUser();
+    setUser(currentUser);
+
+    setShowLoginModal(false);
+
+    if (currentUser?.userType === "RESTAURANT") {
+      setCustomerType("restaurant");
+    }
+
+    setSelectedBox(null);
+    setSelectedFlavours([]);
+
+    router.refresh();
+  };
+
+  const toggleFlavour = (productId: string) => {
+    setSelectedFlavours((prev) => {
+      if (prev.includes(productId)) return prev.filter((id) => id !== productId);
+      if (prev.length >= MAX_FLAVOURS) return prev;
+      return [...prev, productId];
+    });
   };
 
   const handleCustomerTypeChange = (type: CustomerType) => {
@@ -737,170 +502,81 @@ export default function ProductsPage() {
       setShowLoginModal(true);
       return;
     }
+
     setCustomerType(type);
     setSelectedBox(null);
-    setBoxSelections({});
-  };
-
-  const handleBoxSelect = (pieces: number) => {
-    setSelectedBox(pieces);
-    setBoxSelections({});
-  };
-
-  const handleAddPieces = (productId: string) => {
-    if (!currentBoxConfig || !canAddType(productId)) return;
-    setBoxSelections((prev) => ({
-      ...prev,
-      [productId]: (prev[productId] || 0) + 1,
-    }));
-  };
-
-  const handleRemovePieces = (productId: string) => {
-    setBoxSelections((prev) => {
-      const newCount = (prev[productId] || 0) - 1;
-      if (newCount <= 0) {
-        const { [productId]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [productId]: newCount };
-    });
-  };
-
-  const handleSetCount = (productId: string, newCount: number) => {
-    if (!currentBoxConfig) return;
-    const currentCount = boxSelections[productId] || 0;
-    const otherPiecesCount = totalSelectedPieces - currentCount;
-    const maxForThisProduct = currentBoxConfig.pieces - otherPiecesCount;
-    // Clamp the value
-    const clampedCount = Math.max(0, Math.min(newCount, maxForThisProduct));
-    // Check if we're adding a new type
-    if (currentCount === 0 && clampedCount > 0) {
-      if (selectedTypesCount >= currentBoxConfig.maxTypes) {
-        return; // Can't add new type
-      }
-    }
-    setBoxSelections((prev) => {
-      if (clampedCount <= 0) {
-        const { [productId]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [productId]: clampedCount };
-    });
+    setSelectedFlavours([]);
   };
 
   const handleAddToCart = () => {
-    if (!currentBoxConfig || totalSelectedPieces !== currentBoxConfig.pieces)
-      return;
+    if (!currentBoxConfig) return;
+    if (selectedFlavours.length === 0) return;
 
-    const selections = Object.entries(boxSelections)
-      .filter(([_, count]) => count > 0)
-      .map(([productId, count]) => {
-        const product = products.find((p) => p.id === productId);
-        return { productId, productName: product?.name || "", count };
-      });
+    const baseProduct = products.find((product) => product.id === selectedFlavours[0]);
 
-    // Get price based on customer type
-    const baseProduct = products.find((p) => p.id === selections[0]?.productId);
     const unitPrice = baseProduct
       ? customerType === "restaurant"
         ? baseProduct.priceRestaurant
         : baseProduct.priceIndividual
       : 0;
-    const totalPrice = unitPrice * currentBoxConfig.pieces;
 
-    const newItem: CartItem = {
-      productId: selections.map((s) => s.productId).join("-"),
-      productName: selections
-        .map((s) => `${s.productName} (${s.count})`)
-        .join(" + "),
+    const newItem = buildMixedSelectionCartItem({
+      selectedProductIds: selectedFlavours,
+      productsById: productNameLookup,
       boxSize: currentBoxConfig.pieces,
-      quantity: 1,
-      selections,
       unitPrice,
-      totalPrice,
-    };
+      assignedCounts: autoCounts,
+    });
 
     setCart((prev) => [...prev, newItem]);
     setSelectedBox(null);
-    setBoxSelections({});
+    setSelectedFlavours([]);
   };
 
-  if (isLoading) return <ProductsSkeleton />;
+  const selectedFlavourNames = useMemo(() => {
+    return selectedFlavours
+      .map((id) => productNameLookup[id]?.name)
+      .filter((name): name is string => Boolean(name));
+  }, [selectedFlavours, productNameLookup]);
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0ea5e9] text-white">
-        {/* Dot pattern background */}
-        <div className="absolute inset-0 opacity-[0.07]">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMThjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] bg-repeat" />
-        </div>
+      <PageHero
+        badge={t("Hero.Badge")}
+        title={t("Hero.Title")}
+        description={t("Hero.Subtitle")}
+      />
 
-        {/* Decorative blobs */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent)]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[var(--primary)]/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full mb-4"
-          >
-            {t("Hero.Badge")}
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
-            style={{ color: "white" }}
-          >
-            {t("Hero.Title")}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-lg text-white/80 max-w-2xl mx-auto"
-          >
-            {t("Hero.Subtitle")}
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Customer Type Toggle */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-4 mb-8"
         >
           <h2 className="text-lg font-medium text-[var(--text-secondary)]">
             {t("CustomerType.Title")}
           </h2>
+
           <div className="flex gap-4">
             <button
               onClick={() => handleCustomerTypeChange("individual")}
-              className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${
-                customerType === "individual"
-                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                  : "border-[var(--border)] hover:border-[var(--primary)]/50"
-              }`}
+              className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${customerType === "individual"
+                ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                : "border-[var(--border)] hover:border-[var(--primary)]/50"
+                }`}
             >
               <User
-                className={`w-5 h-5 ${
-                  customerType === "individual"
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-muted)]"
-                }`}
+                className={`w-5 h-5 ${customerType === "individual"
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--text-muted)]"
+                  }`}
               />
               <span
-                className={`font-medium ${
-                  customerType === "individual"
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-primary)]"
-                }`}
+                className={`font-medium ${customerType === "individual"
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--text-primary)]"
+                  }`}
               >
                 {t("CustomerType.Individual")}
               </span>
@@ -911,25 +587,22 @@ export default function ProductsPage() {
 
             <button
               onClick={() => handleCustomerTypeChange("restaurant")}
-              className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${
-                customerType === "restaurant"
-                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                  : "border-[var(--border)] hover:border-[var(--primary)]/50"
-              }`}
+              className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${customerType === "restaurant"
+                ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                : "border-[var(--border)] hover:border-[var(--primary)]/50"
+                }`}
             >
               <Building2
-                className={`w-5 h-5 ${
-                  customerType === "restaurant"
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-muted)]"
-                }`}
+                className={`w-5 h-5 ${customerType === "restaurant"
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--text-muted)]"
+                  }`}
               />
               <span
-                className={`font-medium ${
-                  customerType === "restaurant"
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-primary)]"
-                }`}
+                className={`font-medium ${customerType === "restaurant"
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--text-primary)]"
+                  }`}
               >
                 {t("CustomerType.Restaurant")}
               </span>
@@ -951,169 +624,142 @@ export default function ProductsPage() {
           )}
         </motion.div>
 
-        {/* Box Size Selection */}
+        {/* Step 1: Flavours */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 text-center">
-            {t("BoxSelection.Title")}
-          </h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            {boxes.map((box) => (
-              <button
-                key={box.pieces}
-                onClick={() => handleBoxSelect(box.pieces)}
-                className={`px-6 py-4 rounded-xl border-2 transition-all ${
-                  selectedBox === box.pieces
-                    ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                    : "border-[var(--border)] hover:border-[var(--primary)]/50 bg-[var(--bg-card)]"
-                }`}
-              >
-                <div
-                  className={`text-2xl font-bold ${
-                    selectedBox === box.pieces
-                      ? "text-[var(--primary)]"
-                      : "text-[var(--text-primary)]"
-                  }`}
-                >
-                  {box.pieces}
-                </div>
-                <div className="text-sm text-[var(--text-secondary)]">
-                  {t("BoxSelection.Pieces")}
-                </div>
-                <div className="text-xs text-[var(--text-muted)] mt-1">
-                  {t("BoxSelection.MaxTypes", { count: box.maxTypes })}
-                </div>
-              </button>
-            ))}
-          </div>
-        </motion.div>
+          {selectedTypesCount >= MAX_FLAVOURS && (
+            <div className="bg-[var(--warning-light)] border border-[var(--warning)] rounded-xl p-4 mb-6 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-[var(--warning)]" />
+              <p className="text-sm text-[var(--warning)]">
+                {t("Progress.MaxTypesReached", { count: MAX_FLAVOURS })}
+              </p>
+            </div>
+          )}
 
-        {/* Products Grid - Shows when box is selected */}
-        {selectedBox !== null && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            {/* Progress Bar */}
-            <div className="bg-[var(--bg-card)] rounded-xl p-4 mb-6 border border-[var(--border)]">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-[var(--text-secondary)]">
-                  {t("Progress.Selected")}: {totalSelectedPieces} /{" "}
-                  {selectedBox}
-                </span>
-                <span className="text-sm font-medium text-[var(--text-primary)]">
-                  {t("Progress.Remaining")}: {remainingPieces}
-                </span>
-              </div>
-              <div className="h-2 bg-[var(--bg-muted)] rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${(totalSelectedPieces / selectedBox) * 100}%`,
-                  }}
-                  className="h-full bg-[var(--primary)] rounded-full"
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-64 flex-shrink-0">
+              <div className="sticky top-4">
+                <CategorySelector
+                  selectedCategoryId={selectedCategoryId}
+                  onCategoryChange={handleCategoryChange}
                 />
               </div>
             </div>
 
-            {/* Type Limit Warning */}
-            {selectedTypesCount >= (currentBoxConfig?.maxTypes || 2) && (
-              <div className="bg-[var(--warning-light)] border border-[var(--warning)] rounded-xl p-4 mb-6 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-[var(--warning)]" />
-                <p className="text-sm text-[var(--warning)]">
-                  {t("Progress.MaxTypesReached", {
-                    count: currentBoxConfig?.maxTypes || 2,
-                  })}
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                {t("Flavours.Title")}
+              </h3>
+
+              {selectedFlavourNames.length > 0 && (
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                  Selected:{" "}
+                  <span className="font-semibold text-[var(--text-primary)]">
+                    {selectedFlavourNames.join(" + ")}
+                  </span>
                 </p>
-              </div>
-            )}
+              )}
 
-            {/* Tip for direct quantity input */}
-            <div className="bg-[var(--bg-muted)] rounded-xl p-3 mb-6 flex items-center gap-3">
-              <span className="text-sm text-[var(--text-secondary)]">
-                💡 Tip: Click on the quantity number to type directly instead of
-                using +/- buttons
-              </span>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Category Selector - Left Side */}
-              <div className="lg:w-64 flex-shrink-0">
-                <div className="sticky top-4">
-                  <CategorySelector
-                    selectedCategoryId={selectedCategoryId}
-                    onCategoryChange={handleCategoryChange}
-                  />
+              {productsError && (
+                <div className="bg-[var(--danger-light)] border border-[var(--danger)] rounded-xl p-4 mb-6 text-[var(--danger)]">
+                  {productsError}
                 </div>
-              </div>
+              )}
 
-              {/* Products Grid - Right Side */}
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-                  {t("Flavours.Title")}
-                </h3>
+              {productsLoading ? (
+                <ProductsGridSkeleton />
+              ) : products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      selectedCount={boxSelections[product.id] || 0}
-                      canAdd={canAddType(product.id)}
-                      maxAddable={remainingPieces}
-                      onAdd={() => handleAddPieces(product.id)}
-                      onRemove={() => handleRemovePieces(product.id)}
-                      onSetCount={(count) => handleSetCount(product.id, count)}
-                      isBoxSelected={selectedBox !== null}
-                      customerType={customerType}
-                    />
-                  ))}
+                  {products.map((product) => {
+                    const isSelected = selectedFlavourSet.has(product.id);
+                    const assignedCount = autoCounts[product.id] || 0;
+                    const selectionDisabled =
+                      !isSelected && selectedFlavours.length >= MAX_FLAVOURS;
+
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        isSelected={isSelected}
+                        assignedCount={assignedCount}
+                        showAssignedCount={selectedBox !== null}
+                        onToggle={() => toggleFlavour(product.id)}
+                        selectionDisabled={selectionDisabled}
+                        customerType={customerType}
+                      />
+                    );
+                  })}
                 </div>
-
-                {products.length === 0 && (
-                  <div className="text-center py-12">
-                    <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
-                    <p className="text-[var(--text-secondary)]">
-                      {t("Flavours.NoProducts")}
-                    </p>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div className="text-center py-12 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl">
+                  <Package className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
+                  <p className="text-[var(--text-secondary)]">
+                    {t("Flavours.NoProducts")}
+                  </p>
+                </div>
+              )}
             </div>
+          </div>
+        </motion.div>
 
-            {/* Add to Cart Button */}
-            {totalSelectedPieces === selectedBox && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-8 text-center"
-              >
-                <button
-                  onClick={handleAddToCart}
-                  className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all hover:scale-105"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-                  }}
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {t("AddToCart")}
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </motion.div>
-            )}
+        {/* Step 2: Box size (after selecting flavours) */}
+        {selectedFlavours.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 text-center">
+              {t("BoxSelection.Title")}
+            </h3>
+
+            <BoxSizeSelector
+              boxes={boxes}
+              selectedBox={selectedBox}
+              onSelect={setSelectedBox}
+              piecesLabel={t("BoxSelection.Pieces")}
+              maxTypesLabel={(count) => t("BoxSelection.MaxTypes", { count })}
+            />
+          </motion.div>
+        )}
+
+        {/* Step 3: Add to cart */}
+        {selectedFlavours.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 text-center"
+          >
+            <button
+              onClick={canAddToCart ? handleAddToCart : undefined}
+              disabled={!canAddToCart}
+              className={`inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white text-lg transition-all
+                ${canAddToCart
+                  ? "hover:scale-105 cursor-pointer opacity-100"
+                  : "opacity-60 cursor-not-allowed hover:scale-100 pointer-events-none"
+                }
+              `}
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
+              }}
+              title={!canAddToCart ? "Choose a box size first" : undefined}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {t("AddToCart")}
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </motion.div>
         )}
 
         {/* Wholesale CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.1 }}
           className="bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-hover)] rounded-2xl p-8 text-center text-white mt-12"
         >
           <h3 className="text-2xl font-bold mb-3" style={{ color: "white" }}>
@@ -1131,7 +777,6 @@ export default function ProductsPage() {
         </motion.div>
       </section>
 
-      {/* Login Modal */}
       <AnimatePresence>
         {showLoginModal && (
           <LoginModal
@@ -1141,13 +786,16 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
 
-      {/* Cart Preview */}
-      {cart.length > 0 && (
+      {cartLoaded && cart.length > 0 && (
         <CartPreview
           cart={cart}
           onRemove={(index) =>
             setCart((prev) => prev.filter((_, i) => i !== index))
           }
+          title={tCart("Title")}
+          totalLabel={tCart("Total")}
+          checkoutLabel={tCart("Checkout")}
+          boxLabel={(count) => tOrderReview("BoxOf", { count })}
         />
       )}
     </div>

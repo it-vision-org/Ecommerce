@@ -1,65 +1,73 @@
 "use server";
 
-import { db } from "@monkeyprint/db";
-import { Prisma } from "@monkeyprint/db";
+import { db, Prisma } from "@monkeyprint/db";
 import { revalidatePath } from "next/cache";
-
-// Types
-export type ProductWithCategory = Prisma.ProductGetPayload<{
-  include: { category: true };
-}>;
-
-// Serialized version for client components
-export type SerializedProductWithCategory = Omit<
+import {
+  createCategory as createCategoryAction,
+  getCategories as getCategoriesAction,
+} from "@/actions/categoriesAction";
+import type {
+  CreateCategoryInput,
+  CreateProductInput,
+  GetProductsOptions,
   ProductWithCategory,
-  "priceIndividual" | "priceRestaurant" | "createdAt" | "updatedAt" | "category"
+  SerializedCategory,
+  SerializedProductWithCategory,
+  UpdateProductInput,
+} from "@/types";
+
+export type {
+  CreateCategoryInput,
+  CreateProductInput,
+  GetProductsOptions,
+  ProductWithCategory,
+  SerializedProductWithCategory,
+  UpdateProductInput,
+} from "@/types";
+
+const PRODUCT_REVALIDATION_PATHS = ["/", "/products", "/dashboard/products"] as const;
+const DEFAULT_CATEGORY_SLUG = "general";
+
+type LegacyCategoryForProductAction = Omit<
+  SerializedCategory,
+  "createdAt" | "updatedAt"
 > & {
-  priceIndividual: number;
-  priceRestaurant: number;
-  createdAt: string;
-  updatedAt: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-    description: string | null;
-    image: string | null;
-    order: number;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-export type CreateProductInput = {
-  name: string;
-  slug: string;
-  description?: string;
-  priceIndividual: number;
-  priceRestaurant: number;
-  unit?: string;
-  stock?: number;
-  images?: string[];
-  isFeatured?: boolean;
-  isActive?: boolean;
-  order?: number;
-  categoryId?: string;
-};
+function revalidateProductPaths(extraPaths: string[] = []) {
+  const allPaths = new Set<string>([...PRODUCT_REVALIDATION_PATHS, ...extraPaths]);
+  for (const path of allPaths) {
+    revalidatePath(path);
+  }
+}
 
-export type UpdateProductInput = Partial<CreateProductInput> & {
-  id: string;
-};
+function isPrismaNotFoundError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2025"
+  );
+}
 
-export type CreateCategoryInput = {
-  name: string;
-  slug?: string;
-  description?: string;
-  image?: string;
-  order?: number;
-  isActive?: boolean;
-};
+function normalizeSlug(rawValue: string): string {
+  return rawValue
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-// Helper function to serialize product
+function sanitizeLimit(value: number | undefined, fallback = 50, max = 200): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  return Math.min(Math.max(Math.trunc(value), 1), max);
+}
+
+function sanitizeOffset(value: number | undefined): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0;
+  return Math.max(Math.trunc(value), 0);
+}
+
 function serializeProduct(
   product: ProductWithCategory,
 ): SerializedProductWithCategory {
@@ -77,47 +85,85 @@ function serializeProduct(
   };
 }
 
+function hydrateLegacyCategory(
+  category: SerializedCategory,
+): LegacyCategoryForProductAction {
+  return {
+    ...category,
+    createdAt: new Date(category.createdAt),
+    updatedAt: new Date(category.updatedAt),
+  };
+}
+
+async function getOrCreateDefaultCategoryId(): Promise<string> {
+  const defaultCategory = await db.category.upsert({
+    where: { slug: DEFAULT_CATEGORY_SLUG },
+    update: {},
+    create: {
+      name: "General",
+      slug: DEFAULT_CATEGORY_SLUG,
+      description: "Default category for products",
+      isActive: true,
+    },
+    select: { id: true },
+  });
+
+  return defaultCategory.id;
+}
+
+async function getProductByUnique(where: Prisma.ProductWhereUniqueInput) {
+  try {
+    const product = await db.product.findUnique({
+      where,
+      include: { category: true },
+    });
+
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
+    return { success: true, data: serializeProduct(product) };
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return { success: false, error: "Failed to fetch product" };
+  }
+}
+
 // ──────────────────────────────────────────────
 // GET Products
 // ──────────────────────────────────────────────
 
-export async function getProducts(options?: {
-  categoryId?: string;
-  isFeatured?: boolean;
-  isActive?: boolean;
-  search?: string;
-  limit?: number;
-  offset?: number;
-  sortBy?: "name" | "priceIndividual" | "createdAt" | "order";
-  sortOrder?: "asc" | "desc";
-}) {
+export async function getProducts(options: GetProductsOptions = {}) {
   try {
-    const {
-      categoryId,
-      isFeatured,
-      isActive,
-      search,
-      limit = 50,
-      offset = 0,
-      sortBy = "order",
-      sortOrder = "asc",
-    } = options || {};
+    const limit = sanitizeLimit(options.limit, 50, 200);
+    const offset = sanitizeOffset(options.offset);
+
+    const sortBy = options.sortBy ?? "order";
+    const sortOrder = options.sortOrder ?? "asc";
+    const searchTerm = options.search?.trim();
 
     const where: Prisma.ProductWhereInput = {};
 
-    if (categoryId) {
-      where.categoryId = categoryId;
+    if (options.categoryId) {
+      where.categoryId = options.categoryId;
     }
-    if (typeof isFeatured === "boolean") {
-      where.isFeatured = isFeatured;
+
+    if (options.excludeId?.trim()) {
+      where.NOT = { id: options.excludeId.trim() };
     }
-    if (typeof isActive === "boolean") {
-      where.isActive = isActive;
+
+    if (typeof options.isFeatured === "boolean") {
+      where.isFeatured = options.isFeatured;
     }
-    if (search) {
+
+    if (typeof options.isActive === "boolean") {
+      where.isActive = options.isActive;
+    }
+
+    if (searchTerm) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { description: { contains: searchTerm, mode: "insensitive" } },
       ];
     }
 
@@ -125,71 +171,53 @@ export async function getProducts(options?: {
       db.product.findMany({
         where,
         include: { category: true },
-        orderBy: { [sortBy]: sortOrder },
+        orderBy: {
+          [sortBy]: sortOrder,
+        } as Prisma.ProductOrderByWithRelationInput,
         take: limit,
         skip: offset,
       }),
       db.product.count({ where }),
     ]);
 
-    // Serialize products before returning
-    const serializedProducts = products.map(serializeProduct);
-
-    return { success: true, data: serializedProducts, total };
+    return {
+      success: true,
+      data: products.map(serializeProduct),
+      total,
+    };
   } catch (error) {
     console.error("Error fetching products:", error);
     return {
       success: false,
       error: "Failed to fetch products",
-      data: [],
+      data: [] as SerializedProductWithCategory[],
       total: 0,
     };
   }
 }
 
 export async function getProductBySlug(slug: string) {
-  try {
-    const product = await db.product.findUnique({
-      where: { slug },
-      include: { category: true },
-    });
-
-    if (!product) {
-      return { success: false, error: "Product not found" };
-    }
-
-    return { success: true, data: serializeProduct(product) };
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    return { success: false, error: "Failed to fetch product" };
+  const normalizedSlug = normalizeSlug(slug);
+  if (!normalizedSlug) {
+    return { success: false, error: "Product slug is invalid" };
   }
+
+  return getProductByUnique({ slug: normalizedSlug });
 }
 
 export async function getProductById(id: string) {
-  try {
-    const product = await db.product.findUnique({
-      where: { id },
-      include: { category: true },
-    });
-
-    if (!product) {
-      return { success: false, error: "Product not found" };
-    }
-
-    return { success: true, data: serializeProduct(product) };
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    return { success: false, error: "Failed to fetch product" };
-  }
+  return getProductByUnique({ id });
 }
 
 export async function getFeaturedProducts(limit = 8) {
   try {
+    const safeLimit = sanitizeLimit(limit, 8, 50);
+
     const products = await db.product.findMany({
       where: { isFeatured: true, isActive: true },
       include: { category: true },
       orderBy: { order: "asc" },
-      take: limit,
+      take: safeLimit,
     });
 
     return { success: true, data: products.map(serializeProduct) };
@@ -198,7 +226,7 @@ export async function getFeaturedProducts(limit = 8) {
     return {
       success: false,
       error: "Failed to fetch featured products",
-      data: [],
+      data: [] as SerializedProductWithCategory[],
     };
   }
 }
@@ -209,9 +237,28 @@ export async function getFeaturedProducts(limit = 8) {
 
 export async function createProduct(input: CreateProductInput) {
   try {
-    // Check if product with this slug already exists
+    const normalizedName = input.name.trim();
+    if (!normalizedName) {
+      return { success: false, error: "Product name is required" };
+    }
+
+    const slug = normalizeSlug(input.slug || normalizedName);
+    if (!slug) {
+      return { success: false, error: "Product slug is invalid" };
+    }
+
+    if (
+      !Number.isFinite(input.priceIndividual) ||
+      !Number.isFinite(input.priceRestaurant) ||
+      input.priceIndividual < 0 ||
+      input.priceRestaurant < 0
+    ) {
+      return { success: false, error: "Product price values are invalid" };
+    }
+
     const existingProduct = await db.product.findUnique({
-      where: { slug: input.slug },
+      where: { slug },
+      select: { id: true },
     });
 
     if (existingProduct) {
@@ -221,46 +268,36 @@ export async function createProduct(input: CreateProductInput) {
       };
     }
 
-    // If no categoryId provided, get or create a default category
-    let categoryId = input.categoryId;
-    if (!categoryId) {
-      let defaultCategory = await db.category.findFirst({
-        where: { slug: "general" },
-      });
-
-      if (!defaultCategory) {
-        defaultCategory = await db.category.create({
-          data: {
-            name: "General",
-            slug: "general",
-            description: "Default category for products",
-            isActive: true,
-          },
-        });
-      }
-      categoryId = defaultCategory.id;
-    }
+    const categoryId =
+      input.categoryId && input.categoryId.trim()
+        ? input.categoryId
+        : await getOrCreateDefaultCategoryId();
 
     const product = await db.product.create({
       data: {
-        name: input.name,
-        slug: input.slug,
-        description: input.description || null,
+        name: normalizedName,
+        slug,
+        description: input.description?.trim() || null,
         priceIndividual: new Prisma.Decimal(input.priceIndividual),
         priceRestaurant: new Prisma.Decimal(input.priceRestaurant),
-        unit: input.unit || "piece",
-        stock: input.stock || 0,
-        images: input.images || [],
-        isFeatured: input.isFeatured || false,
+        unit: input.unit?.trim() || "piece",
+        stock:
+          typeof input.stock === "number" && Number.isFinite(input.stock)
+            ? Math.max(0, Math.trunc(input.stock))
+            : 0,
+        images: (input.images ?? []).filter((image) => image.trim().length > 0),
+        isFeatured: input.isFeatured ?? false,
         isActive: input.isActive ?? true,
-        order: input.order || 0,
-        categoryId: categoryId,
+        order:
+          typeof input.order === "number" && Number.isFinite(input.order)
+            ? Math.max(0, Math.trunc(input.order))
+            : 0,
+        categoryId,
       },
       include: { category: true },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths([`/products/${product.slug}`]);
 
     return { success: true, data: serializeProduct(product) };
   } catch (error) {
@@ -277,43 +314,104 @@ export async function updateProduct(input: UpdateProductInput) {
   try {
     const { id, ...data } = input;
 
-    // Check for slug conflicts (excluding current product)
-    if (data.slug) {
-      const existingProduct = await db.product.findFirst({
+    const existingProduct = await db.product.findUnique({
+      where: { id },
+      select: { id: true, slug: true },
+    });
+
+    if (!existingProduct) {
+      return { success: false, error: "Product not found" };
+    }
+
+    const updateData: Prisma.ProductUpdateInput = {};
+
+    if (data.name !== undefined) {
+      const normalizedName = data.name.trim();
+      if (!normalizedName) {
+        return { success: false, error: "Product name cannot be empty" };
+      }
+      updateData.name = normalizedName;
+    }
+
+    if (data.slug !== undefined) {
+      const nextSlug = normalizeSlug(data.slug);
+      if (!nextSlug) {
+        return { success: false, error: "Product slug is invalid" };
+      }
+
+      const slugConflict = await db.product.findFirst({
         where: {
-          slug: data.slug,
+          slug: nextSlug,
           NOT: { id },
         },
+        select: { id: true },
       });
 
-      if (existingProduct) {
+      if (slugConflict) {
         return {
           success: false,
           error: "A product with this slug already exists",
         };
       }
+
+      updateData.slug = nextSlug;
     }
 
-    const updateData: Prisma.ProductUpdateInput = {};
+    if (data.description !== undefined) {
+      updateData.description = data.description?.trim() || null;
+    }
 
-    if (data.name !== undefined) updateData.name = data.name;
-    if (data.slug !== undefined) updateData.slug = data.slug;
-    if (data.description !== undefined)
-      updateData.description = data.description;
     if (data.priceIndividual !== undefined) {
+      if (!Number.isFinite(data.priceIndividual) || data.priceIndividual < 0) {
+        return { success: false, error: "Individual price is invalid" };
+      }
       updateData.priceIndividual = new Prisma.Decimal(data.priceIndividual);
     }
+
     if (data.priceRestaurant !== undefined) {
+      if (!Number.isFinite(data.priceRestaurant) || data.priceRestaurant < 0) {
+        return { success: false, error: "Restaurant price is invalid" };
+      }
       updateData.priceRestaurant = new Prisma.Decimal(data.priceRestaurant);
     }
-    if (data.unit !== undefined) updateData.unit = data.unit;
-    if (data.stock !== undefined) updateData.stock = data.stock;
-    if (data.images !== undefined) updateData.images = data.images;
-    if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
-    if (data.isActive !== undefined) updateData.isActive = data.isActive;
-    if (data.order !== undefined) updateData.order = data.order;
+
+    if (data.unit !== undefined) {
+      updateData.unit = data.unit.trim() || "piece";
+    }
+
+    if (data.stock !== undefined) {
+      if (!Number.isFinite(data.stock) || data.stock < 0) {
+        return { success: false, error: "Stock value is invalid" };
+      }
+      updateData.stock = Math.trunc(data.stock);
+    }
+
+    if (data.images !== undefined) {
+      updateData.images = data.images.filter((image) => image.trim().length > 0);
+    }
+
+    if (data.isFeatured !== undefined) {
+      updateData.isFeatured = data.isFeatured;
+    }
+
+    if (data.isActive !== undefined) {
+      updateData.isActive = data.isActive;
+    }
+
+    if (data.order !== undefined) {
+      if (!Number.isFinite(data.order)) {
+        return { success: false, error: "Order value is invalid" };
+      }
+      updateData.order = Math.max(0, Math.trunc(data.order));
+    }
+
     if (data.categoryId !== undefined) {
-      updateData.category = { connect: { id: data.categoryId } };
+      const nextCategoryId =
+        data.categoryId && data.categoryId.trim()
+          ? data.categoryId
+          : await getOrCreateDefaultCategoryId();
+
+      updateData.category = { connect: { id: nextCategoryId } };
     }
 
     const product = await db.product.update({
@@ -322,12 +420,19 @@ export async function updateProduct(input: UpdateProductInput) {
       include: { category: true },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths([
+      `/products/${existingProduct.slug}`,
+      `/products/${product.slug}`,
+    ]);
 
     return { success: true, data: serializeProduct(product) };
   } catch (error) {
     console.error("Error updating product:", error);
+
+    if (isPrismaNotFoundError(error)) {
+      return { success: false, error: "Product not found" };
+    }
+
     return { success: false, error: "Failed to update product" };
   }
 }
@@ -338,6 +443,15 @@ export async function updateProduct(input: UpdateProductInput) {
 
 export async function deleteProduct(id: string) {
   try {
+    const existingProduct = await db.product.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
+    if (!existingProduct) {
+      return { success: false, error: "Product not found" };
+    }
+
     const orderItemCount = await db.orderItem.count({
       where: { productId: id },
     });
@@ -348,8 +462,7 @@ export async function deleteProduct(id: string) {
         data: { isActive: false },
       });
 
-      revalidatePath("/products");
-      revalidatePath("/dashboard/products");
+      revalidateProductPaths([`/products/${existingProduct.slug}`]);
 
       return {
         success: true,
@@ -362,28 +475,49 @@ export async function deleteProduct(id: string) {
       where: { id },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths([`/products/${existingProduct.slug}`]);
 
     return { success: true, message: "Product deleted successfully" };
   } catch (error) {
     console.error("Error deleting product:", error);
+
+    if (isPrismaNotFoundError(error)) {
+      return { success: false, error: "Product not found" };
+    }
+
     return { success: false, error: "Failed to delete product" };
   }
 }
 
 export async function deleteProducts(ids: string[]) {
   try {
+    const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+
+    if (uniqueIds.length === 0) {
+      return {
+        success: true,
+        message: "No products selected",
+        deleted: 0,
+        deactivated: 0,
+      };
+    }
+
+    const productMeta = await db.product.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, slug: true },
+    });
+
     const productsWithOrders = await db.orderItem.groupBy({
       by: ["productId"],
-      where: { productId: { in: ids } },
+      where: { productId: { in: uniqueIds } },
     });
 
     const productIdsWithOrders = new Set(
-      productsWithOrders.map((p) => p.productId),
+      productsWithOrders.map((product) => product.productId),
     );
-    const productsToDelete = ids.filter((id) => !productIdsWithOrders.has(id));
-    const productsToDeactivate = ids.filter((id) =>
+
+    const productsToDelete = uniqueIds.filter((id) => !productIdsWithOrders.has(id));
+    const productsToDeactivate = uniqueIds.filter((id) =>
       productIdsWithOrders.has(id),
     );
 
@@ -400,8 +534,7 @@ export async function deleteProducts(ids: string[]) {
       });
     }
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths(productMeta.map((product) => `/products/${product.slug}`));
 
     return {
       success: true,
@@ -423,7 +556,7 @@ export async function toggleProductStatus(id: string) {
   try {
     const product = await db.product.findUnique({
       where: { id },
-      select: { isActive: true },
+      select: { isActive: true, slug: true },
     });
 
     if (!product) {
@@ -433,13 +566,12 @@ export async function toggleProductStatus(id: string) {
     const updated = await db.product.update({
       where: { id },
       data: { isActive: !product.isActive },
-      include: { category: true }, // Add this
+      include: { category: true },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths([`/products/${product.slug}`]);
 
-    return { success: true, data: serializeProduct(updated) }; // Serialize here
+    return { success: true, data: serializeProduct(updated) };
   } catch (error) {
     console.error("Error toggling product status:", error);
     return { success: false, error: "Failed to toggle product status" };
@@ -450,7 +582,7 @@ export async function toggleProductFeatured(id: string) {
   try {
     const product = await db.product.findUnique({
       where: { id },
-      select: { isFeatured: true },
+      select: { isFeatured: true, slug: true },
     });
 
     if (!product) {
@@ -460,13 +592,12 @@ export async function toggleProductFeatured(id: string) {
     const updated = await db.product.update({
       where: { id },
       data: { isFeatured: !product.isFeatured },
-      include: { category: true }, // Add this
+      include: { category: true },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
+    revalidateProductPaths([`/products/${product.slug}`]);
 
-    return { success: true, data: serializeProduct(updated) }; // Serialize here
+    return { success: true, data: serializeProduct(updated) };
   } catch (error) {
     console.error("Error toggling product featured:", error);
     return {
@@ -477,65 +608,50 @@ export async function toggleProductFeatured(id: string) {
 }
 
 // ──────────────────────────────────────────────
-// GET Categories
+// Category Compatibility Wrappers
 // ──────────────────────────────────────────────
 
 export async function getCategories() {
-  try {
-    const categories = await db.category.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-    });
+  const result = await getCategoriesAction({
+    isActive: true,
+    sortBy: "order",
+    sortOrder: "asc",
+    limit: 500,
+  });
 
-    return { success: true, data: categories };
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    return { success: false, error: "Failed to fetch categories", data: [] };
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error || "Failed to fetch categories",
+      data: [] as LegacyCategoryForProductAction[],
+    };
   }
+
+  return {
+    success: true,
+    data: (result.data ?? []).map(hydrateLegacyCategory),
+  };
 }
 
-// ──────────────────────────────────────────────
-// CREATE Category
-// ──────────────────────────────────────────────
-
 export async function createCategory(input: CreateCategoryInput) {
-  try {
-    const slug =
-      input.slug ||
-      input.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+  const result = await createCategoryAction(input);
 
-    const existingCategory = await db.category.findUnique({
-      where: { slug },
-    });
-
-    if (existingCategory) {
-      return {
-        success: false,
-        error: "A category with this slug already exists",
-      };
-    }
-
-    const category = await db.category.create({
-      data: {
-        name: input.name,
-        slug,
-        description: input.description || null,
-        image: input.image || null,
-        order: input.order || 0,
-        isActive: input.isActive ?? true,
-      },
-    });
-
-    revalidatePath("/products");
-    revalidatePath("/dashboard/products");
-    revalidatePath("/dashboard/categories");
-
-    return { success: true, data: category };
-  } catch (error) {
-    console.error("Error creating category:", error);
-    return { success: false, error: "Failed to create category" };
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error || "Failed to create category",
+    };
   }
+
+  if (!result.data) {
+    return {
+      success: false,
+      error: "Failed to create category",
+    };
+  }
+
+  return {
+    success: true,
+    data: hydrateLegacyCategory(result.data),
+  };
 }

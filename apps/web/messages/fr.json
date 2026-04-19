@@ -564,13 +564,28 @@
       "SigningIn": "Connexion en cours...",
       "Or": "ou",
       "NoAccount": "Vous n'avez pas de compte restaurant ?",
-      "SignUp": "Créer un compte restaurant"
+      "SignUp": "Créer un compte restaurant",
+      "ForgotPassword": "Mot de passe oublié ?",
+      "SubmitButton": "Se connecter",
+      "SubmittingButton": "Connexion en cours..."
     },
     "CartPreview": {
       "Title": "Votre panier",
       "Total": "Total",
       "Checkout": "Passer à la caisse"
     }
+  },
+  "ProductDetailPage": {
+    "BackToProducts": "Retour aux produits",
+    "CategoryFallback": "Produit",
+    "ExploreCategory": "Explorer la Catégorie",
+    "NoDescription": "Aucune description fournie.",
+    "IndividualPrice": "Prix individuel",
+    "RestaurantPrice": "Prix restaurant",
+    "PerUnit": "par {unit}",
+    "UnitFallback": "unité",
+    "RestaurantNote": "Le tarif restaurant nécessite un compte restaurant (connectez-vous depuis la page produits).",
+    "SimilarProducts": "Produits similaires"
   },
   "CheckoutPage": {
     "Title": "Paiement",
