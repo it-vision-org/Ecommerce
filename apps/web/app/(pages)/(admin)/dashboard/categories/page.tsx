@@ -10,7 +10,6 @@ import {
   Eye,
   EyeOff,
   X,
-  Check,
   AlertCircle,
   Loader2,
   Image as ImageIcon,
@@ -26,6 +25,7 @@ import {
   CreateCategoryInput,
 } from "@/actions/categoriesAction";
 import Uploader from "@/components/admin/Uploader";
+import PrimaryButton from "@/components/ui/PrimaryButton";
 
 // ── Category Form Modal ───────────────────────────────────────────────────────
 
@@ -287,14 +287,16 @@ function CategoryFormModal({
             >
               Cancel
             </button>
-            <button
+            <PrimaryButton
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              variant="primary"
+              className="flex-1 items-center gap-2 px-4 py-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? "Update" : "Create"}
-            </button>
+            </PrimaryButton>
+
           </div>
         </form>
       </motion.div>
@@ -376,11 +378,11 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Categories</h1>
-        <p className="text-gray-600">Manage your product categories</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] bg-clip-text text-transparent">Categories</h1>
+        <p className="text-sm text-[var(--text-secondary)]">Manage your product categories</p>
       </div>
 
       {/* Actions Bar */}
@@ -398,13 +400,15 @@ export default function CategoriesPage() {
         </div>
 
         {/* Add Button */}
-        <button
+        <PrimaryButton
+          as="button"
           onClick={() => setShowFormModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+          variant="primary"
+          className="flex items-center gap-2 px-4 py-2"
         >
           <Plus className="w-5 h-5" />
           Add Category
-        </button>
+        </PrimaryButton>
       </div>
 
       {/* Categories Grid */}
@@ -426,13 +430,13 @@ export default function CategoriesPage() {
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
           <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">No categories found</p>
-          <button
+          <PrimaryButton
             onClick={() => setShowFormModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+            variant="primary"
+            className="flex-1 items-center gap-2 px-4 py-2"
           >
-            <Plus className="w-5 h-5" />
             Add Your First Category
-          </button>
+          </PrimaryButton>
         </div>
       ) : filteredCategories.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
@@ -490,11 +494,10 @@ export default function CategoriesPage() {
                 <div className="flex items-center gap-2 mt-auto pt-3">
                   <button
                     onClick={() => handleToggleStatus(category.id)}
-                    className={`flex-1 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${
-                      category.isActive
-                        ? "bg-green-50 text-green-700 hover:bg-green-100"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`flex-1 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${category.isActive
+                      ? "bg-green-50 text-green-700 hover:bg-green-100"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     {category.isActive ? (
                       <Eye className="w-4 h-4 inline mr-1" />
