@@ -3,7 +3,8 @@
 import React, { useRef, useState } from "react";
 import { useUploadThing } from "@/uploadthing";
 import { toast } from "react-hot-toast";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload } from "lucide-react";
+import PrimaryButton from "@/components/ui/PrimaryButton"; // adjust path if needed
 
 interface UploadResponse {
   ufsUrl: string;
@@ -12,7 +13,6 @@ interface UploadResponse {
 
 interface UploaderProps {
   handleUploadComplete: (res: UploadResponse[]) => void;
-  /** Current image URL — when set, the button is hidden */
   value?: string | null;
   buttonText?: string;
   maxFileCount?: number;
@@ -51,7 +51,7 @@ export default function Uploader({
     e.target.value = "";
   };
 
-  // Hide the button once an image is present (and not currently uploading)
+  // Hide button if already has value (and not uploading)
   if (value && !isUploading) return null;
 
   return (
@@ -64,28 +64,20 @@ export default function Uploader({
         className="hidden"
         onChange={handleFileChange}
       />
-      <button
-        type="button"
+
+      <PrimaryButton
+        as="button"
         onClick={handleClick}
         disabled={isUploading}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] hover:shadow-lg transition-all duration-200"
-        style={{
-          background: "linear-gradient(135deg, #2563eb, #3b82f6)",
-          boxShadow: "0 4px 14px rgba(37, 99, 235, 0.3)",
-        }}
+        loading={isUploading}
+        loadingText={
+          progress !== null ? `${progress}%` : "Uploading..."
+        }
+        className="flex items-center gap-2"
       >
-        {isUploading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-            <span>{progress !== null ? `${progress}%` : "Uploading..."}</span>
-          </>
-        ) : (
-          <>
-            <Upload className="w-4 h-4 flex-shrink-0" />
-            <span>{buttonText}</span>
-          </>
-        )}
-      </button>
+        <Upload className="w-4 h-4 flex-shrink-0" />
+        {buttonText}
+      </PrimaryButton>
     </>
   );
 }
