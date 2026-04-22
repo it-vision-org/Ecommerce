@@ -9,6 +9,7 @@ import {
   type ContactSubmission,
 } from "@/actions/contactActions";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import Header from "@/components/admin/Header";
 import { toast } from "react-hot-toast";
 
 type FilterType = "all" | "unread" | "read";
@@ -225,127 +226,32 @@ export default function AdminContactsPage() {
       style={{ background: "var(--color-neutral-50)" }}
     >
       {/* Header */}
-      <div
-        className="border-b"
-        style={{
-          background:
-            "linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
-          borderColor: "#075985",
-        }}
-      >
-        <div className="max-w-[1600px] mx-auto px-6 py-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
-            </div>
-            <div>
-              <h1
-                className="text-2xl font-bold text-white"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                Contact Submissions
-              </h1>
-              <p className="text-sm text-white/80 mt-0.5">
-                Manage customer inquiries & wholesale requests
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
+      <div className="max-w-[1600px] mx-auto px-6 pt-8 pb-2">
+        <Header
+          title="Contact Submissions"
+          description="Manage customer inquiries and wholesale requests"
+          descriptionClassName="text-sm text-[var(--color-neutral-500)] mt-0.5"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              {
-                label: "Total",
-                value: stats.total,
-                icon: (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                ),
-              },
-              {
-                label: "Unread",
-                value: stats.unread,
-                icon: (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                ),
-              },
-              {
-                label: "Read",
-                value: stats.read,
-                icon: (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ),
-              },
+              { label: "Total", value: stats.total },
+              { label: "Unread", value: stats.unread },
+              { label: "Read", value: stats.read },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl px-4 py-3 flex items-center gap-3"
-                style={{
-                  background: "rgba(255,255,255,0.15)",
-                  backdropFilter: "blur(10px)",
-                }}
+                className="rounded-xl border border-[var(--color-neutral-200)] bg-white px-4 py-3 shadow-sm"
               >
-                <div className="text-white/80">{stat.icon}</div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  <p className="text-xs text-white/70">{stat.label}</p>
-                </div>
+                <p className="text-2xl font-bold text-[var(--color-neutral-800)] leading-none">
+                  {stat.value}
+                </p>
+                <p className="text-xs text-[var(--color-neutral-500)] mt-1">
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
-        </div>
+        </Header>
       </div>
 
       {/* Toolbar */}

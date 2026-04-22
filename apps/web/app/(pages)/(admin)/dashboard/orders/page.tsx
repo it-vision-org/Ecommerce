@@ -39,6 +39,7 @@ import {
   updateOrder,
 } from "@/actions/ordersActions";
 import { OrderStatus } from "@monkeyprint/db";
+import Header from "@/components/admin/Header";
 import toast from "react-hot-toast";
 
 const STATUS_CONFIG: Record<
@@ -859,27 +860,25 @@ export default function AdminOrdersPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Orders
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)]">
+      <Header
+        title="Orders"
+        description={
+          <>
             {statistics?.totalOrders || 0} total orders •{" "}
             {statistics?.todayOrders || 0} today
-          </p>
-        </div>
-        <button
-          onClick={fetchData}
-          disabled={isPending}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
-        >
-          <RefreshCcw
-            className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`}
-          />
-          Refresh
-        </button>
-      </div>
+          </>
+        }
+        rightContent={
+          <button
+            onClick={fetchData}
+            disabled={isPending}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
+          >
+            <RefreshCcw className={"w-4 h-4 " + (isPending ? "animate-spin" : "")} />
+            Refresh
+          </button>
+        }
+      />
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -952,11 +951,10 @@ export default function AdminOrdersPage() {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setStatusFilter("ALL")}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              statusFilter === "ALL"
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${statusFilter === "ALL"
                 ? "bg-[var(--primary)] text-white"
                 : "bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--bg)]"
-            }`}
+              }`}
           >
             All
           </button>
@@ -966,11 +964,10 @@ export default function AdminOrdersPage() {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  statusFilter === status
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${statusFilter === status
                     ? "text-white"
                     : "text-[var(--text-secondary)] hover:bg-[var(--bg)]"
-                }`}
+                  }`}
                 style={{
                   backgroundColor:
                     statusFilter === status ? config.color : "var(--bg-muted)",

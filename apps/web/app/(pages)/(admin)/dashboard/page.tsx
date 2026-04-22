@@ -19,6 +19,7 @@ import {
     FileText,
 } from "lucide-react";
 import AdminStatCard from "@/components/admin/AdminStatCard";
+import Header from "@/components/admin/Header";
 import Link from "next/link";
 
 // ──────────────────────────────────────────────
@@ -78,27 +79,23 @@ export default async function DashboardPage() {
 
     return (
         <div className="min-h-screen p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] bg-clip-text text-transparent">
-                        Dashboard
-                    </h1>
-                    <p className="text-sm text-[#64748b] mt-1">
-                        Welcome back! Here's what's happening with Seefood today.
-                    </p>
-                </div>
-                <div className="text-right">
-                    <p className="text-sm text-[#64748b]">
-                        {new Date().toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        })}
-                    </p>
-                </div>
-            </div>
+            <Header
+                title="Dashboard"
+                description="Welcome back! Here's what's happening with Seefood today."
+                descriptionClassName="text-sm text-[#64748b] mt-1"
+                rightContent={
+                    <div className="text-right">
+                        <p className="text-sm text-[#64748b]">
+                            {new Date().toLocaleDateString("en-US", {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                            })}
+                        </p>
+                    </div>
+                }
+            />
 
             <div>
                 {/* Stats Grid */}

@@ -39,6 +39,7 @@ import type {
 import toast from "react-hot-toast";
 import Uploader from "@/components/admin/Uploader";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import Header from "@/components/admin/Header";
 import DataTable, { type DataTableColumn } from "@/components/admin/DataTable";
 import ImageSlider from "@/components/main/ImageSlider";
 
@@ -999,10 +1000,10 @@ export default function AdminProductsPage() {
             min="0"
             disabled={isPending}
             className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
-                ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
-                : product.stock > 0
-                  ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
-                  : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
+              ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
+              : product.stock > 0
+                ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
+                : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
               }`}
           />
           <span className="text-xs text-[var(--text-muted)] ml-1">{product.unit}</span>
@@ -1018,8 +1019,8 @@ export default function AdminProductsPage() {
           onClick={() => handleToggleStatus(product.id)}
           disabled={isPending}
           className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
-              ? "bg-[var(--success-light)] text-[var(--success)]"
-              : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+            ? "bg-[var(--success-light)] text-[var(--success)]"
+            : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
             }`}
         >
           {product.isActive ? (
@@ -1045,8 +1046,8 @@ export default function AdminProductsPage() {
           onClick={() => handleToggleFeatured(product.id)}
           disabled={isPending}
           className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
-              ? "bg-[var(--warning-light)] text-[var(--warning)]"
-              : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+            ? "bg-[var(--warning-light)] text-[var(--warning)]"
+            : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
             }`}
         >
           <Star className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`} />
@@ -1086,29 +1087,29 @@ export default function AdminProductsPage() {
     <div className="h-[100dvh] max-h-[100dvh] overflow-hidden p-6">
       <div className="h-full overflow-y-auto space-y-6 pr-1">
         {/* Header - Always visible immediately */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] bg-clip-text text-transparent">
-              Flavours / Products
-            </h1>
-            <p className="text-sm text-[var(--text-secondary)]">
+        <Header
+          title="Flavours / Products"
+          description={
+            <>
               {totalProducts} total flavours • These are the flavour options customers
               can choose when building their boxes
-            </p>
-          </div>
-          <PrimaryButton
-            as="button"
-            onClick={() => {
-              setEditingProduct(null);
-              setShowModal(true);
-            }}
-            variant="primary"
-            className="flex items-center gap-2 px-4 py-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add Flavour
-          </PrimaryButton>
-        </div>
+            </>
+          }
+          rightContent={
+            <PrimaryButton
+              as="button"
+              onClick={() => {
+                setEditingProduct(null);
+                setShowModal(true);
+              }}
+              variant="primary"
+              className="flex items-center gap-2 px-4 py-2"
+            >
+              <Plus className="w-5 h-5" />
+              Add Flavour
+            </PrimaryButton>
+          }
+        />
 
         {/* Error Message */}
         {loadError && (

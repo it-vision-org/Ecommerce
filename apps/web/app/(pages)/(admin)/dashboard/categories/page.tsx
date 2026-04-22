@@ -25,6 +25,7 @@ import {
   CreateCategoryInput,
 } from "@/actions/categoriesAction";
 import Uploader from "@/components/admin/Uploader";
+import Header from "@/components/admin/Header";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 
 // ── Category Form Modal ───────────────────────────────────────────────────────
@@ -380,10 +381,11 @@ export default function CategoriesPage() {
   return (
     <div className="p-6 mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] bg-clip-text text-transparent">Categories</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Manage your product categories</p>
-      </div>
+      <Header
+        className="mb-8"
+        title="Categories"
+        description="Manage your product categories"
+      />
 
       {/* Actions Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
