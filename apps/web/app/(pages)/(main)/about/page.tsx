@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
+import PageHero from "@/components/main/PageHero";
+
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import {
   Sparkles,
@@ -27,6 +28,12 @@ export default async function AboutPage() {
   const locale = await getLocale();
   const direction = locale === "ar" ? "rtl" : "ltr";
   const isRTL = direction === "rtl";
+
+  const heroStats = [
+    { value: t("Hero.Stat1") },
+    { value: t("Hero.Stat2") },
+    { value: t("Hero.Stat3") },
+  ];
 
   const offerings = [
     {
@@ -73,87 +80,15 @@ export default async function AboutPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc]" dir={direction}>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0ea5e9] text-white">
-        <div className="absolute inset-0 opacity-[0.07]">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMThjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] bg-repeat" />
-        </div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#d4a853]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0ea5e9]/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
-
-        <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
-            <div className={isRTL ? "text-right" : ""}>
-              <div
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur ${isRTL ? "flex-row-reverse" : ""}`}
-              >
-                <Sparkles className="w-4 h-4 text-[#d4a853]" />
-                <span className="text-sm font-medium">{t("Hero.Badge")}</span>
-              </div>
-
-              <h1
-                className="mt-5 text-4xl md:text-5xl font-bold leading-tight"
-                style={{ color: "white" }}
-              >
-                {t("Hero.Title")}{" "}
-                <span className="text-[#d4a853]">{t("Hero.Highlight")}</span>
-              </h1>
-
-              <p className="mt-4 text-lg text-slate-200 max-w-2xl">
-                {t("Hero.Description")}
-              </p>
-
-              <div
-                className={`mt-6 flex flex-wrap gap-3 text-sm text-slate-200 ${isRTL ? "justify-end" : ""}`}
-              >
-                {[t("Hero.Stat1"), t("Hero.Stat2"), t("Hero.Stat3")].map(
-                  (stat) => (
-                    <span
-                      key={stat}
-                      className="px-3 py-2 rounded-full bg-white/10 border border-white/15"
-                    >
-                      {stat}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-lg shadow-xl">
-              <div
-                className={`flex items-center gap-3 mb-4 ${isRTL ? "flex-row-reverse text-right" : ""}`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#d4a853]/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-[#d4a853]" />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-200">
-                    {t("Commitments.Badge")}
-                  </p>
-                  <p className="text-lg font-semibold text-white">
-                    {t("Commitments.Title")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-3">
-                {commitments.map((item) => (
-                  <div
-                    key={item.text}
-                    className={`flex gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors ${isRTL ? "flex-row-reverse text-right" : ""}`}
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-[#0ea5e9]/20 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-4 h-4 text-[#7dd3fc]" />
-                    </div>
-                    <p className="text-white text-sm font-medium">
-                      {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        badge={t("Hero.Badge")}
+        badgeIcon={<Sparkles className="w-4 h-4 text-[#d4a853]" />}
+        title={t("Hero.Title")}
+        highlight={t("Hero.Highlight")}
+        description={t("Hero.Description")}
+        stats={heroStats}
+        accentColor="text-[#d4a853]"
+      />
 
       {/* Story */}
       <section className="py-16 bg-white border-b border-[#e2e8f0]">
@@ -175,7 +110,7 @@ export default async function AboutPage() {
             <p className="text-sm uppercase tracking-wider text-slate-200">
               {t("Commitments.Badge")}
             </p>
-            <h3 className="mt-2 text-xl font-bold" style={{ color: "white" }}>
+            <h3 className="mt-2 text-xl font-bold text-white">
               {t("Commitments.Title")}
             </h3>
             <ul className="mt-5 space-y-3">
