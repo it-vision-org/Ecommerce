@@ -1,4 +1,4 @@
-import { Prisma } from "@monkeyprint/db";
+import type { Prisma, OrderStatus, PaymentMethod } from "@monkeyprint/db";
 
 // ──────────────────────────────────────────────
 // Global Types
@@ -9,6 +9,10 @@ export interface ActionResult<T = undefined> {
   data?: T;
   error?: string;
 }
+
+export type PaginatedActionResult<T> = ActionResult<T> & {
+  total: number;
+};
 
 export type SortOrder = "asc" | "desc";
 
@@ -194,4 +198,174 @@ export type ContactSubmission = {
   createdAt: string;
   userId: string | null;
   user: ContactSubmissionUser | null;
+};
+
+// ──────────────────────────────────────────────
+// Dashboard Types
+// ──────────────────────────────────────────────
+
+export type DashboardStats = {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+  totalUsers: number;
+  totalCategories: number;
+  pendingOrders: number;
+  unreadContacts: number;
+  activeProducts: number;
+};
+
+export type DashboardRecentOrder = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  customerName: string;
+  total: number;
+  createdAt: string;
+};
+
+export type DashboardOrderStatusCount = {
+  status: OrderStatus;
+  count: number;
+};
+
+export type DashboardLowStockProduct = {
+  id: string;
+  name: string;
+  stock: number;
+  category: string;
+};
+
+export type DashboardRecentContact = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string | null;
+  isRead: boolean;
+  createdAt: string;
+};
+
+export type DashboardDailyRevenue = {
+  date: string;
+  revenue: number;
+};
+
+// ──────────────────────────────────────────────
+// Orders Types
+// ──────────────────────────────────────────────
+
+export type OrderWithItems = Prisma.OrderGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: true;
+      };
+    };
+    user: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+      };
+    };
+  };
+}>;
+
+export type SerializedOrderItem = {
+  id: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  productName: string;
+  productImage: string | null;
+  productId: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    images: string[];
+  };
+};
+
+export type SerializedOrder = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  address: string;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string | null;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  items: SerializedOrderItem[];
+};
+
+export type CreateOrderInput = {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  address: string;
+  notes?: string;
+  paymentMethod: PaymentMethod;
+  items: {
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+  userId?: string;
+};
+
+export type UpdateOrderInput = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  address: string;
+  notes: string | null;
+  shippingCost: number;
+  items: {
+    id: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+};
+
+export type UpdateOrderStatusInput = {
+  id: string;
+  status: OrderStatus;
+};
+
+export type OrderSortBy = "createdAt" | "total" | "orderNumber";
+
+export type GetOrdersOptions = {
+  status?: OrderStatus;
+  search?: string;
+  limit?: number;
+  offset?: number;
+  sortBy?: OrderSortBy;
+  sortOrder?: SortOrder;
+};
+
+export type OrderStatistics = {
+  totalOrders: number;
+  pendingOrders: number;
+  confirmedOrders: number;
+  processingOrders: number;
+  shippedOrders: number;
+  deliveredOrders: number;
+  cancelledOrders: number;
+  totalRevenue: number;
+  todayOrders: number;
 };
