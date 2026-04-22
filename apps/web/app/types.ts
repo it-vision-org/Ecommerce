@@ -160,3 +160,38 @@ export type CreateCategoryInput = {
 export type UpdateCategoryInput = Partial<CreateCategoryInput> & {
   id: string;
 };
+
+// ──────────────────────────────────────────────
+// Contact Types
+// ──────────────────────────────────────────────
+
+export type ContactFilterType = "all" | "unread" | "read";
+export type ContactSortType = "newest" | "oldest";
+
+export type ContactFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+};
+
+export type ContactSubmissionUser = {
+  name: string | null;
+  email: string;
+  profileImage: string | null;
+  userType: string | null;
+  role: string;
+};
+
+export type ContactSubmission = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string | null;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  userId: string | null;
+  user: ContactSubmissionUser | null;
+};
