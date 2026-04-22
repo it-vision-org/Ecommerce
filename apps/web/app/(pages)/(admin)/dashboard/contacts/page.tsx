@@ -6,20 +6,24 @@ import {
   markContactAsRead,
   markContactAsUnread,
   deleteContactSubmission,
-  type ContactSubmission,
 } from "@/actions/contactActions";
+import type {
+  ContactFilterType,
+  ContactSortType,
+  ContactSubmission,
+} from "@/types";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import Header from "@/components/admin/Header";
 import { toast } from "react-hot-toast";
 
-type FilterType = "all" | "unread" | "read";
-type SortType = "newest" | "oldest";
+const CONTACTS_PAGE_SIZE_OPTIONS = [10, 20, 30, 50];
+const DEFAULT_CONTACTS_PAGE_SIZE = 20;
 
 export default function AdminContactsPage() {
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType>("all");
-  const [sort, setSort] = useState<SortType>("newest");
+  const [filter, setFilter] = useState<ContactFilterType>("all");
+  const [sort, setSort] = useState<ContactSortType>("newest");
   const [search, setSearch] = useState("");
   const [selectedContact, setSelectedContact] =
     useState<ContactSubmission | null>(null);
@@ -28,14 +32,21 @@ export default function AdminContactsPage() {
     null,
   );
 
+  const [contactsPage, setContactsPage] = useState(1);
+  const [contactsPageSize, setContactsPageSize] = useState(
+    DEFAULT_CONTACTS_PAGE_SIZE,
+  );
+
   const fetchContacts = useCallback(async () => {
     setLoading(true);
     const result = await getContactSubmissions();
-    if (result.success && result.contacts) {
-      setContacts(result.contacts);
+
+    if (result.success && result.data) {
+      setContacts(result.data);
     } else {
-      toast.error("Failed to load contacts");
+      toast.error(result.error || "Failed to load contacts");
     }
+
     setLoading(false);
   }, []);
 
@@ -78,40 +89,96 @@ export default function AdminContactsPage() {
     [contacts],
   );
 
+  useEffect(() => {
+    setContactsPage(1);
+  }, [filter, sort, search]);
+
+  const totalContactPages = useMemo(
+    () => Math.max(1, Math.ceil(filteredContacts.length / contactsPageSize)),
+    [filteredContacts.length, contactsPageSize],
+  );
+
+  useEffect(() => {
+    if (contactsPage > totalContactPages) {
+      setContactsPage(totalContactPages);
+    }
+  }, [contactsPage, totalContactPages]);
+
+  const paginatedContacts = useMemo(() => {
+    const start = (contactsPage - 1) * contactsPageSize;
+    return filteredContacts.slice(start, start + contactsPageSize);
+  }, [filteredContacts, contactsPage, contactsPageSize]);
+
+  const canGoPrev = contactsPage > 1;
+  const canGoNext = contactsPage < totalContactPages;
+
+  const showingFrom =
+    filteredContacts.length === 0
+      ? 0
+      : (contactsPage - 1) * contactsPageSize + 1;
+
+  const showingTo =
+    filteredContacts.length === 0
+      ? 0
+      : Math.min(contactsPage * contactsPageSize, filteredContacts.length);
+
+  useEffect(() => {
+    if (!selectedContact) return;
+
+    const refreshedSelectedContact = contacts.find(
+      (contact) => contact.id === selectedContact.id,
+    );
+
+    if (!refreshedSelectedContact) {
+      setSelectedContact(null);
+      return;
+    }
+
+    if (refreshedSelectedContact !== selectedContact) {
+      setSelectedContact(refreshedSelectedContact);
+    }
+  }, [contacts, selectedContact]);
+
   const handleToggleRead = async (contact: ContactSubmission) => {
     const action = contact.isRead ? markContactAsUnread : markContactAsRead;
     const result = await action(contact.id);
+
     if (result.success) {
       setContacts((prev) =>
         prev.map((c) =>
           c.id === contact.id ? { ...c, isRead: !c.isRead } : c,
         ),
       );
+
       if (selectedContact?.id === contact.id) {
         setSelectedContact({ ...contact, isRead: !contact.isRead });
       }
+
       toast.success(contact.isRead ? "Marked as unread" : "Marked as read");
     } else {
-      toast.error("Failed to update");
+      toast.error(result.error || "Failed to update");
     }
   };
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     const result = await deleteContactSubmission(id);
+
     if (result.success) {
       setContacts((prev) => prev.filter((c) => c.id !== id));
       if (selectedContact?.id === id) setSelectedContact(null);
       toast.success("Contact deleted");
     } else {
-      toast.error("Failed to delete");
+      toast.error(result.error || "Failed to delete");
     }
+
     setDeletingId(null);
     setShowDeleteConfirm(null);
   };
 
   const handleSelectContact = async (contact: ContactSubmission) => {
     setSelectedContact(contact);
+
     if (!contact.isRead) {
       const result = await markContactAsRead(contact.id);
       if (result.success) {
@@ -123,7 +190,7 @@ export default function AdminContactsPage() {
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string | Date) => {
     const d = new Date(date);
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
@@ -135,6 +202,7 @@ export default function AdminContactsPage() {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
+
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -142,7 +210,7 @@ export default function AdminContactsPage() {
     });
   };
 
-  const formatFullDate = (date: Date) => {
+  const formatFullDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -154,20 +222,35 @@ export default function AdminContactsPage() {
   };
 
   const getSubjectColor = (subject: string | null) => {
-    if (!subject)
+    if (!subject) {
       return {
         bg: "var(--color-neutral-100)",
         text: "var(--color-neutral-600)",
       };
+    }
+
     const s = subject.toLowerCase();
-    if (s.includes("wholesale") || s.includes("export"))
+
+    if (s.includes("wholesale") || s.includes("export")) {
       return { bg: "#fffbeb", text: "#92400e" };
-    if (s.includes("order") && s.includes("issue"))
+    }
+
+    if (s.includes("order") && s.includes("issue")) {
       return { bg: "#fef2f2", text: "#dc2626" };
-    if (s.includes("restaurant")) return { bg: "#f0fdf4", text: "#16a34a" };
-    if (s.includes("product"))
+    }
+
+    if (s.includes("restaurant")) {
+      return { bg: "#f0fdf4", text: "#16a34a" };
+    }
+
+    if (s.includes("product")) {
       return { bg: "#eff6ff", text: "var(--color-primary-600)" };
-    if (s.includes("technical")) return { bg: "#fdf4ff", text: "#9333ea" };
+    }
+
+    if (s.includes("technical")) {
+      return { bg: "#fdf4ff", text: "#9333ea" };
+    }
+
     return { bg: "var(--color-primary-50)", text: "var(--color-primary-700)" };
   };
 
@@ -195,36 +278,8 @@ export default function AdminContactsPage() {
       .slice(0, 2);
   };
 
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--color-neutral-50)" }}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <div
-            className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin"
-            style={{
-              borderColor: "var(--color-primary-200)",
-              borderTopColor: "transparent",
-            }}
-          />
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--color-neutral-500)" }}
-          >
-            Loading contacts...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--color-neutral-50)" }}
-    >
+    <div className="min-h-full" style={{ background: "var(--color-neutral-50)" }}>
       {/* Header */}
       <div className="max-w-[1600px] mx-auto px-6 pt-8 pb-2">
         <Header
@@ -305,7 +360,7 @@ export default function AdminContactsPage() {
             className="flex items-center rounded-xl overflow-hidden border"
             style={{ borderColor: "var(--color-neutral-200)" }}
           >
-            {(["all", "unread", "read"] as FilterType[]).map((f) => (
+            {(["all", "unread", "read"] as ContactFilterType[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -334,7 +389,7 @@ export default function AdminContactsPage() {
 
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as SortType)}
+            onChange={(e) => setSort(e.target.value as ContactSortType)}
             className="px-4 py-2.5 rounded-xl text-sm font-medium outline-none cursor-pointer transition-all duration-200"
             style={{
               border: "2px solid var(--color-neutral-200)",
@@ -376,7 +431,83 @@ export default function AdminContactsPage() {
 
       {/* Content */}
       <div className="max-w-[1600px] mx-auto px-6 pb-8">
-        {filteredContacts.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
+            <div
+              className="rounded-2xl border overflow-hidden"
+              style={{
+                background: "white",
+                borderColor: "var(--color-neutral-200)",
+              }}
+            >
+              <div className="max-h-[calc(100vh-320px)] overflow-y-auto">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="p-4 border-b"
+                    style={{ borderColor: "var(--color-neutral-100)" }}
+                  >
+                    <div className="flex items-start gap-3 animate-pulse">
+                      <div
+                        className="w-10 h-10 rounded-full"
+                        style={{ background: "var(--color-neutral-200)" }}
+                      />
+                      <div className="flex-1 space-y-2">
+                        <div
+                          className="h-4 rounded w-1/2"
+                          style={{ background: "var(--color-neutral-200)" }}
+                        />
+                        <div
+                          className="h-3 rounded w-1/3"
+                          style={{ background: "var(--color-neutral-100)" }}
+                        />
+                        <div
+                          className="h-3 rounded w-11/12"
+                          style={{ background: "var(--color-neutral-100)" }}
+                        />
+                        <div
+                          className="h-3 rounded w-2/3"
+                          style={{ background: "var(--color-neutral-100)" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              className="rounded-2xl border overflow-hidden min-h-[500px] p-6"
+              style={{
+                background: "white",
+                borderColor: "var(--color-neutral-200)",
+              }}
+            >
+              <div className="animate-pulse space-y-4">
+                <div
+                  className="h-6 rounded w-1/3"
+                  style={{ background: "var(--color-neutral-200)" }}
+                />
+                <div
+                  className="h-4 rounded w-2/3"
+                  style={{ background: "var(--color-neutral-100)" }}
+                />
+                <div
+                  className="h-48 rounded-xl"
+                  style={{ background: "var(--color-neutral-100)" }}
+                />
+                <div
+                  className="h-4 rounded w-full"
+                  style={{ background: "var(--color-neutral-100)" }}
+                />
+                <div
+                  className="h-4 rounded w-5/6"
+                  style={{ background: "var(--color-neutral-100)" }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : filteredContacts.length === 0 ? (
           <div
             className="flex flex-col items-center justify-center py-20 rounded-2xl border"
             style={{
@@ -429,7 +560,7 @@ export default function AdminContactsPage() {
               }}
             >
               <div className="max-h-[calc(100vh-320px)] overflow-y-auto">
-                {filteredContacts.map((contact) => {
+                {paginatedContacts.map((contact) => {
                   const subjectStyle = getSubjectColor(contact.subject);
                   const isSelected = selectedContact?.id === contact.id;
 
@@ -527,6 +658,99 @@ export default function AdminContactsPage() {
                     </button>
                   );
                 })}
+              </div>
+
+              <div
+                className="border-t px-4 py-3 bg-white flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                style={{ borderColor: "var(--color-neutral-200)" }}
+              >
+                <p
+                  className="text-xs sm:text-sm"
+                  style={{ color: "var(--color-neutral-500)" }}
+                >
+                  Showing {showingFrom} - {showingTo} of {filteredContacts.length}
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <label
+                    className="flex items-center gap-2 text-xs sm:text-sm"
+                    style={{ color: "var(--color-neutral-600)" }}
+                  >
+                    Rows
+                    <select
+                      value={contactsPageSize}
+                      onChange={(e) => {
+                        setContactsPageSize(Number(e.target.value));
+                        setContactsPage(1);
+                      }}
+                      className="px-2 py-1 rounded-lg border bg-white outline-none"
+                      style={{ borderColor: "var(--color-neutral-300)" }}
+                    >
+                      {CONTACTS_PAGE_SIZE_OPTIONS.map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setContactsPage((prev) => Math.max(1, prev - 1))}
+                      disabled={!canGoPrev}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ borderColor: "var(--color-neutral-300)" }}
+                      aria-label="Previous page"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                    </button>
+
+                    <span
+                      className="text-xs sm:text-sm font-medium min-w-16 text-center"
+                      style={{ color: "var(--color-neutral-700)" }}
+                    >
+                      {contactsPage} / {totalContactPages}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setContactsPage((prev) =>
+                          Math.min(totalContactPages, prev + 1),
+                        )
+                      }
+                      disabled={!canGoNext}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ borderColor: "var(--color-neutral-300)" }}
+                      aria-label="Next page"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
