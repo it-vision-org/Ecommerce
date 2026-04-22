@@ -1,22 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import CategorySelector from "@/components/main/CategorySelector";
 import PageHero from "@/components/main/PageHero";
 import CartPreview from "@/components/main/CartPreview";
 import BoxSizeSelector from "@/components/main/BoxSizeSelector";
+import ImageSlider from "@/components/main/ImageSlider";
 import { LoginForm } from "@/components/auth/LoginForm";
 import {
   AlertCircle,
   Building2,
   Check,
-  ChevronLeft,
   ChevronRight,
   ExternalLink,
   Package,
@@ -35,74 +33,6 @@ import {
   splitBoxCountEvenly,
 } from "@/lib/cart";
 import type { CustomerType, SerializedProductWithCategory } from "@/types";
-
-// ── Image Carousel ────────────────────────────────────────────────────────────
-function ProductImageCarousel({ images }: { images: string[] }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (images.length === 0) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <Package className="w-16 h-16 text-[var(--text-muted)]" />
-      </div>
-    );
-  }
-
-  if (images.length === 1) {
-    return <Image src={images[0]} alt="Product" fill className="object-cover" />;
-  }
-
-  const goNext = (e: ReactMouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setCurrentIndex((i) => (i + 1) % images.length);
-  };
-
-  const goPrev = (e: ReactMouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setCurrentIndex((i) => (i - 1 + images.length) % images.length);
-  };
-
-  return (
-    <>
-      <Image
-        src={images[currentIndex]}
-        alt="Product"
-        fill
-        className="object-cover"
-      />
-
-      <button
-        onClick={goPrev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors z-10"
-        aria-label="Previous image"
-      >
-        <ChevronLeft className="w-4 h-4" />
-      </button>
-      <button
-        onClick={goNext}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors z-10"
-        aria-label="Next image"
-      >
-        <ChevronRight className="w-4 h-4" />
-      </button>
-
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-        {images.map((_, i) => (
-          <button
-            key={i}
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentIndex(i);
-            }}
-            className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? "bg-white" : "bg-white/50"
-              }`}
-            aria-label={`Go to image ${i + 1}`}
-          />
-        ))}
-      </div>
-    </>
-  );
-}
 
 // ── Products Grid Skeleton (section-level) ─────────────────────────────────────
 function ProductsGridSkeleton() {
@@ -218,12 +148,23 @@ function ProductCard({
           : "Click to select / unselect"
       }
       className={`bg-[var(--bg-card)] rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelected
-        ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20"
-        : "border-[var(--border)]"
+          ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20"
+          : "border-[var(--border)]"
         } ${selectionDisabled ? "opacity-60" : ""}`}
     >
       <div className="relative aspect-square bg-[var(--bg-muted)]">
-        <ProductImageCarousel images={product.images || []} />
+        <ImageSlider
+          images={product.images || []}
+          altBase={product.name}
+          className="w-full h-full"
+          imageClassName="object-cover"
+          stopPropagation={true}
+          emptyState={
+            <div className="w-full h-full flex items-center justify-center">
+              <Package className="w-16 h-16 text-[var(--text-muted)]" />
+            </div>
+          }
+        />
 
         <div className="absolute top-3 left-3 z-20">
           <Link
@@ -562,20 +503,20 @@ export default function ProductsPage() {
             <button
               onClick={() => handleCustomerTypeChange("individual")}
               className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${customerType === "individual"
-                ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                : "border-[var(--border)] hover:border-[var(--primary)]/50"
+                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                  : "border-[var(--border)] hover:border-[var(--primary)]/50"
                 }`}
             >
               <User
                 className={`w-5 h-5 ${customerType === "individual"
-                  ? "text-[var(--primary)]"
-                  : "text-[var(--text-muted)]"
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-muted)]"
                   }`}
               />
               <span
                 className={`font-medium ${customerType === "individual"
-                  ? "text-[var(--primary)]"
-                  : "text-[var(--text-primary)]"
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-primary)]"
                   }`}
               >
                 {t("CustomerType.Individual")}
@@ -588,20 +529,20 @@ export default function ProductsPage() {
             <button
               onClick={() => handleCustomerTypeChange("restaurant")}
               className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${customerType === "restaurant"
-                ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                : "border-[var(--border)] hover:border-[var(--primary)]/50"
+                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                  : "border-[var(--border)] hover:border-[var(--primary)]/50"
                 }`}
             >
               <Building2
                 className={`w-5 h-5 ${customerType === "restaurant"
-                  ? "text-[var(--primary)]"
-                  : "text-[var(--text-muted)]"
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-muted)]"
                   }`}
               />
               <span
                 className={`font-medium ${customerType === "restaurant"
-                  ? "text-[var(--primary)]"
-                  : "text-[var(--text-primary)]"
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-primary)]"
                   }`}
               >
                 {t("CustomerType.Restaurant")}

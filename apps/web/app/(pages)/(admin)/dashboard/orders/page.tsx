@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
@@ -17,7 +17,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Calendar,
   DollarSign,
   User,
   FileText,
@@ -29,21 +28,25 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { OrderStatus } from "@monkeyprint/db";
+import toast from "react-hot-toast";
+import Header from "@/components/admin/Header";
+import DataTable, { type DataTableColumn } from "@/components/admin/DataTable";
 import {
-  SerializedOrder,
-  SerializedOrderItem,
   getOrders,
   updateOrderStatus,
   deleteOrder,
   getOrderStatistics,
   updateOrder,
 } from "@/actions/ordersActions";
-import { OrderStatus } from "@monkeyprint/db";
-import toast from "react-hot-toast";
+import type { OrderStatistics, SerializedOrder, UpdateOrderInput } from "@/types";
+
+type EditOrderPayload = Omit<UpdateOrderInput, "id">;
 
 const STATUS_CONFIG: Record<
   OrderStatus,
-  { label: string; color: string; bgColor: string; icon: any }
+  { label: string; color: string; bgColor: string; icon: LucideIcon }
 > = {
   PENDING: {
     label: "Pending",
@@ -92,24 +95,6 @@ const STATUS_OPTIONS: OrderStatus[] = [
   "CANCELLED",
 ];
 
-function LoadingSkeleton() {
-  return (
-    <div className="p-6 space-y-6">
-      <div className="animate-pulse">
-        <div className="h-8 w-64 bg-[var(--bg-muted)] rounded-lg mb-2" />
-        <div className="h-4 w-48 bg-[var(--bg-muted)] rounded mb-6" />
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-[var(--bg-muted)] rounded-xl" />
-          ))}
-        </div>
-        <div className="h-96 bg-[var(--bg-muted)] rounded-xl" />
-      </div>
-    </div>
-  );
-}
-
-// Edit Order Modal Component
 function EditOrderModal({
   order,
   onClose,
@@ -118,19 +103,7 @@ function EditOrderModal({
 }: {
   order: SerializedOrder;
   onClose: () => void;
-  onSave: (updatedOrder: {
-    customerName: string;
-    customerPhone: string;
-    customerEmail: string | null;
-    address: string;
-    notes: string | null;
-    shippingCost: number;
-    items: {
-      id: string;
-      quantity: number;
-      unitPrice: number;
-    }[];
-  }) => void;
+  onSave: (updatedOrder: EditOrderPayload) => void;
   isPending: boolean;
 }) {
   const [formData, setFormData] = useState({
@@ -229,7 +202,6 @@ function EditOrderModal({
         onClick={(e) => e.stopPropagation()}
         className="bg-[var(--bg-card)] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[var(--primary-light)] rounded-lg">
@@ -252,9 +224,7 @@ function EditOrderModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] space-y-6">
-          {/* Customer Information */}
           <div className="space-y-4">
             <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -329,7 +299,6 @@ function EditOrderModal({
             </div>
           </div>
 
-          {/* Order Items */}
           <div className="space-y-4">
             <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
               <Package className="w-4 h-4" />
@@ -361,7 +330,6 @@ function EditOrderModal({
                       {item.productName}
                     </p>
                     <div className="flex items-center gap-4 mt-2">
-                      {/* Quantity */}
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[var(--text-muted)]">
                           Qty:
@@ -386,7 +354,7 @@ function EditOrderModal({
                           </button>
                         </div>
                       </div>
-                      {/* Price */}
+
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[var(--text-muted)]">
                           Price:
@@ -427,7 +395,6 @@ function EditOrderModal({
             </div>
           </div>
 
-          {/* Shipping Cost */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-[var(--text-secondary)]">
               Shipping Cost (TND)
@@ -447,7 +414,6 @@ function EditOrderModal({
             />
           </div>
 
-          {/* Pricing Summary */}
           <div className="border-t border-[var(--border)] pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-[var(--text-secondary)]">Subtotal</span>
@@ -460,19 +426,16 @@ function EditOrderModal({
               <span className="text-[var(--text-primary)]">
                 {formData.shippingCost === 0
                   ? "Free"
-                  : `${formData.shippingCost.toFixed(3)} TND`}
+                  : formData.shippingCost.toFixed(3) + " TND"}
               </span>
             </div>
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-[var(--border)]">
               <span className="text-[var(--text-primary)]">Total</span>
-              <span className="text-[var(--primary)]">
-                {total.toFixed(3)} TND
-              </span>
+              <span className="text-[var(--primary)]">{total.toFixed(3)} TND</span>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
         <div className="p-6 border-t border-[var(--border)] flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -502,11 +465,13 @@ function OrderDetailModal({
   order,
   onClose,
   onStatusChange,
+  onEdit,
   isPending,
 }: {
   order: SerializedOrder;
   onClose: () => void;
   onStatusChange: (status: OrderStatus) => void;
+  onEdit: () => void;
   isPending: boolean;
 }) {
   const statusConfig = STATUS_CONFIG[order.status];
@@ -527,7 +492,6 @@ function OrderDetailModal({
         onClick={(e) => e.stopPropagation()}
         className="bg-[var(--bg-card)] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
           <div>
             <h2 className="text-xl font-bold text-[var(--text-primary)]">
@@ -545,9 +509,7 @@ function OrderDetailModal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] space-y-6">
-          {/* Status */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-230px)] space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -561,14 +523,12 @@ function OrderDetailModal({
               </div>
               <div>
                 <p className="text-sm text-[var(--text-muted)]">Status</p>
-                <p
-                  className="font-semibold"
-                  style={{ color: statusConfig.color }}
-                >
+                <p className="font-semibold" style={{ color: statusConfig.color }}>
                   {statusConfig.label}
                 </p>
               </div>
             </div>
+
             <select
               value={order.status}
               onChange={(e) => onStatusChange(e.target.value as OrderStatus)}
@@ -583,7 +543,6 @@ function OrderDetailModal({
             </select>
           </div>
 
-          {/* Customer Info */}
           <div className="bg-[var(--bg-muted)] rounded-xl p-4 space-y-3">
             <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -592,34 +551,25 @@ function OrderDetailModal({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-[var(--text-muted)]" />
-                <span className="text-[var(--text-primary)]">
-                  {order.customerName}
-                </span>
+                <span className="text-[var(--text-primary)]">{order.customerName}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[var(--text-muted)]" />
-                <span className="text-[var(--text-primary)]">
-                  {order.customerPhone}
-                </span>
+                <span className="text-[var(--text-primary)]">{order.customerPhone}</span>
               </div>
               {order.customerEmail && (
                 <div className="flex items-center gap-2 col-span-2">
                   <Mail className="w-4 h-4 text-[var(--text-muted)]" />
-                  <span className="text-[var(--text-primary)]">
-                    {order.customerEmail}
-                  </span>
+                  <span className="text-[var(--text-primary)]">{order.customerEmail}</span>
                 </div>
               )}
               <div className="flex items-start gap-2 col-span-2">
                 <MapPin className="w-4 h-4 text-[var(--text-muted)] mt-0.5" />
-                <span className="text-[var(--text-primary)]">
-                  {order.address}
-                </span>
+                <span className="text-[var(--text-primary)]">{order.address}</span>
               </div>
             </div>
           </div>
 
-          {/* Order Items */}
           <div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
               <Package className="w-4 h-4" />
@@ -651,7 +601,7 @@ function OrderDetailModal({
                       {item.productName}
                     </p>
                     <p className="text-sm text-[var(--text-muted)]">
-                      {item.quantity} × {item.unitPrice.toFixed(3)} TND
+                      {item.quantity} x {item.unitPrice.toFixed(3)} TND
                     </p>
                   </div>
                   <p className="font-semibold text-[var(--text-primary)]">
@@ -662,20 +612,16 @@ function OrderDetailModal({
             </div>
           </div>
 
-          {/* Notes */}
           {order.notes && (
             <div className="bg-[var(--warning-light)] rounded-xl p-4">
               <h3 className="font-semibold text-[var(--warning)] mb-2 flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Order Notes
               </h3>
-              <p className="text-sm text-[var(--text-primary)]">
-                {order.notes}
-              </p>
+              <p className="text-sm text-[var(--text-primary)]">{order.notes}</p>
             </div>
           )}
 
-          {/* Pricing Summary */}
           <div className="border-t border-[var(--border)] pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-[var(--text-secondary)]">Subtotal</span>
@@ -688,16 +634,30 @@ function OrderDetailModal({
               <span className="text-[var(--text-primary)]">
                 {order.shippingCost === 0
                   ? "Free"
-                  : `${order.shippingCost.toFixed(3)} TND`}
+                  : order.shippingCost.toFixed(3) + " TND"}
               </span>
             </div>
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-[var(--border)]">
               <span className="text-[var(--text-primary)]">Total</span>
-              <span className="text-[var(--primary)]">
-                {order.total.toFixed(3)} TND
-              </span>
+              <span className="text-[var(--primary)]">{order.total.toFixed(3)} TND</span>
             </div>
           </div>
+        </div>
+
+        <div className="p-6 border-t border-[var(--border)] flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
+          >
+            Close
+          </button>
+          <button
+            onClick={onEdit}
+            className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-[var(--primary)] hover:bg-[var(--primary)]/90 transition-colors flex items-center gap-2"
+          >
+            <Edit className="w-4 h-4" />
+            Update Order
+          </button>
         </div>
       </motion.div>
     </motion.div>
@@ -706,48 +666,63 @@ function OrderDetailModal({
 
 export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
-  const [statistics, setStatistics] = useState<{
-    totalOrders: number;
-    pendingOrders: number;
-    processingOrders: number;
-    deliveredOrders: number;
-    totalRevenue: number;
-    todayOrders: number;
-  } | null>(null);
+  const [statistics, setStatistics] = useState<OrderStatistics | null>(null);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
-  const [selectedOrder, setSelectedOrder] = useState<SerializedOrder | null>(
-    null,
-  );
-  const [editingOrder, setEditingOrder] = useState<SerializedOrder | null>(
-    null,
-  );
+  const [selectedOrder, setSelectedOrder] = useState<SerializedOrder | null>(null);
+  const [editingOrder, setEditingOrder] = useState<SerializedOrder | null>(null);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const [reopenViewOnEditCancel, setReopenViewOnEditCancel] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [isPending, startTransition] = useTransition();
 
-  const fetchData = async () => {
+  const fetchData = async (showLoader = false) => {
+    if (showLoader) {
+      setIsLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+
     try {
       const [ordersResult, statsResult] = await Promise.all([
         getOrders({ sortBy: "createdAt", sortOrder: "desc" }),
         getOrderStatistics(),
       ]);
+
       setOrders(ordersResult.data || []);
-      if (statsResult.success) {
-        setStatistics(statsResult.data as any);
+
+      if (statsResult.success && statsResult.data) {
+        setStatistics(statsResult.data);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching orders data:", error);
+      toast.error("Failed to load orders");
     } finally {
-      setIsLoading(false);
+      if (showLoader) {
+        setIsLoading(false);
+      }
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    void fetchData(true);
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
+  const showInitialDataSkeleton = isLoading && orders.length === 0;
 
   const filteredOrders = useMemo(() => {
     let result = orders;
@@ -756,32 +731,43 @@ export default function AdminOrdersPage() {
       result = result.filter((order) => order.status === statusFilter);
     }
 
-    if (search.trim()) {
-      const term = search.toLowerCase();
+    const term = search.trim().toLowerCase();
+
+    if (term) {
       result = result.filter(
         (order) =>
           order.orderNumber.toLowerCase().includes(term) ||
           order.customerName.toLowerCase().includes(term) ||
-          order.customerPhone.includes(term) ||
+          order.customerPhone.toLowerCase().includes(term) ||
           order.customerEmail?.toLowerCase().includes(term),
       );
     }
 
     return result;
-  }, [orders, statusFilter, search]);
+  }, [orders, search, statusFilter]);
 
   const handleStatusChange = async (orderId: string, status: OrderStatus) => {
     startTransition(async () => {
       const result = await updateOrderStatus({ id: orderId, status });
-      if (result.success) {
-        toast.success(`Order status updated to ${STATUS_CONFIG[status].label}`);
+
+      if (result.success && result.data) {
+        const updatedOrder = result.data;
+        toast.success("Order status updated to " + STATUS_CONFIG[status].label);
+
         setOrders((prev) =>
-          prev.map((order) =>
-            order.id === orderId ? { ...order, status } : order,
-          ),
+          prev.map((order) => (order.id === orderId ? updatedOrder : order)),
         );
-        if (selectedOrder?.id === orderId) {
-          setSelectedOrder({ ...selectedOrder, status });
+
+        setSelectedOrder((prev) =>
+          prev && prev.id === orderId ? updatedOrder : prev,
+        );
+        setEditingOrder((prev) =>
+          prev && prev.id === orderId ? updatedOrder : prev,
+        );
+
+        const statsResult = await getOrderStatistics();
+        if (statsResult.success && statsResult.data) {
+          setStatistics(statsResult.data);
         }
       } else {
         toast.error(result.error || "Failed to update status");
@@ -789,39 +775,54 @@ export default function AdminOrdersPage() {
     });
   };
 
-  const handleEditSave = async (updatedData: {
-    customerName: string;
-    customerPhone: string;
-    customerEmail: string | null;
-    address: string;
-    notes: string | null;
-    shippingCost: number;
-    items: {
-      id: string;
-      quantity: number;
-      unitPrice: number;
-    }[];
-  }) => {
-    if (!editingOrder) return;
+  const openEditModal = (order: SerializedOrder, fromView = false) => {
+    setReopenViewOnEditCancel(fromView);
+    setEditingOrder(order);
+
+    if (fromView) {
+      setSelectedOrder(null);
+    }
+  };
+
+  const handleEditModalClose = () => {
+    if (reopenViewOnEditCancel && editingOrder) {
+      setSelectedOrder(editingOrder);
+    }
+
+    setEditingOrder(null);
+    setReopenViewOnEditCancel(false);
+  };
+
+  const handleEditSave = async (updatedData: EditOrderPayload) => {
+    if (!editingOrder) {
+      return;
+    }
 
     startTransition(async () => {
+      const editingOrderId = editingOrder.id;
+
       const result = await updateOrder({
-        id: editingOrder.id,
+        id: editingOrderId,
         ...updatedData,
       });
 
       if (result.success && result.data) {
         toast.success("Order updated successfully");
+
         setOrders((prev) =>
-          prev.map((order) =>
-            order.id === editingOrder.id ? result.data! : order,
-          ),
+          prev.map((order) => (order.id === editingOrderId ? result.data! : order)),
         );
+
+        setSelectedOrder((prev) =>
+          prev && prev.id === editingOrderId ? result.data! : prev,
+        );
+
         setEditingOrder(null);
-        // Refresh statistics
+        setReopenViewOnEditCancel(false);
+
         const statsResult = await getOrderStatistics();
-        if (statsResult.success) {
-          setStatistics(statsResult.data as any);
+        if (statsResult.success && statsResult.data) {
+          setStatistics(statsResult.data);
         }
       } else {
         toast.error(result.error || "Failed to update order");
@@ -835,109 +836,282 @@ export default function AdminOrdersPage() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) {
+      return;
+    }
+
     startTransition(async () => {
-      const result = await deleteOrder(deleteTarget);
+      const targetId = deleteTarget;
+      const result = await deleteOrder(targetId);
+
       if (result.success) {
         toast.success("Order deleted successfully");
-        setOrders((prev) => prev.filter((order) => order.id !== deleteTarget));
-        // Refresh statistics
+
+        setOrders((prev) => prev.filter((order) => order.id !== targetId));
+        setSelectedOrder((prev) => (prev && prev.id === targetId ? null : prev));
+        setEditingOrder((prev) => (prev && prev.id === targetId ? null : prev));
+
         const statsResult = await getOrderStatistics();
-        if (statsResult.success) {
-          setStatistics(statsResult.data as any);
+        if (statsResult.success && statsResult.data) {
+          setStatistics(statsResult.data);
         }
       } else {
         toast.error(result.error || "Failed to delete order");
       }
+
       setShowDeleteConfirm(false);
       setDeleteTarget(null);
     });
   };
 
-  if (isLoading) return <LoadingSkeleton />;
+  const handleOpenEditFromDetails = () => {
+    if (!selectedOrder) {
+      return;
+    }
+    openEditModal(selectedOrder, true);
+  };
+
+  const columns: DataTableColumn<SerializedOrder>[] = [
+    {
+      id: "order",
+      header: "Order",
+      headerClassName: "min-w-[190px]",
+      render: (order) => (
+        <div>
+          <p className="font-medium text-[var(--text-primary)]">#{order.orderNumber}</p>
+          <p className="text-xs text-[var(--text-muted)]">
+            {order.paymentMethod === "CASH_ON_DELIVERY"
+              ? "Cash on Delivery"
+              : "Bank Transfer"}
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: "customer",
+      header: "Customer",
+      headerClassName: "min-w-[240px]",
+      render: (order) => (
+        <div>
+          <p className="font-medium text-[var(--text-primary)]">{order.customerName}</p>
+          <p className="text-sm text-[var(--text-muted)]">{order.customerPhone}</p>
+          {order.customerEmail && (
+            <p className="text-xs text-[var(--text-muted)]">{order.customerEmail}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "items",
+      header: "Items",
+      headerClassName: "min-w-[140px]",
+      render: (order) => (
+        <div>
+          <p className="text-sm text-[var(--text-primary)]">
+            {order.items.length} item(s)
+          </p>
+          {order.items[0] && (
+            <p className="text-xs text-[var(--text-muted)] truncate max-w-[150px]">
+              {order.items[0].productName}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "total",
+      header: "Total",
+      headerClassName: "min-w-[140px]",
+      render: (order) => (
+        <div>
+          <p className="font-semibold text-[var(--primary)]">
+            {order.total.toFixed(3)} TND
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Subtotal {order.subtotal.toFixed(3)} TND
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      headerClassName: "min-w-[190px]",
+      render: (order) => {
+        const statusConfig = STATUS_CONFIG[order.status];
+        const StatusIcon = statusConfig.icon;
+
+        return (
+          <div className="relative w-[170px]">
+            <select
+              value={order.status}
+              onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+              disabled={isPending}
+              className="appearance-none w-full pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] cursor-pointer"
+              style={{
+                backgroundColor: statusConfig.bgColor,
+                color: statusConfig.color,
+              }}
+            >
+              {STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {STATUS_CONFIG[status].label}
+                </option>
+              ))}
+            </select>
+            <StatusIcon
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: statusConfig.color }}
+            />
+            <ChevronDown
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none"
+              style={{ color: statusConfig.color }}
+            />
+          </div>
+        );
+      },
+    },
+    {
+      id: "date",
+      header: "Date",
+      headerClassName: "min-w-[160px]",
+      render: (order) => (
+        <div>
+          <p className="text-sm text-[var(--text-secondary)]">
+            {new Date(order.createdAt).toLocaleDateString()}
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            {new Date(order.createdAt).toLocaleTimeString()}
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      headerClassName: "text-right min-w-[150px]",
+      cellClassName: "text-right",
+      render: (order) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => setSelectedOrder(order)}
+            className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+            title="View Order"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => openEditModal(order, false)}
+            className="p-2 rounded-lg hover:bg-[var(--primary-light)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+            title="Edit Order"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(order.id)}
+            className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
+            title="Delete Order"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Orders
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)]">
-            {statistics?.totalOrders || 0} total orders •{" "}
-            {statistics?.todayOrders || 0} today
-          </p>
-        </div>
-        <button
-          onClick={fetchData}
-          disabled={isPending}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
-        >
-          <RefreshCcw
-            className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`}
-          />
-          Refresh
-        </button>
-      </div>
+      <Header
+        title="Orders"
+        description={
+          <>
+            {statistics?.totalOrders || 0} total orders | {statistics?.todayOrders || 0} today
+          </>
+        }
+        rightContent={
+          <button
+            onClick={() => fetchData(false)}
+            disabled={isPending || isRefreshing}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-60"
+          >
+            <RefreshCcw className={isRefreshing ? "w-4 h-4 animate-spin" : "w-4 h-4"} />
+            Refresh
+          </button>
+        }
+      />
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--warning-light)] rounded-lg">
-              <Clock className="w-5 h-5 text-[var(--warning)]" />
+      {showInitialDataSkeleton ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 animate-pulse"
+            >
+              <div className="h-6 w-1/2 bg-[var(--bg-muted)] rounded mb-2" />
+              <div className="h-4 w-1/3 bg-[var(--bg-muted)] rounded" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.pendingOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Pending</p>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--warning-light)] rounded-lg">
+                <Clock className="w-5 h-5 text-[var(--warning)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.pendingOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Pending</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--primary-light)] rounded-lg">
-              <Package className="w-5 h-5 text-[var(--primary)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.processingOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Processing</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--success-light)] rounded-lg">
-              <CheckCircle className="w-5 h-5 text-[var(--success)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.deliveredOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Delivered</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--accent)]/10 rounded-lg">
-              <DollarSign className="w-5 h-5 text-[var(--accent)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.totalRevenue.toFixed(0) || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Revenue (TND)</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Filters */}
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--primary-light)] rounded-lg">
+                <Package className="w-5 h-5 text-[var(--primary)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.processingOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Processing</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--success-light)] rounded-lg">
+                <CheckCircle className="w-5 h-5 text-[var(--success)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.deliveredOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Delivered</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--accent)]/10 rounded-lg">
+                <DollarSign className="w-5 h-5 text-[var(--accent)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics ? statistics.totalRevenue.toFixed(0) : "0"}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Revenue (TND)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
@@ -949,28 +1123,31 @@ export default function AdminOrdersPage() {
             className="w-full pl-10 pr-4 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
         </div>
+
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setStatusFilter("ALL")}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+            className={
               statusFilter === "ALL"
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--bg)]"
-            }`}
+                ? "px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-[var(--primary)] text-white"
+                : "px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--bg)]"
+            }
           >
             All
           </button>
+
           {STATUS_OPTIONS.map((status) => {
             const config = STATUS_CONFIG[status];
+
             return (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                className={
                   statusFilter === status
-                    ? "text-white"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--bg)]"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium rounded-lg transition-colors text-white"
+                    : "px-4 py-2 text-sm font-medium rounded-lg transition-colors text-[var(--text-secondary)] hover:bg-[var(--bg)]"
+                }
                 style={{
                   backgroundColor:
                     statusFilter === status ? config.color : "var(--bg-muted)",
@@ -983,180 +1160,54 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Order
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Customer
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Items
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Total
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Status
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Date
-                </th>
-                <th className="p-4 text-right text-sm font-medium text-[var(--text-secondary)]">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--border)]">
-              {filteredOrders.map((order) => {
-                const statusConfig = STATUS_CONFIG[order.status];
-                const StatusIcon = statusConfig.icon;
-                return (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-[var(--bg-muted)]/50 transition-colors"
-                  >
-                    <td className="p-4">
-                      <p className="font-medium text-[var(--text-primary)]">
-                        #{order.orderNumber}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {order.paymentMethod === "CASH_ON_DELIVERY"
-                          ? "Cash on Delivery"
-                          : "Bank Transfer"}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-medium text-[var(--text-primary)]">
-                        {order.customerName}
-                      </p>
-                      <p className="text-sm text-[var(--text-muted)]">
-                        {order.customerPhone}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-[var(--text-primary)]">
-                        {order.items.length} item(s)
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-semibold text-[var(--primary)]">
-                        {order.total.toFixed(3)} TND
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <div className="relative">
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              order.id,
-                              e.target.value as OrderStatus,
-                            )
-                          }
-                          disabled={isPending}
-                          className="appearance-none pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] cursor-pointer"
-                          style={{
-                            backgroundColor: statusConfig.bgColor,
-                            color: statusConfig.color,
-                          }}
-                        >
-                          {STATUS_OPTIONS.map((status) => (
-                            <option key={status} value={status}>
-                              {STATUS_CONFIG[status].label}
-                            </option>
-                          ))}
-                        </select>
-                        <StatusIcon
-                          className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                          style={{ color: statusConfig.color }}
-                        />
-                        <ChevronDown
-                          className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none"
-                          style={{ color: statusConfig.color }}
-                        />
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-[var(--text-secondary)]">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {new Date(order.createdAt).toLocaleTimeString()}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                          title="View Order"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setEditingOrder(order)}
-                          className="p-2 rounded-lg hover:bg-[var(--primary-light)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                          title="Edit Order"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(order.id)}
-                          className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
-                          title="Delete Order"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredOrders.length === 0 && (
+      <DataTable
+        data={filteredOrders}
+        columns={columns}
+        rowKey={(order) => order.id}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        pageSizeOptions={[10, 20, 30, 50]}
+        loading={showInitialDataSkeleton}
+        loadingRowCount={6}
+        maxBodyHeightClass="max-h-[52dvh]"
+        tableClassName="w-full"
+        getRowClassName={() => "hover:bg-[var(--bg-muted)]/50 transition-colors"}
+        emptyState={
           <div className="p-12 text-center">
             <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
             <p className="text-[var(--text-secondary)]">No orders found</p>
           </div>
-        )}
-      </div>
+        }
+      />
 
-      {/* Order Detail Modal */}
       <AnimatePresence>
         {selectedOrder && (
           <OrderDetailModal
             order={selectedOrder}
             onClose={() => setSelectedOrder(null)}
-            onStatusChange={(status) =>
-              handleStatusChange(selectedOrder.id, status)
-            }
+            onStatusChange={(status) => handleStatusChange(selectedOrder.id, status)}
+            onEdit={handleOpenEditFromDetails}
             isPending={isPending}
           />
         )}
       </AnimatePresence>
 
-      {/* Edit Order Modal */}
       <AnimatePresence>
         {editingOrder && (
           <EditOrderModal
             order={editingOrder}
-            onClose={() => setEditingOrder(null)}
+            onClose={handleEditModalClose}
             onSave={handleEditSave}
             isPending={isPending}
           />
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation */}
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div
@@ -1184,10 +1235,12 @@ export default function AdminOrdersPage() {
                   </p>
                 </div>
               </div>
+
               <p className="text-sm text-[var(--text-secondary)] mb-6">
                 Are you sure you want to delete this order? All associated data
                 will be permanently removed.
               </p>
+
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => {
@@ -1201,13 +1254,9 @@ export default function AdminOrdersPage() {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={isPending}
-                  className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-[var(--danger)] hover:bg-[var(--danger)]/90 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-[var(--danger)] hover:bg-[var(--danger)]/90 transition-colors flex items-center gap-2 disabled:opacity-60"
                 >
-                  {isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Delete"
-                  )}
+                  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
                 </button>
               </div>
             </motion.div>

@@ -1,34 +1,10 @@
 "use server";
 
+
 import { db } from "@monkeyprint/db";
 import { sendContactFormEmail } from "@monkeyprint/utils/email";
+import type { ActionResult, ContactFormData, ContactSubmission } from "@/types";
 import { getCurrentUser } from "./authActions";
-
-interface ContactFormData {
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-}
-
-export interface ContactSubmission {
-  id: string;
-  name: string;
-  email: string;
-  subject: string | null;
-  message: string;
-  isRead: boolean;
-  createdAt: Date;
-  userId: string | null;
-  user: {
-    name: string | null;
-    email: string;
-    profileImage: string | null;
-    userType: string | null;
-    role: string;
-  } | null;
-}
 
 const subjectLabels: Record<string, string> = {
   wholesale_order: "Wholesale / Bulk Order",
@@ -48,11 +24,15 @@ async function getSuperAdminEmail(): Promise<string> {
   });
 
   return (
-    superAdmin?.email || process.env.CONTACT_RECIPIENT || "ahmedzouaghi2003@gmail.com"
+    superAdmin?.email ||
+    process.env.CONTACT_RECIPIENT ||
+    "ahmedzouaghi2003@gmail.com"
   );
 }
 
-export async function sendContactEmail(data: ContactFormData) {
+export async function sendContactEmail(
+  data: ContactFormData,
+): Promise<ActionResult<{ id: string }>> {
   const name = data.name?.trim();
   const email = data.email?.trim();
   const phone = data.phone?.trim();
@@ -75,6 +55,7 @@ export async function sendContactEmail(data: ContactFormData) {
         message: `Phone: ${phone}\n\n${message}`,
         userId: currentUser?.id ?? null,
       },
+      select: { id: true },
     });
 
     const recipient = await getSuperAdminEmail();
@@ -88,18 +69,16 @@ export async function sendContactEmail(data: ContactFormData) {
       message,
     });
 
-    return { success: true, id: submission.id };
+    return { success: true, data: { id: submission.id } };
   } catch (error) {
     console.error("[CONTACT] Error in sendContactEmail:", error);
     return { success: false, error: "An error occurred. Please try again." };
   }
 }
 
-export async function getContactSubmissions(): Promise<{
-  success: boolean;
-  contacts?: ContactSubmission[];
-  error?: string;
-}> {
+export async function getContactSubmissions(): Promise<
+  ActionResult<ContactSubmission[]>
+> {
   try {
     const contacts = await db.contactSubmission.findMany({
       orderBy: { createdAt: "desc" },
@@ -115,16 +94,34 @@ export async function getContactSubmissions(): Promise<{
       },
     });
 
-    return { success: true, contacts: contacts as ContactSubmission[] };
+    const serializedContacts: ContactSubmission[] = contacts.map((contact) => ({
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      subject: contact.subject,
+      message: contact.message,
+      isRead: contact.isRead,
+      createdAt: contact.createdAt.toISOString(),
+      userId: contact.userId,
+      user: contact.user
+        ? {
+          name: contact.user.name,
+          email: contact.user.email,
+          profileImage: null,
+          userType: contact.user.userType,
+          role: contact.user.role,
+        }
+        : null,
+    }));
+
+    return { success: true, data: serializedContacts };
   } catch (error) {
     console.error("[CONTACT] Error fetching contacts:", error);
     return { success: false, error: "Failed to fetch contacts" };
   }
 }
 
-export async function markContactAsRead(
-  id: string,
-): Promise<{ success: boolean; error?: string }> {
+export async function markContactAsRead(id: string): Promise<ActionResult> {
   try {
     await db.contactSubmission.update({
       where: { id },
@@ -137,9 +134,7 @@ export async function markContactAsRead(
   }
 }
 
-export async function markContactAsUnread(
-  id: string,
-): Promise<{ success: boolean; error?: string }> {
+export async function markContactAsUnread(id: string): Promise<ActionResult> {
   try {
     await db.contactSubmission.update({
       where: { id },
@@ -152,9 +147,7 @@ export async function markContactAsUnread(
   }
 }
 
-export async function deleteContactSubmission(
-  id: string,
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteContactSubmission(id: string): Promise<ActionResult> {
   try {
     await db.contactSubmission.delete({
       where: { id },

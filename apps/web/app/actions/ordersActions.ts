@@ -1,108 +1,84 @@
 "use server";
 
-import { db, Prisma, OrderStatus, PaymentMethod } from "@monkeyprint/db";
+import { db, Prisma, OrderStatus } from "@monkeyprint/db";
 import { revalidatePath } from "next/cache";
+import type {
+  ActionResult,
+  CreateOrderInput,
+  GetOrdersOptions,
+  OrderStatistics,
+  OrderWithItems,
+  PaginatedActionResult,
+  SerializedOrder,
+  SerializedOrderItem,
+  UpdateOrderInput,
+  UpdateOrderStatusInput,
+} from "@/types";
 
-// ──────────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────────
+export type {
+  CreateOrderInput,
+  GetOrdersOptions,
+  OrderStatistics,
+  OrderWithItems,
+  SerializedOrder,
+  SerializedOrderItem,
+  UpdateOrderInput,
+  UpdateOrderStatusInput,
+} from "@/types";
 
-export type OrderWithItems = Prisma.OrderGetPayload<{
-  include: {
-    items: {
-      include: {
-        product: true;
-      };
-    };
-    user: {
-      select: {
-        id: true;
-        name: true;
-        email: true;
-      };
-    };
-  };
-}>;
+const FREE_SHIPPING_THRESHOLD = 100;
+const DEFAULT_SHIPPING_COST = 7;
 
-export type SerializedOrder = {
-  id: string;
-  orderNumber: string;
-  status: OrderStatus;
-  paymentMethod: PaymentMethod;
-  customerName: string;
-  customerPhone: string;
-  customerEmail: string | null;
-  address: string;
-  subtotal: number;
-  shippingCost: number;
-  total: number;
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  userId: string | null;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  items: SerializedOrderItem[];
-};
+const ORDER_REVALIDATE_PATHS = ["/orders", "/dashboard/orders", "/dashboard"] as const;
+const ORDER_ID_REVALIDATE_BASE_PATHS = ["/orders", "/dashboard/orders"] as const;
 
-export type SerializedOrderItem = {
-  id: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  productName: string;
-  productImage: string | null;
-  productId: string;
-  product: {
-    id: string;
-    name: string;
-    slug: string;
-    images: string[];
-  };
-};
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
+}
 
-export type CreateOrderInput = {
-  customerName: string;
-  customerPhone: string;
-  customerEmail?: string;
-  address: string;
-  notes?: string;
-  paymentMethod: "CASH_ON_DELIVERY" | "BANK_TRANSFER";
-  items: {
-    productId: string;
-    productName: string;
-    quantity: number;
-    unitPrice: number;
-  }[];
-  userId?: string;
-};
+function revalidateOrderPaths(orderId?: string): void {
+  for (const path of ORDER_REVALIDATE_PATHS) {
+    revalidatePath(path);
+  }
 
-export type UpdateOrderInput = {
-  id: string;
-  customerName: string;
-  customerPhone: string;
-  customerEmail: string | null;
-  address: string;
-  notes: string | null;
-  shippingCost: number;
-  items: {
-    id: string;
-    quantity: number;
-    unitPrice: number;
-  }[];
-};
+  if (!orderId) {
+    return;
+  }
 
-export type UpdateOrderStatusInput = {
-  id: string;
-  status: OrderStatus;
-};
+  for (const basePath of ORDER_ID_REVALIDATE_BASE_PATHS) {
+    revalidatePath(`${basePath}/${orderId}`);
+  }
+}
 
-// ──────────────────────────────────────────────
-// Helper Functions
-// ──────────────────────────────────────────────
+function generateOrderNumber(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `SF-${timestamp}-${random}`;
+}
+
+async function generateUniqueOrderNumber(maxAttempts = 5): Promise<string> {
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    const candidate = generateOrderNumber();
+
+    const existing = await db.order.findUnique({
+      where: { orderNumber: candidate },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return candidate;
+    }
+
+    attempts += 1;
+  }
+
+  return generateOrderNumber();
+}
 
 function serializeOrder(order: OrderWithItems): SerializedOrder {
   return {
@@ -123,10 +99,10 @@ function serializeOrder(order: OrderWithItems): SerializedOrder {
     userId: order.userId,
     user: order.user
       ? {
-          id: order.user.id,
-          name: order.user.name,
-          email: order.user.email,
-        }
+        id: order.user.id,
+        name: order.user.name,
+        email: order.user.email,
+      }
       : null,
     items: order.items.map((item) => ({
       id: item.id,
@@ -146,77 +122,63 @@ function serializeOrder(order: OrderWithItems): SerializedOrder {
   };
 }
 
-function generateOrderNumber(): string {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `SF-${timestamp}-${random}`;
-}
-
-// ──────────────────────────────────────────────
-// CREATE Order
-// ──────────────────────────────────────────────
-
-export async function createOrder(input: CreateOrderInput) {
+export async function createOrder(
+  input: CreateOrderInput,
+): Promise<ActionResult<SerializedOrder>> {
   try {
-    // Calculate totals
+    if (input.items.length === 0) {
+      return { success: false, error: "Order must include at least one item" };
+    }
+
     let subtotal = 0;
+
     const itemsData = input.items.map((item) => {
-      const totalPrice = item.quantity * item.unitPrice;
-      subtotal += totalPrice;
+      const lineTotal = item.quantity * item.unitPrice;
+      subtotal += lineTotal;
+
       return {
         productId: item.productId,
         productName: item.productName,
         quantity: new Prisma.Decimal(item.quantity),
         unitPrice: new Prisma.Decimal(item.unitPrice),
-        totalPrice: new Prisma.Decimal(totalPrice),
+        totalPrice: new Prisma.Decimal(lineTotal),
       };
     });
 
-    // Free shipping over 100 TND
-    const shippingCost = subtotal >= 100 ? 0 : 7;
+    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_COST;
     const total = subtotal + shippingCost;
 
-    // Generate unique order number
-    let orderNumber = generateOrderNumber();
-    let attempts = 0;
-    while (attempts < 5) {
-      const existing = await db.order.findUnique({
-        where: { orderNumber },
-      });
-      if (!existing) break;
-      orderNumber = generateOrderNumber();
-      attempts++;
-    }
-
-    // Get product images for order items
     const productIds = input.items.map((item) => item.productId);
+
     const products = await db.product.findMany({
       where: { id: { in: productIds } },
       select: { id: true, images: true },
     });
+
     const productImageMap = new Map(
-      products.map((p) => [p.id, p.images[0] || null]),
+      products.map((product) => [product.id, product.images[0] ?? null]),
     );
 
-    // Create order with items
+    const orderNumber = await generateUniqueOrderNumber();
+
     const order = await db.order.create({
       data: {
         orderNumber,
-        status: "PENDING",
+        status: OrderStatus.PENDING,
         paymentMethod: input.paymentMethod,
         customerName: input.customerName,
         customerPhone: input.customerPhone,
-        customerEmail: input.customerEmail || null,
+        customerEmail: input.customerEmail ?? null,
         address: input.address,
-        notes: input.notes || null,
+        notes: input.notes ?? null,
         subtotal: new Prisma.Decimal(subtotal),
         shippingCost: new Prisma.Decimal(shippingCost),
         total: new Prisma.Decimal(total),
-        userId: input.userId || null,
+        userId: input.userId ?? null,
         items: {
           create: itemsData.map((item) => ({
             ...item,
-            productImage: productImageMap.get(item.productId) || null,
+            productImage: productImageMap.get(item.productId) ?? null,
           })),
         },
       },
@@ -236,28 +198,21 @@ export async function createOrder(input: CreateOrderInput) {
       },
     });
 
-    revalidatePath("/orders");
-    revalidatePath("/dashboard/orders");
+    revalidateOrderPaths(order.id);
 
     return { success: true, data: serializeOrder(order) };
   } catch (error) {
     console.error("Error creating order:", error);
-    return { success: false, error: "Failed to create order" };
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to create order"),
+    };
   }
 }
 
-// ──────────────────────────────────────────────
-// GET Orders (Admin)
-// ──────────────────────────────────────────────
-
-export async function getOrders(options?: {
-  status?: OrderStatus;
-  search?: string;
-  limit?: number;
-  offset?: number;
-  sortBy?: "createdAt" | "total" | "orderNumber";
-  sortOrder?: "asc" | "desc";
-}) {
+export async function getOrders(
+  options: GetOrdersOptions = {},
+): Promise<PaginatedActionResult<SerializedOrder[]>> {
   try {
     const {
       status,
@@ -266,7 +221,11 @@ export async function getOrders(options?: {
       offset = 0,
       sortBy = "createdAt",
       sortOrder = "desc",
-    } = options || {};
+    } = options;
+
+    const safeLimit = Math.max(1, Math.min(limit, 200));
+    const safeOffset = Math.max(0, offset);
+    const trimmedSearch = search?.trim();
 
     const where: Prisma.OrderWhereInput = {};
 
@@ -274,14 +233,18 @@ export async function getOrders(options?: {
       where.status = status;
     }
 
-    if (search) {
+    if (trimmedSearch) {
       where.OR = [
-        { orderNumber: { contains: search, mode: "insensitive" } },
-        { customerName: { contains: search, mode: "insensitive" } },
-        { customerPhone: { contains: search, mode: "insensitive" } },
-        { customerEmail: { contains: search, mode: "insensitive" } },
+        { orderNumber: { contains: trimmedSearch, mode: "insensitive" } },
+        { customerName: { contains: trimmedSearch, mode: "insensitive" } },
+        { customerPhone: { contains: trimmedSearch, mode: "insensitive" } },
+        { customerEmail: { contains: trimmedSearch, mode: "insensitive" } },
       ];
     }
+
+    const orderBy = {
+      [sortBy]: sortOrder,
+    } as Prisma.OrderOrderByWithRelationInput;
 
     const [orders, total] = await Promise.all([
       db.order.findMany({
@@ -300,16 +263,16 @@ export async function getOrders(options?: {
             },
           },
         },
-        orderBy: { [sortBy]: sortOrder },
-        take: limit,
-        skip: offset,
+        orderBy,
+        take: safeLimit,
+        skip: safeOffset,
       }),
       db.order.count({ where }),
     ]);
 
     return {
       success: true,
-      data: orders.map(serializeOrder),
+      data: orders.map((order) => serializeOrder(order)),
       total,
     };
   } catch (error) {
@@ -318,17 +281,19 @@ export async function getOrders(options?: {
       success: false,
       data: [],
       total: 0,
-      error: "Failed to fetch orders",
+      error: getErrorMessage(error, "Failed to fetch orders"),
     };
   }
 }
 
-// ──────────────────────────────────────────────
-// GET Orders by User
-// ──────────────────────────────────────────────
-
-export async function getOrdersByUser(userId: string) {
+export async function getOrdersByUser(
+  userId: string,
+): Promise<ActionResult<SerializedOrder[]>> {
   try {
+    if (!userId) {
+      return { success: false, data: [], error: "User id is required" };
+    }
+
     const orders = await db.order.findMany({
       where: { userId },
       include: {
@@ -342,8 +307,6 @@ export async function getOrdersByUser(userId: string) {
             id: true,
             name: true,
             email: true,
-            phoneNumber: true,
-            address: true,
           },
         },
       },
@@ -352,19 +315,19 @@ export async function getOrdersByUser(userId: string) {
 
     return {
       success: true,
-      data: orders.map(serializeOrder),
+      data: orders.map((order) => serializeOrder(order)),
     };
   } catch (error) {
     console.error("Error fetching user orders:", error);
-    return { success: false, data: [], error: "Failed to fetch orders" };
+    return {
+      success: false,
+      data: [],
+      error: getErrorMessage(error, "Failed to fetch orders"),
+    };
   }
 }
 
-// ──────────────────────────────────────────────
-// GET Order by ID
-// ──────────────────────────────────────────────
-
-export async function getOrderById(id: string) {
+export async function getOrderById(id: string): Promise<ActionResult<SerializedOrder>> {
   try {
     const order = await db.order.findUnique({
       where: { id },
@@ -391,52 +354,79 @@ export async function getOrderById(id: string) {
     return { success: true, data: serializeOrder(order) };
   } catch (error) {
     console.error("Error fetching order:", error);
-    return { success: false, error: "Failed to fetch order" };
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to fetch order"),
+    };
   }
 }
 
-// ──────────────────────────────────────────────
-// UPDATE Order (Full Edit)
-// ──────────────────────────────────────────────
-
-export async function updateOrder(input: UpdateOrderInput) {
+export async function updateOrder(
+  input: UpdateOrderInput,
+): Promise<ActionResult<SerializedOrder>> {
   try {
-    // Calculate new subtotal from items
-    let subtotal = 0;
-    const itemUpdates = input.items.map((item) => {
-      const totalPrice = item.quantity * item.unitPrice;
-      subtotal += totalPrice;
-      return {
-        where: { id: item.id },
-        data: {
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          totalPrice: totalPrice,
-        },
-      };
-    });
+    if (input.items.length === 0) {
+      return { success: false, error: "Order must include at least one item" };
+    }
 
-    const total = subtotal + input.shippingCost;
+    const incomingIds = input.items.map((item) => item.id);
+    const uniqueIds = new Set(incomingIds);
 
-    // Update order and items in a transaction
+    if (uniqueIds.size !== incomingIds.length) {
+      return { success: false, error: "Duplicate order items are not allowed" };
+    }
+
+    const shippingCost = Math.max(0, input.shippingCost);
+    const subtotal = input.items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    );
+    const total = subtotal + shippingCost;
+
     const updatedOrder = await db.$transaction(async (tx) => {
-      // Update all order items
-      for (const update of itemUpdates) {
-        await tx.orderItem.update(update);
+      const existingItems = await tx.orderItem.findMany({
+        where: { orderId: input.id },
+        select: { id: true },
+      });
+
+      const existingIdSet = new Set(existingItems.map((item) => item.id));
+      const invalidItem = input.items.find((item) => !existingIdSet.has(item.id));
+
+      if (invalidItem) {
+        throw new Error("Invalid order item payload");
       }
 
-      // Update the order
-      const order = await tx.order.update({
+      await tx.orderItem.deleteMany({
+        where: {
+          orderId: input.id,
+          id: { notIn: incomingIds },
+        },
+      });
+
+      for (const item of input.items) {
+        const lineTotal = item.quantity * item.unitPrice;
+
+        await tx.orderItem.update({
+          where: { id: item.id },
+          data: {
+            quantity: new Prisma.Decimal(item.quantity),
+            unitPrice: new Prisma.Decimal(item.unitPrice),
+            totalPrice: new Prisma.Decimal(lineTotal),
+          },
+        });
+      }
+
+      return tx.order.update({
         where: { id: input.id },
         data: {
           customerName: input.customerName,
           customerPhone: input.customerPhone,
-          customerEmail: input.customerEmail,
+          customerEmail: input.customerEmail ?? null,
           address: input.address,
-          notes: input.notes,
-          subtotal: subtotal,
-          shippingCost: input.shippingCost,
-          total: total,
+          notes: input.notes ?? null,
+          subtotal: new Prisma.Decimal(subtotal),
+          shippingCost: new Prisma.Decimal(shippingCost),
+          total: new Prisma.Decimal(total),
         },
         include: {
           items: {
@@ -453,30 +443,28 @@ export async function updateOrder(input: UpdateOrderInput) {
           },
         },
       });
-
-      return order;
     });
+
+    revalidateOrderPaths(input.id);
 
     return {
       success: true,
-      data: serializeOrder(updatedOrder as OrderWithItems),
+      data: serializeOrder(updatedOrder),
     };
   } catch (error) {
     console.error("Error updating order:", error);
     return {
       success: false,
-      error: "Failed to update order",
+      error: getErrorMessage(error, "Failed to update order"),
     };
   }
 }
 
-// ──────────────────────────────────────────────
-// UPDATE Order Status
-// ──────────────────────────────────────────────
-
-export async function updateOrderStatus(input: UpdateOrderStatusInput) {
+export async function updateOrderStatus(
+  input: UpdateOrderStatusInput,
+): Promise<ActionResult<SerializedOrder>> {
   try {
-    const order = await db.order.update({
+    const updatedOrder = await db.order.update({
       where: { id: input.id },
       data: { status: input.status },
       include: {
@@ -495,43 +483,44 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput) {
       },
     });
 
-    revalidatePath("/orders");
-    revalidatePath("/dashboard/orders");
-    revalidatePath(`/orders/${input.id}`);
+    revalidateOrderPaths(input.id);
 
-    return { success: true, data: serializeOrder(order) };
+    return {
+      success: true,
+      data: serializeOrder(updatedOrder),
+    };
   } catch (error) {
     console.error("Error updating order status:", error);
-    return { success: false, error: "Failed to update order status" };
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to update order status"),
+    };
   }
 }
 
-// ──────────────────────────────────────────────
-// DELETE Order
-// ──────────────────────────────────────────────
-
-export async function deleteOrder(id: string) {
+export async function deleteOrder(id: string): Promise<ActionResult> {
   try {
     await db.order.delete({
       where: { id },
     });
 
-    revalidatePath("/orders");
-    revalidatePath("/dashboard/orders");
+    revalidateOrderPaths(id);
 
-    return { success: true, message: "Order deleted successfully" };
+    return { success: true };
   } catch (error) {
     console.error("Error deleting order:", error);
-    return { success: false, error: "Failed to delete order" };
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to delete order"),
+    };
   }
 }
 
-// ──────────────────────────────────────────────
-// GET Order Statistics (Admin Dashboard)
-// ──────────────────────────────────────────────
-
-export async function getOrderStatistics() {
+export async function getOrderStatistics(): Promise<ActionResult<OrderStatistics>> {
   try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
     const [
       totalOrders,
       pendingOrders,
@@ -540,25 +529,23 @@ export async function getOrderStatistics() {
       shippedOrders,
       deliveredOrders,
       cancelledOrders,
-      totalRevenue,
+      revenueAggregate,
       todayOrders,
     ] = await Promise.all([
       db.order.count(),
-      db.order.count({ where: { status: "PENDING" } }),
-      db.order.count({ where: { status: "CONFIRMED" } }),
-      db.order.count({ where: { status: "PROCESSING" } }),
-      db.order.count({ where: { status: "SHIPPED" } }),
-      db.order.count({ where: { status: "DELIVERED" } }),
-      db.order.count({ where: { status: "CANCELLED" } }),
+      db.order.count({ where: { status: OrderStatus.PENDING } }),
+      db.order.count({ where: { status: OrderStatus.CONFIRMED } }),
+      db.order.count({ where: { status: OrderStatus.PROCESSING } }),
+      db.order.count({ where: { status: OrderStatus.SHIPPED } }),
+      db.order.count({ where: { status: OrderStatus.DELIVERED } }),
+      db.order.count({ where: { status: OrderStatus.CANCELLED } }),
       db.order.aggregate({
         _sum: { total: true },
-        where: { status: { not: "CANCELLED" } },
+        where: { status: { not: OrderStatus.CANCELLED } },
       }),
       db.order.count({
         where: {
-          createdAt: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          },
+          createdAt: { gte: todayStart },
         },
       }),
     ]);
@@ -573,12 +560,15 @@ export async function getOrderStatistics() {
         shippedOrders,
         deliveredOrders,
         cancelledOrders,
-        totalRevenue: Number(totalRevenue._sum.total || 0),
+        totalRevenue: Number(revenueAggregate._sum.total ?? 0),
         todayOrders,
       },
     };
   } catch (error) {
     console.error("Error fetching order statistics:", error);
-    return { success: false, error: "Failed to fetch statistics" };
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to fetch statistics"),
+    };
   }
 }

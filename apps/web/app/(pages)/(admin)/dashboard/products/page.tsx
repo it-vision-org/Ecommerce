@@ -17,8 +17,6 @@ import {
   Loader2,
   FolderPlus,
   Check,
-  ChevronLeft,
-  ChevronRight,
   ImageIcon,
 } from "lucide-react";
 import {
@@ -40,6 +38,10 @@ import type {
 } from "@/types";
 import toast from "react-hot-toast";
 import Uploader from "@/components/admin/Uploader";
+import PrimaryButton from "@/components/ui/PrimaryButton";
+import Header from "@/components/admin/Header";
+import DataTable, { type DataTableColumn } from "@/components/admin/DataTable";
+import ImageSlider from "@/components/main/ImageSlider";
 
 type InlineEditableField =
   | "priceIndividual"
@@ -78,135 +80,6 @@ function buildInitialProductForm(
     isActive: product?.isActive ?? true,
     images: product?.images || [],
   };
-}
-
-// ── Image Carousel ────────────────────────────────────────────────────────────
-
-function ImageCarousel({
-  images,
-  onRemove,
-}: {
-  images: string[];
-  onRemove?: (index: number) => void;
-}) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (images.length === 0) return null;
-
-  const goNext = () => setCurrentIndex((index) => (index + 1) % images.length);
-  const goPrev = () =>
-    setCurrentIndex((index) => (index - 1 + images.length) % images.length);
-
-  return (
-    <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-[var(--bg-muted)]">
-      <Image
-        src={images[currentIndex]}
-        alt={`Image ${currentIndex + 1}`}
-        fill
-        className="object-cover"
-      />
-
-      {images.length > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={goPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </>
-      )}
-
-      {images.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setCurrentIndex(i)}
-              className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? "bg-white" : "bg-white/50"
-                }`}
-              aria-label={`Go to image ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {onRemove && (
-        <button
-          type="button"
-          onClick={() => onRemove(currentIndex)}
-          className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-          aria-label="Remove image"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      )}
-
-      <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
-        {currentIndex + 1} / {images.length}
-      </div>
-    </div>
-  );
-}
-
-// ── Table Row Skeleton ────────────────────────────────────────────────────────
-
-function TableRowSkeleton() {
-  return (
-    <div className="p-4 flex items-center gap-4">
-      <div className="w-5 h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
-      <div className="w-12 h-12 bg-[var(--bg-muted)] rounded-lg animate-pulse" />
-      <div className="flex-1 space-y-2">
-        <div className="h-4 w-1/3 bg-[var(--bg-muted)] rounded animate-pulse" />
-        <div className="h-3 w-1/4 bg-[var(--bg-muted)] rounded animate-pulse" />
-      </div>
-      <div className="w-24 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
-      <div className="w-20 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
-      <div className="w-20 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
-      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
-      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
-      <div className="w-8 h-8 bg-[var(--bg-muted)] rounded-full animate-pulse" />
-      <div className="w-16 h-8 bg-[var(--bg-muted)] rounded animate-pulse" />
-    </div>
-  );
-}
-
-// ── Table Skeleton ────────────────────────────────────────────────────────────
-
-function TableSkeleton() {
-  return (
-    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
-      <div className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
-        <div className="p-4 flex items-center gap-4">
-          <div className="w-5 h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-20 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-24 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-24 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-12 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-[var(--bg-muted)] rounded animate-pulse" />
-        </div>
-      </div>
-      <div className="divide-y divide-[var(--border)]">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <TableRowSkeleton key={i} />
-        ))}
-      </div>
-    </div>
-  );
 }
 
 // ── Create Category Modal ─────────────────────────────────────────────────────
@@ -430,7 +303,14 @@ function ProductModal({
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-1">
                   {form.images.length > 0 ? (
-                    <ImageCarousel images={form.images} onRemove={handleRemoveImage} />
+                    <ImageSlider
+                      images={form.images}
+                      altBase="Flavour image"
+                      className="w-full aspect-square rounded-lg bg-[var(--bg-muted)]"
+                      imageClassName="object-cover"
+                      onRemove={handleRemoveImage}
+                      showCounter={true}
+                    />
                   ) : (
                     <div className="aspect-square rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--text-muted)]">
                       <ImageIcon className="w-12 h-12 mb-2" />
@@ -714,6 +594,9 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingProduct, setEditingProduct] =
@@ -778,6 +661,17 @@ export default function AdminProductsPage() {
         product.category?.name.toLowerCase().includes(term),
     );
   }, [products, search]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, filteredProducts.length, pageSize]);
 
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
@@ -940,335 +834,352 @@ export default function AdminProductsPage() {
     });
   };
 
-  // Determine if we should show the table skeleton
-  const showTableSkeleton = isLoading && products.length === 0;
+  const columns: DataTableColumn<SerializedProductWithCategory>[] = [
+    {
+      id: "select",
+      header: (
+        <input
+          type="checkbox"
+          checked={isAllSelected}
+          onChange={handleSelectAll}
+          disabled={filteredProducts.length === 0}
+          className="w-4 h-4 rounded disabled:opacity-50"
+        />
+      ),
+      headerClassName: "w-12",
+      cellClassName: "w-12",
+      render: (product) => (
+        <input
+          type="checkbox"
+          checked={selectedIdSet.has(product.id)}
+          onChange={() => handleSelectOne(product.id)}
+          className="w-4 h-4 rounded"
+        />
+      ),
+    },
+    {
+      id: "flavour",
+      header: "Flavour",
+      headerClassName: "min-w-[240px]",
+      render: (product) => (
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-[var(--bg-muted)] overflow-hidden flex-shrink-0">
+            {product.images?.[0] ? (
+              <Image
+                src={product.images[0]}
+                alt={product.name}
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Package className="w-6 h-6 text-[var(--text-muted)]" />
+              </div>
+            )}
+          </div>
 
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header - Always visible immediately */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Flavours / Products
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)]">
-            {totalProducts} total flavours • These are the flavour options customers
-            can choose when building their boxes
-          </p>
+          <div>
+            <div className="font-medium text-[var(--text-primary)]">{product.name}</div>
+            <div className="text-xs text-[var(--text-muted)]">
+              {product.slug}
+              {product.images.length > 1 && (
+                <span className="ml-2 text-[var(--primary)]">
+                  +{product.images.length - 1} images
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => {
-            setEditingProduct(null);
-            setShowModal(true);
-          }}
-          className="btn btn-primary"
+      ),
+    },
+    {
+      id: "category",
+      header: "Category",
+      headerClassName: "min-w-[170px]",
+      render: (product) => (
+        <select
+          value={product.categoryId || ""}
+          onChange={(e) =>
+            handleUpdateField(product.id, "categoryId", e.target.value)
+          }
+          disabled={isPending}
+          className="px-2 py-1 text-xs font-medium bg-[var(--bg-muted)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded-full text-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          Add Flavour
-        </button>
-      </div>
-
-      {/* Error Message - Only shows when there's an error */}
-      {loadError && (
-        <div className="bg-[var(--danger-light)] border border-[var(--danger)] text-[var(--danger)] rounded-xl p-4">
-          {loadError}
-        </div>
-      )}
-
-      {/* Info Banner - Always visible (static content) */}
-      <div className="bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-xl p-4 flex items-start gap-3">
-        <Package className="w-5 h-5 text-[var(--primary)] mt-0.5" />
+          <option value="">No Category (General)</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      id: "priceIndividual",
+      header: "Individual Price",
+      headerClassName: "min-w-[150px]",
+      render: (product) => (
         <div>
-          <p className="text-sm font-medium text-[var(--primary)]">
-            How Pricing Works
-          </p>
-          <p className="text-sm text-[var(--primary)]/80 mt-1">
-            Each flavour has two prices: <strong>Individual Price</strong> for small
-            boxes (6, 8, 12 pieces) and <strong>Restaurant Price</strong> for bulk
-            orders (300, 600, 900 pieces). Restaurant prices should be lower to
-            reflect bulk discounts.
-          </p>
-        </div>
-      </div>
-
-      {/* Toolbar - Always visible (search and delete button) */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
           <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search flavours..."
-            className="w-full pl-10 pr-4 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            type="number"
+            defaultValue={product.priceIndividual}
+            onFocus={(e) => {
+              e.currentTarget.dataset.originalValue = e.currentTarget.value;
+            }}
+            onBlur={(e) => {
+              const newValue = parseFloat(e.currentTarget.value) || 0;
+              const originalValue = parseFloat(
+                e.currentTarget.dataset.originalValue || "0",
+              );
+              if (newValue !== originalValue) {
+                handleUpdateField(product.id, "priceIndividual", newValue);
+              }
+            }}
+            step="0.001"
+            min="0"
+            disabled={isPending}
+            className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded bg-transparent text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
           />
+          <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
         </div>
-        {selectedIds.length > 0 && (
+      ),
+    },
+    {
+      id: "priceRestaurant",
+      header: "Restaurant Price",
+      headerClassName: "min-w-[160px]",
+      render: (product) => (
+        <div>
+          <input
+            type="number"
+            defaultValue={product.priceRestaurant}
+            onFocus={(e) => {
+              e.currentTarget.dataset.originalValue = e.currentTarget.value;
+            }}
+            onBlur={(e) => {
+              const newValue = parseFloat(e.currentTarget.value) || 0;
+              const originalValue = parseFloat(
+                e.currentTarget.dataset.originalValue || "0",
+              );
+              if (newValue !== originalValue) {
+                handleUpdateField(product.id, "priceRestaurant", newValue);
+              }
+            }}
+            step="0.001"
+            min="0"
+            disabled={isPending}
+            className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--success)] rounded bg-transparent text-[var(--success)] focus:outline-none focus:ring-1 focus:ring-[var(--success)]"
+          />
+          <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
+        </div>
+      ),
+    },
+    {
+      id: "stock",
+      header: "Stock",
+      headerClassName: "min-w-[130px]",
+      render: (product) => (
+        <div>
+          <input
+            type="number"
+            defaultValue={product.stock}
+            onFocus={(e) => {
+              e.currentTarget.dataset.originalValue = e.currentTarget.value;
+            }}
+            onBlur={(e) => {
+              const newValue = parseInt(e.currentTarget.value, 10) || 0;
+              const originalValue = parseInt(
+                e.currentTarget.dataset.originalValue || "0",
+                10,
+              );
+              if (newValue !== originalValue) {
+                handleUpdateField(product.id, "stock", newValue);
+              }
+            }}
+            min="0"
+            disabled={isPending}
+            className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
+              ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
+              : product.stock > 0
+                ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
+                : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
+              }`}
+          />
+          <span className="text-xs text-[var(--text-muted)] ml-1">{product.unit}</span>
+        </div>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      headerClassName: "min-w-[110px]",
+      render: (product) => (
+        <button
+          onClick={() => handleToggleStatus(product.id)}
+          disabled={isPending}
+          className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
+            ? "bg-[var(--success-light)] text-[var(--success)]"
+            : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+            }`}
+        >
+          {product.isActive ? (
+            <>
+              <Eye className="w-3 h-3" />
+              Active
+            </>
+          ) : (
+            <>
+              <EyeOff className="w-3 h-3" />
+              Inactive
+            </>
+          )}
+        </button>
+      ),
+    },
+    {
+      id: "featured",
+      header: "Featured",
+      headerClassName: "min-w-[95px]",
+      render: (product) => (
+        <button
+          onClick={() => handleToggleFeatured(product.id)}
+          disabled={isPending}
+          className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
+            ? "bg-[var(--warning-light)] text-[var(--warning)]"
+            : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+            }`}
+        >
+          <Star className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`} />
+        </button>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      headerClassName: "text-right min-w-[120px]",
+      cellClassName: "text-right",
+      render: (product) => (
+        <div className="flex items-center justify-end gap-2">
           <button
-            onClick={() => handleDeleteClick(selectedIds)}
-            className="btn bg-[var(--danger)] text-white hover:bg-[var(--danger)]/90"
+            onClick={() => {
+              setEditingProduct(product);
+              setShowModal(true);
+            }}
+            className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+            title="Edit flavour"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(product.id)}
+            className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
+            title="Delete flavour"
           >
             <Trash2 className="w-4 h-4" />
-            Delete ({selectedIds.length})
           </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden p-6">
+      <div className="h-full overflow-y-auto space-y-6 pr-1">
+        {/* Header - Always visible immediately */}
+        <Header
+          title="Flavours / Products"
+          description={
+            <>
+              {totalProducts} total flavours • These are the flavour options customers
+              can choose when building their boxes
+            </>
+          }
+          rightContent={
+            <PrimaryButton
+              as="button"
+              onClick={() => {
+                setEditingProduct(null);
+                setShowModal(true);
+              }}
+              variant="primary"
+              className="flex items-center gap-2 px-4 py-2"
+            >
+              <Plus className="w-5 h-5" />
+              Add Flavour
+            </PrimaryButton>
+          }
+        />
+
+        {/* Error Message */}
+        {loadError && (
+          <div className="bg-[var(--danger-light)] border border-[var(--danger)] text-[var(--danger)] rounded-xl p-4">
+            {loadError}
+          </div>
         )}
-      </div>
 
-      {/* Products Table - Shows skeleton while loading, real content when ready */}
-      {showTableSkeleton ? (
-        <TableSkeleton />
-      ) : (
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
-                <th className="p-4 text-left">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 rounded"
-                  />
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Flavour
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Category
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Individual Price
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Restaurant Price
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Stock
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Status
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-[var(--text-secondary)]">
-                  Featured
-                </th>
-                <th className="p-4 text-right text-sm font-medium text-[var(--text-secondary)]">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+        {/* Info Banner */}
+        <div className="bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-xl p-4 flex items-start gap-3">
+          <Package className="w-5 h-5 text-[var(--primary)] mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-[var(--primary)]">
+              How Pricing Works
+            </p>
+            <p className="text-sm text-[var(--primary)]/80 mt-1">
+              Each flavour has two prices: <strong>Individual Price</strong> for small
+              boxes (6, 8, 12 pieces) and <strong>Restaurant Price</strong> for bulk
+              orders (300, 600, 900 pieces). Restaurant prices should be lower to
+              reflect bulk discounts.
+            </p>
+          </div>
+        </div>
 
-            <tbody className="divide-y divide-[var(--border)]">
-              {filteredProducts.map((product) => (
-                <tr
-                  key={product.id}
-                  className={`hover:bg-[var(--bg-muted)]/50 transition-colors ${selectedIdSet.has(product.id) ? "bg-[var(--primary-light)]/30" : ""
-                    }`}
-                >
-                  <td className="p-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIdSet.has(product.id)}
-                      onChange={() => handleSelectOne(product.id)}
-                      className="w-4 h-4 rounded"
-                    />
-                  </td>
+        {/* Toolbar */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search flavours..."
+              className="w-full pl-10 pr-4 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            />
+          </div>
 
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-[var(--bg-muted)] overflow-hidden flex-shrink-0">
-                        {product.images?.[0] ? (
-                          <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-6 h-6 text-[var(--text-muted)]" />
-                          </div>
-                        )}
-                      </div>
+          {selectedIds.length > 0 && (
+            <button
+              onClick={() => handleDeleteClick(selectedIds)}
+              className="btn bg-[var(--danger)] text-white hover:bg-[var(--danger)]/90"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete ({selectedIds.length})
+            </button>
+          )}
+        </div>
 
-                      <div>
-                        <div className="font-medium text-[var(--text-primary)]">
-                          {product.name}
-                        </div>
-                        <div className="text-xs text-[var(--text-muted)]">
-                          {product.slug}
-                          {product.images.length > 1 && (
-                            <span className="ml-2 text-[var(--primary)]">
-                              +{product.images.length - 1} images
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="p-4">
-                    <select
-                      value={product.categoryId || ""}
-                      onChange={(e) =>
-                        handleUpdateField(product.id, "categoryId", e.target.value)
-                      }
-                      disabled={isPending}
-                      className="px-2 py-1 text-xs font-medium bg-[var(--bg-muted)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded-full text-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] cursor-pointer"
-                    >
-                      <option value="">No Category (General)</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  <td className="p-4">
-                    <input
-                      type="number"
-                      defaultValue={product.priceIndividual}
-                      onFocus={(e) => {
-                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                      }}
-                      onBlur={(e) => {
-                        const newValue = parseFloat(e.currentTarget.value) || 0;
-                        const originalValue = parseFloat(
-                          e.currentTarget.dataset.originalValue || "0",
-                        );
-                        if (newValue !== originalValue) {
-                          handleUpdateField(product.id, "priceIndividual", newValue);
-                        }
-                      }}
-                      step="0.001"
-                      min="0"
-                      disabled={isPending}
-                      className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--primary)] rounded bg-transparent text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-                    />
-                    <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
-                  </td>
-
-                  <td className="p-4">
-                    <input
-                      type="number"
-                      defaultValue={product.priceRestaurant}
-                      onFocus={(e) => {
-                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                      }}
-                      onBlur={(e) => {
-                        const newValue = parseFloat(e.currentTarget.value) || 0;
-                        const originalValue = parseFloat(
-                          e.currentTarget.dataset.originalValue || "0",
-                        );
-                        if (newValue !== originalValue) {
-                          handleUpdateField(product.id, "priceRestaurant", newValue);
-                        }
-                      }}
-                      step="0.001"
-                      min="0"
-                      disabled={isPending}
-                      className="w-24 px-2 py-1 text-sm font-medium border border-transparent hover:border-[var(--border)] focus:border-[var(--success)] rounded bg-transparent text-[var(--success)] focus:outline-none focus:ring-1 focus:ring-[var(--success)]"
-                    />
-                    <span className="text-xs text-[var(--text-muted)] ml-1">TND</span>
-                  </td>
-
-                  <td className="p-4">
-                    <input
-                      type="number"
-                      defaultValue={product.stock}
-                      onFocus={(e) => {
-                        e.currentTarget.dataset.originalValue = e.currentTarget.value;
-                      }}
-                      onBlur={(e) => {
-                        const newValue = parseInt(e.currentTarget.value, 10) || 0;
-                        const originalValue = parseInt(
-                          e.currentTarget.dataset.originalValue || "0",
-                          10,
-                        );
-                        if (newValue !== originalValue) {
-                          handleUpdateField(product.id, "stock", newValue);
-                        }
-                      }}
-                      min="0"
-                      disabled={isPending}
-                      className={`w-16 px-2 py-1 text-xs font-medium border border-transparent hover:border-[var(--border)] rounded-full text-center focus:outline-none focus:ring-1 ${product.stock > 10
-                          ? "bg-[var(--success-light)] text-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
-                          : product.stock > 0
-                            ? "bg-[var(--warning-light)] text-[var(--warning)] focus:border-[var(--warning)] focus:ring-[var(--warning)]"
-                            : "bg-[var(--danger-light)] text-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]"
-                        }`}
-                    />
-                    <span className="text-xs text-[var(--text-muted)] ml-1">
-                      {product.unit}
-                    </span>
-                  </td>
-
-                  <td className="p-4">
-                    <button
-                      onClick={() => handleToggleStatus(product.id)}
-                      disabled={isPending}
-                      className={`flex items-center cursor-pointer gap-1.5 px-2 py-1 text-xs font-medium rounded-full transition-colors ${product.isActive
-                          ? "bg-[var(--success-light)] text-[var(--success)]"
-                          : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                        }`}
-                    >
-                      {product.isActive ? (
-                        <>
-                          <Eye className="w-3 h-3" />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="w-3 h-3" />
-                          Inactive
-                        </>
-                      )}
-                    </button>
-                  </td>
-
-                  <td className="p-4">
-                    <button
-                      onClick={() => handleToggleFeatured(product.id)}
-                      disabled={isPending}
-                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${product.isFeatured
-                          ? "bg-[var(--warning-light)] text-[var(--warning)]"
-                          : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                        }`}
-                    >
-                      <Star
-                        className={`w-4 h-4 ${product.isFeatured ? "fill-current" : ""}`}
-                      />
-                    </button>
-                  </td>
-
-                  <td className="p-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setShowModal(true);
-                        }}
-                        className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                        title="Edit flavour"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(product.id)}
-                        className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
-                        title="Delete flavour"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredProducts.length === 0 && !isLoading && (
+        {/* DataTable with pagination */}
+        <DataTable
+          data={filteredProducts}
+          columns={columns}
+          rowKey={(product) => product.id}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          pageSizeOptions={[10, 20, 30, 50, 100]}
+          loading={isLoading && products.length === 0}
+          loadingRowCount={6}
+          maxBodyHeightClass="max-h-[52dvh]"
+          tableClassName="w-full"
+          getRowClassName={(product) =>
+            `hover:bg-[var(--bg-muted)]/50 transition-colors ${selectedIdSet.has(product.id) ? "bg-[var(--primary-light)]/30" : ""
+            }`
+          }
+          emptyState={
             <div className="p-12 text-center">
               <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
               <p className="text-[var(--text-secondary)]">No flavours found</p>
@@ -1276,9 +1187,9 @@ export default function AdminProductsPage() {
                 Add your first flavour to get started
               </p>
             </div>
-          )}
-        </div>
-      )}
+          }
+        />
+      </div>
 
       {/* Product Modal */}
       <AnimatePresence>
