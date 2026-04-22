@@ -22,12 +22,20 @@ import {
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import Header from "@/components/admin/Header";
 import Link from "next/link";
+import type { DashboardRecentOrder } from "@/types";
 
-// ──────────────────────────────────────────────
-// Order Status Badge
-// ──────────────────────────────────────────────
+function formatCurrency(value: number): string {
+    return value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+}
 
-function OrderStatusBadge({ status }: { status: string }) {
+function OrderStatusBadge({
+    status,
+}: {
+    status: DashboardRecentOrder["status"];
+}) {
     const styles = {
         PENDING: "bg-amber-50 text-amber-700 border border-amber-200",
         CONFIRMED: "bg-blue-50 text-blue-700 border border-blue-200",
@@ -39,8 +47,10 @@ function OrderStatusBadge({ status }: { status: string }) {
 
     return (
         <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status as keyof typeof styles] || styles.PENDING
-                }`}
+            className={
+                "px-3 py-1 text-xs font-semibold rounded-full " +
+                (styles[status] || styles.PENDING)
+            }
         >
             {status}
         </span>
@@ -102,13 +112,21 @@ async function DashboardDataSection() {
         getRevenueByDay(7),
     ]);
 
-    // Calculate percentage change (mock - you can enhance this with real comparison)
     const revenueChange = "+12.5%";
     const ordersChange = "+8.3%";
 
+    const totalOrderStatuses = orderStatusBreakdown.reduce(
+        (sum, item) => sum + item.count,
+        0,
+    );
+
+    const maxDailyRevenue = revenueByDay.reduce(
+        (max, day) => Math.max(max, day.revenue),
+        0,
+    );
+
     return (
         <div>
-            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4">
@@ -118,11 +136,7 @@ async function DashboardDataSection() {
                         <div className="flex-1">
                             <p className="text-sm text-[#64748b] font-medium">Total Revenue</p>
                             <p className="text-2xl font-bold text-[#0f172a] mt-1">
-                                $
-                                {stats.totalRevenue.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                })}
+                                ${formatCurrency(stats.totalRevenue)}
                             </p>
                             <p className="text-xs text-emerald-600 font-semibold mt-1">
                                 {revenueChange} from last month
@@ -178,7 +192,6 @@ async function DashboardDataSection() {
                     </div>
                 </div>
 
-                {/* Additional Stats */}
                 <AdminStatCard
                     label="Total Products"
                     value={stats.totalProducts}
@@ -208,9 +221,7 @@ async function DashboardDataSection() {
                 />
             </div>
 
-            {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* Revenue Chart */}
                 <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                         <TrendingUp className="w-5 h-5 text-[#0ea5e9]" />
@@ -218,15 +229,19 @@ async function DashboardDataSection() {
                             Revenue (Last 7 Days)
                         </h2>
                     </div>
+
                     <div className="space-y-3">
-                        {revenueByDay.map((day, index) => {
-                            const maxRevenue = Math.max(...revenueByDay.map((d) => d.revenue));
-                            const percentage = maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0;
+                        {revenueByDay.map((day) => {
+                            const percentage =
+                                maxDailyRevenue > 0 ? (day.revenue / maxDailyRevenue) * 100 : 0;
+
                             const date = new Date(day.date);
-                            const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+                            const dayName = date.toLocaleDateString("en-US", {
+                                weekday: "short",
+                            });
 
                             return (
-                                <div key={index} className="flex items-center gap-3">
+                                <div key={day.date} className="flex items-center gap-3">
                                     <span className="text-xs font-medium text-[#64748b] w-12">
                                         {dayName}
                                     </span>
@@ -245,7 +260,6 @@ async function DashboardDataSection() {
                     </div>
                 </div>
 
-                {/* Order Status Breakdown */}
                 <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                         <ShoppingCart className="w-5 h-5 text-[#0ea5e9]" />
@@ -253,13 +267,13 @@ async function DashboardDataSection() {
                             Order Status Breakdown
                         </h2>
                     </div>
+
                     <div className="space-y-4">
-                        {orderStatusBreakdown.map((item, index) => {
-                            const total = orderStatusBreakdown.reduce(
-                                (sum, i) => sum + i.count,
-                                0,
-                            );
-                            const percentage = total > 0 ? (item.count / total) * 100 : 0;
+                        {orderStatusBreakdown.map((item) => {
+                            const percentage =
+                                totalOrderStatuses > 0
+                                    ? (item.count / totalOrderStatuses) * 100
+                                    : 0;
 
                             const colors: Record<string, string> = {
                                 PENDING: "from-amber-400 to-amber-600",
@@ -271,7 +285,7 @@ async function DashboardDataSection() {
                             };
 
                             return (
-                                <div key={index}>
+                                <div key={item.status}>
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-sm font-medium text-[#0f172a]">
                                             {item.status}
@@ -280,10 +294,14 @@ async function DashboardDataSection() {
                                             {item.count} ({percentage.toFixed(1)}%)
                                         </span>
                                     </div>
+
                                     <div className="h-2 bg-[#f1f5f9] rounded-full overflow-hidden">
                                         <div
-                                            className={`h-full bg-gradient-to-r ${colors[item.status] || colors.PENDING
-                                                } transition-all duration-500`}
+                                            className={
+                                                "h-full bg-gradient-to-r " +
+                                                (colors[item.status] || colors.PENDING) +
+                                                " transition-all duration-500"
+                                            }
                                             style={{ width: `${percentage}%` }}
                                         />
                                     </div>
@@ -294,9 +312,7 @@ async function DashboardDataSection() {
                 </div>
             </div>
 
-            {/* Recent Orders & Low Stock Products */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* Recent Orders */}
                 <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
@@ -310,6 +326,7 @@ async function DashboardDataSection() {
                             View All →
                         </Link>
                     </div>
+
                     <div className="space-y-3">
                         {recentOrders.length === 0 ? (
                             <p className="text-center text-[#94a3b8] py-8">No orders yet</p>
@@ -339,7 +356,6 @@ async function DashboardDataSection() {
                     </div>
                 </div>
 
-                {/* Low Stock Products */}
                 <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
@@ -353,6 +369,7 @@ async function DashboardDataSection() {
                             View All →
                         </Link>
                     </div>
+
                     <div className="space-y-3">
                         {lowStockProducts.length === 0 ? (
                             <p className="text-center text-[#94a3b8] py-8">
@@ -385,7 +402,6 @@ async function DashboardDataSection() {
                 </div>
             </div>
 
-            {/* Recent Contact Submissions */}
             <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
@@ -401,6 +417,7 @@ async function DashboardDataSection() {
                         View All →
                     </Link>
                 </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
@@ -468,10 +485,6 @@ async function DashboardDataSection() {
         </div>
     );
 }
-
-// ──────────────────────────────────────────────
-// Dashboard Page
-// ──────────────────────────────────────────────
 
 export default function DashboardPage() {
     return (
