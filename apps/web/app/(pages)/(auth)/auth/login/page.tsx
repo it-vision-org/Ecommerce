@@ -9,6 +9,7 @@ import BackButton from "@/components/ui/BackButton";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { EmailIcon, ShoppingBagIcon, SpinnerIcon } from "@/components/ui/Icons";
+import { LoginForm } from "@/components/auth/LoginForm";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 export default function AdminLoginPage() {
@@ -149,107 +150,18 @@ export default function AdminLoginPage() {
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div className="animate-field-in delay-100">
-              <AuthInput
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                isRTL={isRTL}
-                label={t("Form.EmailLabel")}
-                icon={<EmailIcon />}
-                placeholder={t("Form.EmailPlaceholder")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            {/* Password */}
-            <div className="animate-field-in delay-150">
-              <PasswordInput
-                id="password"
-                name="password"
-                autoComplete="current-password"
-                required
-                isRTL={isRTL}
-                label={t("Form.PasswordLabel")}
-                placeholder={t("Form.PasswordPlaceholder")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            {/* Forgot Password */}
-            <div
-              className={`animate-field-in delay-200 ${isRTL ? "text-left" : "text-right"}`}
-            >
-              <Link
-                href="/auth/forgetPassword"
-                className="text-[0.82rem] font-medium transition-colors duration-200"
-                style={{ color: "var(--primary)" }}
-              >
-                {t("Form.ForgotPassword")}
-              </Link>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 rounded-xl font-semibold text-[0.92rem] transition-all duration-200 mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)",
-                color: "#fff",
-                boxShadow: "0 4px 16px rgba(14,165,233,0.25)",
-              }}
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <SpinnerIcon />
-                  {t("Form.SubmittingButton")}
-                </span>
-              ) : (
-                t("Form.SubmitButton")
-              )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
-            <div
-              className="flex-1 h-px"
-              style={{ background: "var(--border)" }}
-            />
-            <span
-              className="text-[0.75rem] uppercase tracking-[0.12em] font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
-              {t("Divider")}
-            </span>
-            <div
-              className="flex-1 h-px"
-              style={{ background: "var(--border)" }}
-            />
-          </div>
-
-          {/* Footer link */}
-          <div
-            className={`text-center text-[0.9rem] ${isRTL ? "text-right" : ""}`}
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {t("Footer.Text")}{" "}
-            <Link
-              href="/auth/signup"
-              className="font-semibold transition-colors duration-200"
-              style={{ color: "var(--primary)" }}
-            >
-              {t("Footer.SignUpLink")}
-            </Link>
-          </div>
+          <LoginForm
+            isRTL={isRTL}
+            translationKey="LoginPage.Form"
+            onSuccess={() => {
+              toast.success(t("Toast.Success"));
+              setTimeout(() => router.push("/"), 1500);
+            }}
+            showForgotPasswordLink
+            forgotPasswordHref="/auth/forgetPassword"
+            showSignupLink
+            signupLinkHref="/auth/signup"
+          />
         </div>
       </div>
     </div>
