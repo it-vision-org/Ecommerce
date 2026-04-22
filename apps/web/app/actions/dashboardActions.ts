@@ -1,28 +1,44 @@
 "use server";
 
-import { db } from "@monkeyprint/db";
-import { OrderStatus } from "@monkeyprint/db";
+import { db, OrderStatus } from "@monkeyprint/db";
+import type {
+    DashboardDailyRevenue,
+    DashboardLowStockProduct,
+    DashboardOrderStatusCount,
+    DashboardRecentContact,
+    DashboardRecentOrder,
+    DashboardStats,
+} from "@/types";
 
-// ──────────────────────────────────────────────
-// Dashboard Statistics
-// ──────────────────────────────────────────────
+export type {
+    DashboardDailyRevenue as DailyRevenue,
+    DashboardLowStockProduct as LowStockProduct,
+    DashboardOrderStatusCount as OrderStatusCount,
+    DashboardRecentContact as RecentContact,
+    DashboardRecentOrder as RecentOrder,
+    DashboardStats,
+} from "@/types";
 
-export type DashboardStats = {
-    totalOrders: number;
-    totalRevenue: number;
-    totalProducts: number;
-    totalUsers: number;
-    totalCategories: number;
-    pendingOrders: number;
-    unreadContacts: number;
-    activeProducts: number;
+const EMPTY_DASHBOARD_STATS: DashboardStats = {
+    totalOrders: 0,
+    totalRevenue: 0,
+    totalProducts: 0,
+    totalUsers: 0,
+    totalCategories: 0,
+    pendingOrders: 0,
+    unreadContacts: 0,
+    activeProducts: 0,
 };
+
+function toIsoDateKey(date: Date): string {
+    return date.toISOString().split("T")[0] ?? "";
+}
 
 export async function getDashboardStats(): Promise<DashboardStats> {
     try {
         const [
             totalOrders,
-            orders,
+            revenueAggregate,
             totalProducts,
             totalUsers,
             totalCategories,
@@ -31,31 +47,21 @@ export async function getDashboardStats(): Promise<DashboardStats> {
             activeProducts,
         ] = await Promise.all([
             db.order.count(),
-            db.order.findMany({
-                select: { total: true },
+            db.order.aggregate({
+                _sum: { total: true },
+                where: { status: { not: OrderStatus.CANCELLED } },
             }),
             db.product.count(),
             db.user.count(),
             db.category.count(),
-            db.order.count({
-                where: { status: OrderStatus.PENDING },
-            }),
-            db.contactSubmission.count({
-                where: { isRead: false },
-            }),
-            db.product.count({
-                where: { isActive: true },
-            }),
+            db.order.count({ where: { status: OrderStatus.PENDING } }),
+            db.contactSubmission.count({ where: { isRead: false } }),
+            db.product.count({ where: { isActive: true } }),
         ]);
-
-        const totalRevenue = orders.reduce(
-            (sum, order) => sum + Number(order.total),
-            0
-        );
 
         return {
             totalOrders,
-            totalRevenue,
+            totalRevenue: Number(revenueAggregate._sum.total ?? 0),
             totalProducts,
             totalUsers,
             totalCategories,
@@ -65,37 +71,17 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return {
-            totalOrders: 0,
-            totalRevenue: 0,
-            totalProducts: 0,
-            totalUsers: 0,
-            totalCategories: 0,
-            pendingOrders: 0,
-            unreadContacts: 0,
-            activeProducts: 0,
-        };
+        return EMPTY_DASHBOARD_STATS;
     }
 }
 
-// ──────────────────────────────────────────────
-// Recent Orders
-// ──────────────────────────────────────────────
-
-export type RecentOrder = {
-    id: string;
-    orderNumber: string;
-    status: OrderStatus;
-    customerName: string;
-    total: number;
-    createdAt: string;
-};
-
-export async function getRecentOrders(limit = 5): Promise<RecentOrder[]> {
+export async function getRecentOrders(limit = 5): Promise<DashboardRecentOrder[]> {
     try {
+        const safeLimit = Math.max(1, limit);
+
         const orders = await db.order.findMany({
             orderBy: { createdAt: "desc" },
-            take: limit,
+            take: safeLimit,
             select: {
                 id: true,
                 orderNumber: true,
@@ -107,7 +93,10 @@ export async function getRecentOrders(limit = 5): Promise<RecentOrder[]> {
         });
 
         return orders.map((order) => ({
-            ...order,
+            id: order.id,
+            orderNumber: order.orderNumber,
+            status: order.status,
+            customerName: order.customerName,
             total: Number(order.total),
             createdAt: order.createdAt.toISOString(),
         }));
@@ -117,16 +106,7 @@ export async function getRecentOrders(limit = 5): Promise<RecentOrder[]> {
     }
 }
 
-// ──────────────────────────────────────────────
-// Order Status Breakdown
-// ──────────────────────────────────────────────
-
-export type OrderStatusCount = {
-    status: OrderStatus;
-    count: number;
-};
-
-export async function getOrderStatusBreakdown(): Promise<OrderStatusCount[]> {
+export async function getOrderStatusBreakdown(): Promise<DashboardOrderStatusCount[]> {
     try {
         const statusCounts = await db.order.groupBy({
             by: ["status"],
@@ -145,39 +125,23 @@ export async function getOrderStatusBreakdown(): Promise<OrderStatusCount[]> {
     }
 }
 
-// ──────────────────────────────────────────────
-// Low Stock Products
-// ──────────────────────────────────────────────
-
-export type LowStockProduct = {
-    id: string;
-    name: string;
-    stock: number;
-    category: string;
-};
-
 export async function getLowStockProducts(
-    threshold = 10
-): Promise<LowStockProduct[]> {
+    threshold = 10,
+): Promise<DashboardLowStockProduct[]> {
     try {
         const products = await db.product.findMany({
             where: {
-                stock: {
-                    lte: threshold,
-                },
+                stock: { lte: threshold },
                 isActive: true,
             },
-            include: {
-                category: {
-                    select: {
-                        name: true,
-                    },
-                },
-            },
-            orderBy: {
-                stock: "asc",
-            },
+            orderBy: { stock: "asc" },
             take: 5,
+            select: {
+                id: true,
+                name: true,
+                stock: true,
+                category: { select: { name: true } },
+            },
         });
 
         return products.map((product) => ({
@@ -192,24 +156,13 @@ export async function getLowStockProducts(
     }
 }
 
-// ──────────────────────────────────────────────
-// Recent Contact Submissions
-// ──────────────────────────────────────────────
-
-export type RecentContact = {
-    id: string;
-    name: string;
-    email: string;
-    subject: string | null;
-    isRead: boolean;
-    createdAt: string;
-};
-
-export async function getRecentContacts(limit = 5): Promise<RecentContact[]> {
+export async function getRecentContacts(limit = 5): Promise<DashboardRecentContact[]> {
     try {
+        const safeLimit = Math.max(1, limit);
+
         const contacts = await db.contactSubmission.findMany({
             orderBy: { createdAt: "desc" },
-            take: limit,
+            take: safeLimit,
             select: {
                 id: true,
                 name: true,
@@ -221,7 +174,11 @@ export async function getRecentContacts(limit = 5): Promise<RecentContact[]> {
         });
 
         return contacts.map((contact) => ({
-            ...contact,
+            id: contact.id,
+            name: contact.name,
+            email: contact.email,
+            subject: contact.subject,
+            isRead: contact.isRead,
             createdAt: contact.createdAt.toISOString(),
         }));
     } catch (error) {
@@ -230,28 +187,18 @@ export async function getRecentContacts(limit = 5): Promise<RecentContact[]> {
     }
 }
 
-// ──────────────────────────────────────────────
-// Revenue by Day (Last 7 Days)
-// ──────────────────────────────────────────────
-
-export type DailyRevenue = {
-    date: string;
-    revenue: number;
-};
-
-export async function getRevenueByDay(days = 7): Promise<DailyRevenue[]> {
+export async function getRevenueByDay(days = 7): Promise<DashboardDailyRevenue[]> {
     try {
+        const safeDays = Math.max(1, days);
+
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - days);
+        startDate.setHours(0, 0, 0, 0);
+        startDate.setDate(startDate.getDate() - (safeDays - 1));
 
         const orders = await db.order.findMany({
             where: {
-                createdAt: {
-                    gte: startDate,
-                },
-                status: {
-                    not: OrderStatus.CANCELLED,
-                },
+                createdAt: { gte: startDate },
+                status: { not: OrderStatus.CANCELLED },
             },
             select: {
                 total: true,
@@ -259,24 +206,24 @@ export async function getRevenueByDay(days = 7): Promise<DailyRevenue[]> {
             },
         });
 
-        // Group by date
-        const revenueMap = new Map<string, number>();
+        const revenueByDate = new Map<string, number>();
 
-        orders.forEach((order) => {
-            const date = order.createdAt.toISOString().split("T")[0];
-            const current = revenueMap.get(date) || 0;
-            revenueMap.set(date, current + Number(order.total));
-        });
+        for (const order of orders) {
+            const key = toIsoDateKey(order.createdAt);
+            const current = revenueByDate.get(key) ?? 0;
+            revenueByDate.set(key, current + Number(order.total));
+        }
 
-        // Fill in missing dates with 0
-        const result: DailyRevenue[] = [];
-        for (let i = days - 1; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split("T")[0];
+        const result: DashboardDailyRevenue[] = [];
+
+        for (let i = 0; i < safeDays; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const key = toIsoDateKey(date);
+
             result.push({
-                date: dateStr,
-                revenue: revenueMap.get(dateStr) || 0,
+                date: key,
+                revenue: revenueByDate.get(key) ?? 0,
             });
         }
 
