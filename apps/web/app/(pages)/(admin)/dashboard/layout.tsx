@@ -8,13 +8,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-dvh min-h-screen overflow-hidden">
       {/* Sidebar Navigation */}
       <NavMenu />
 
       {/* Main Content */}
       <main
-        className="flex-1 p-8"
+        className="flex-1 overflow-y-auto p-8"
         style={{ backgroundColor: "var(--bg)" }}
       >
         {children}
