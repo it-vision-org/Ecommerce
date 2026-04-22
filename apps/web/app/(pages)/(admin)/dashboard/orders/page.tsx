@@ -17,7 +17,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Calendar,
   DollarSign,
   User,
   FileText,
@@ -31,7 +30,6 @@ import {
 } from "lucide-react";
 import {
   SerializedOrder,
-  SerializedOrderItem,
   getOrders,
   updateOrderStatus,
   deleteOrder,
@@ -92,23 +90,6 @@ const STATUS_OPTIONS: OrderStatus[] = [
   "DELIVERED",
   "CANCELLED",
 ];
-
-function LoadingSkeleton() {
-  return (
-    <div className="p-6 space-y-6">
-      <div className="animate-pulse">
-        <div className="h-8 w-64 bg-[var(--bg-muted)] rounded-lg mb-2" />
-        <div className="h-4 w-48 bg-[var(--bg-muted)] rounded mb-6" />
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-[var(--bg-muted)] rounded-xl" />
-          ))}
-        </div>
-        <div className="h-96 bg-[var(--bg-muted)] rounded-xl" />
-      </div>
-    </div>
-  );
-}
 
 // Edit Order Modal Component
 function EditOrderModal({
@@ -707,6 +688,7 @@ function OrderDetailModal({
 
 export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
   const [statistics, setStatistics] = useState<{
     totalOrders: number;
@@ -729,12 +711,19 @@ export default function AdminOrdersPage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const fetchData = async () => {
+  const fetchData = async (showLoader = false) => {
+    if (showLoader) {
+      setIsLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+
     try {
       const [ordersResult, statsResult] = await Promise.all([
         getOrders({ sortBy: "createdAt", sortOrder: "desc" }),
         getOrderStatistics(),
       ]);
+
       setOrders(ordersResult.data || []);
       if (statsResult.success) {
         setStatistics(statsResult.data as any);
@@ -742,13 +731,18 @@ export default function AdminOrdersPage() {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setIsLoading(false);
+      if (showLoader) {
+        setIsLoading(false);
+      }
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
   }, []);
+
+  const showInitialDataSkeleton = isLoading && orders.length === 0;
 
   const filteredOrders = useMemo(() => {
     let result = orders;
@@ -819,7 +813,7 @@ export default function AdminOrdersPage() {
           ),
         );
         setEditingOrder(null);
-        // Refresh statistics
+
         const statsResult = await getOrderStatistics();
         if (statsResult.success) {
           setStatistics(statsResult.data as any);
@@ -842,7 +836,7 @@ export default function AdminOrdersPage() {
       if (result.success) {
         toast.success("Order deleted successfully");
         setOrders((prev) => prev.filter((order) => order.id !== deleteTarget));
-        // Refresh statistics
+
         const statsResult = await getOrderStatistics();
         if (statsResult.success) {
           setStatistics(statsResult.data as any);
@@ -854,8 +848,6 @@ export default function AdminOrdersPage() {
       setDeleteTarget(null);
     });
   };
-
-  if (isLoading) return <LoadingSkeleton />;
 
   return (
     <div className="p-6 space-y-6">
@@ -870,71 +862,87 @@ export default function AdminOrdersPage() {
         }
         rightContent={
           <button
-            onClick={fetchData}
-            disabled={isPending}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors"
+            onClick={() => fetchData(false)}
+            disabled={isPending || isRefreshing}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-60"
           >
-            <RefreshCcw className={"w-4 h-4 " + (isPending ? "animate-spin" : "")} />
+            <RefreshCcw
+              className={"w-4 h-4 " + (isRefreshing ? "animate-spin" : "")}
+            />
             Refresh
           </button>
         }
       />
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--warning-light)] rounded-lg">
-              <Clock className="w-5 h-5 text-[var(--warning)]" />
+      {showInitialDataSkeleton ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4 animate-pulse"
+            >
+              <div className="h-6 w-1/2 bg-[var(--bg-muted)] rounded mb-2" />
+              <div className="h-4 w-1/3 bg-[var(--bg-muted)] rounded" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.pendingOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Pending</p>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--warning-light)] rounded-lg">
+                <Clock className="w-5 h-5 text-[var(--warning)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.pendingOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Pending</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--primary-light)] rounded-lg">
+                <Package className="w-5 h-5 text-[var(--primary)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.processingOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Processing</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--success-light)] rounded-lg">
+                <CheckCircle className="w-5 h-5 text-[var(--success)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.deliveredOrders || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Delivered</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[var(--accent)]/10 rounded-lg">
+                <DollarSign className="w-5 h-5 text-[var(--accent)]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                  {statistics?.totalRevenue.toFixed(0) || 0}
+                </p>
+                <p className="text-sm text-[var(--text-muted)]">Revenue (TND)</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--primary-light)] rounded-lg">
-              <Package className="w-5 h-5 text-[var(--primary)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.processingOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Processing</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--success-light)] rounded-lg">
-              <CheckCircle className="w-5 h-5 text-[var(--success)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.deliveredOrders || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Delivered</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--accent)]/10 rounded-lg">
-              <DollarSign className="w-5 h-5 text-[var(--accent)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
-                {statistics?.totalRevenue.toFixed(0) || 0}
-              </p>
-              <p className="text-sm text-[var(--text-muted)]">Revenue (TND)</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
@@ -1010,116 +1018,126 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {filteredOrders.map((order) => {
-                const statusConfig = STATUS_CONFIG[order.status];
-                const StatusIcon = statusConfig.icon;
-                return (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-[var(--bg-muted)]/50 transition-colors"
-                  >
-                    <td className="p-4">
-                      <p className="font-medium text-[var(--text-primary)]">
-                        #{order.orderNumber}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {order.paymentMethod === "CASH_ON_DELIVERY"
-                          ? "Cash on Delivery"
-                          : "Bank Transfer"}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-medium text-[var(--text-primary)]">
-                        {order.customerName}
-                      </p>
-                      <p className="text-sm text-[var(--text-muted)]">
-                        {order.customerPhone}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-[var(--text-primary)]">
-                        {order.items.length} item(s)
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-semibold text-[var(--primary)]">
-                        {order.total.toFixed(3)} TND
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <div className="relative">
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              order.id,
-                              e.target.value as OrderStatus,
-                            )
-                          }
-                          disabled={isPending}
-                          className="appearance-none pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] cursor-pointer"
-                          style={{
-                            backgroundColor: statusConfig.bgColor,
-                            color: statusConfig.color,
-                          }}
-                        >
-                          {STATUS_OPTIONS.map((status) => (
-                            <option key={status} value={status}>
-                              {STATUS_CONFIG[status].label}
-                            </option>
-                          ))}
-                        </select>
-                        <StatusIcon
-                          className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                          style={{ color: statusConfig.color }}
-                        />
-                        <ChevronDown
-                          className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none"
-                          style={{ color: statusConfig.color }}
-                        />
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-[var(--text-secondary)]">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {new Date(order.createdAt).toLocaleTimeString()}
-                      </p>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                          title="View Order"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setEditingOrder(order)}
-                          className="p-2 rounded-lg hover:bg-[var(--primary-light)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                          title="Edit Order"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(order.id)}
-                          className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
-                          title="Delete Order"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+              {showInitialDataSkeleton
+                ? Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={`orders-skeleton-${i}`}>
+                    {Array.from({ length: 7 }).map((__, j) => (
+                      <td key={j} className="p-4">
+                        <div className="h-5 bg-[var(--bg-muted)] rounded animate-pulse" />
+                      </td>
+                    ))}
                   </tr>
-                );
-              })}
+                ))
+                : filteredOrders.map((order) => {
+                  const statusConfig = STATUS_CONFIG[order.status];
+                  const StatusIcon = statusConfig.icon;
+                  return (
+                    <tr
+                      key={order.id}
+                      className="hover:bg-[var(--bg-muted)]/50 transition-colors"
+                    >
+                      <td className="p-4">
+                        <p className="font-medium text-[var(--text-primary)]">
+                          #{order.orderNumber}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">
+                          {order.paymentMethod === "CASH_ON_DELIVERY"
+                            ? "Cash on Delivery"
+                            : "Bank Transfer"}
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-medium text-[var(--text-primary)]">
+                          {order.customerName}
+                        </p>
+                        <p className="text-sm text-[var(--text-muted)]">
+                          {order.customerPhone}
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        <p className="text-sm text-[var(--text-primary)]">
+                          {order.items.length} item(s)
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-semibold text-[var(--primary)]">
+                          {order.total.toFixed(3)} TND
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        <div className="relative">
+                          <select
+                            value={order.status}
+                            onChange={(e) =>
+                              handleStatusChange(
+                                order.id,
+                                e.target.value as OrderStatus,
+                              )
+                            }
+                            disabled={isPending}
+                            className="appearance-none pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] cursor-pointer"
+                            style={{
+                              backgroundColor: statusConfig.bgColor,
+                              color: statusConfig.color,
+                            }}
+                          >
+                            {STATUS_OPTIONS.map((status) => (
+                              <option key={status} value={status}>
+                                {STATUS_CONFIG[status].label}
+                              </option>
+                            ))}
+                          </select>
+                          <StatusIcon
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                            style={{ color: statusConfig.color }}
+                          />
+                          <ChevronDown
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none"
+                            style={{ color: statusConfig.color }}
+                          />
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <p className="text-sm text-[var(--text-secondary)]">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">
+                          {new Date(order.createdAt).toLocaleTimeString()}
+                        </p>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="p-2 rounded-lg hover:bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                            title="View Order"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingOrder(order)}
+                            className="p-2 rounded-lg hover:bg-[var(--primary-light)] text-[var(--text-secondary)] hover:text-[var(--primary)]"
+                            title="Edit Order"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(order.id)}
+                            className="p-2 rounded-lg hover:bg-[var(--danger-light)] text-[var(--text-secondary)] hover:text-[var(--danger)]"
+                            title="Delete Order"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
 
-        {filteredOrders.length === 0 && (
+        {!showInitialDataSkeleton && filteredOrders.length === 0 && (
           <div className="p-12 text-center">
             <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
             <p className="text-[var(--text-secondary)]">No orders found</p>
