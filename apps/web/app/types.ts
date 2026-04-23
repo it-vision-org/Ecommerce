@@ -1,4 +1,4 @@
-import type { Prisma, OrderStatus, PaymentMethod } from "@monkeyprint/db";
+import type { Prisma, OrderStatus, PaymentMethod, Role, UserType } from "@monkeyprint/db";
 
 // ──────────────────────────────────────────────
 // Global Types
@@ -368,4 +368,56 @@ export type OrderStatistics = {
   cancelledOrders: number;
   totalRevenue: number;
   todayOrders: number;
+};
+
+// ──────────────────────────────────────────────
+// Auth / Team Types
+// ──────────────────────────────────────────────
+
+export type TeamManagedRole = "ADMIN" | "SUPER_ADMIN";
+
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  userType: UserType | null;
+  phoneNumber?: string | null;
+  address?: string | null;
+};
+
+export type SerializedAdmin = {
+  id: string;
+  name: string;
+  email: string;
+  role: TeamManagedRole;
+  phoneNumber: string | null;
+  address: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GetAdminsOptions = {
+  search?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export type CreateAdminInput = {
+  name: string;
+  email: string;
+  password: string;
+  role?: TeamManagedRole;
+  phoneNumber?: string;
+  address?: string;
+};
+
+export type UpdateAdminInput = {
+  id: string;
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: TeamManagedRole;
+  phoneNumber?: string;
+  address?: string;
 };

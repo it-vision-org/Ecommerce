@@ -1,18 +1,27 @@
 import "@/globals.css";
 import { Toaster } from "react-hot-toast";
+import { redirect } from "next/navigation";
 import NavMenu from "@/components/admin/NavMenu";
+import { getCurrentUser } from "@/actions/authActions";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const currentUser = await getCurrentUser();
+
+  if (
+    !currentUser ||
+    (currentUser.role !== "ADMIN" && currentUser.role !== "SUPER_ADMIN")
+  ) {
+    redirect("/");
+  }
+
   return (
     <div className="flex h-dvh min-h-screen overflow-hidden">
-      {/* Sidebar Navigation */}
-      <NavMenu />
+      <NavMenu currentUserRole={currentUser.role} />
 
-      {/* Main Content */}
       <main
         className="flex-1 overflow-y-auto p-8"
         style={{ backgroundColor: "var(--bg)" }}
