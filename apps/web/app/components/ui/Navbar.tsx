@@ -197,7 +197,7 @@ export function AppHeader({
                     >
                       {t("Orders")}
                     </Link>
-                    <LogoutButton className="inline-flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50" />
+                    <LoginButton className="hidden rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 md:inline-flex" />
                   </div>
                 </div>
               )}
